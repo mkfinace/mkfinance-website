@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MK Finance - Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a6e8e; --primary-light: #2a8aad; --accent: #e63030; --accent-dark: #b01c1c;
+    --dark: #0a0a0a; --dark-2: #141414; --dark-3: #1e1e1e;
+    --border: rgba(255,255,255,0.08); --card-bg: rgba(255,255,255,0.03);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Montserrat', sans-serif; background: var(--dark); color: #fff; min-height: 100vh; }
+  h1, h2, h3 { font-family: 'Rajdhani', sans-serif; }
+  a { color: var(--primary-light); }
+
+  /* Login screen */
+  #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .login-box { background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px; padding: 40px; width: 100%; max-width: 380px; }
+  .login-box h1 { font-size: 1.8rem; margin-bottom: 6px; }
+  .login-box .sub { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px; background: var(--dark-3); border: 1px solid var(--border);
+    border-radius: 6px; color: #fff; font-size: 14px; font-family: inherit;
+  }
+  .btn { background: var(--accent); color: #fff; border: none; padding: 12px 20px; border-radius: 6px;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.3); }
+  .btn.secondary:hover { border-color: var(--primary-light); color: var(--primary-light); }
+  .btn.small { padding: 6px 12px; font-size: 12px; }
+  .error-msg { color: var(--accent); font-size: 13px; margin-top: 10px; display: none; }
+
+  /* Dashboard */
+  #dashboard { display: none; }
+  header.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px;
+    background: rgba(10,10,10,0.95); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  header.topbar h1 { font-size: 1.4rem; }
+  header.topbar h1 .mk { color: var(--accent); } header.topbar h1 .fin { color: var(--primary-light); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab-btn { background: var(--card-bg); border: 1px solid var(--border); color: rgba(255,255,255,0.7);
+    padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  table { width: 100%; border-collapse: collapse; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 12px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
+  th { background: var(--dark-3); color: rgba(255,255,255,0.6); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+  tr:last-child td { border-bottom: none; }
+  .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .status-New { background: rgba(230,48,48,0.15); color: var(--accent); }
+  .status-Contacted { background: rgba(26,110,142,0.15); color: var(--primary-light); }
+  .status-Closed { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+  select.status-select { background: var(--dark-3); color: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-size: 12px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .empty-state { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); font-size: 13px; }
+  .del-btn { background: transparent; border: 1px solid rgba(230,48,48,0.4); color: var(--accent); padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; padding: 12px 20px; border-radius: 6px; font-size: 13px; display: none; z-index: 100; }
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } table { display: block; overflow-x: auto; white-space: nowrap; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1><span style="color:var(--accent)">MK</span> <span style="color:var(--primary-light)">Finance</span></h1>
+    <div class="sub">Admin Panel Login</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <button class="btn" style="width:100%" onclick="doLogin()">Login</button>
+    <div class="error-msg" id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header class="topbar">
+    <h1><span class="mk">MK</span> <span class="fin">Finance</span> — Admin</h1>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <span id="whoami" style="font-size:12px; color:rgba(255,255,255,0.5);"></span>
+      <button class="btn secondary small" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchPanel('inquiries', this)">📩 Inquiries</button>
+      <button class="tab-btn" onclick="switchPanel('vehicles', this)">🚗 Vehicles</button>
+      <button class="tab-btn" onclick="switchPanel('settings', this)">⚙️ Settings</button>
+    </div>
+
+    <!-- INQUIRIES PANEL -->
+    <div class="panel active" id="panel-inquiries">
+      <div class="card-header"><h2>Inquiries</h2></div>
+      <table>
+        <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th></th></tr></thead>
+        <tbody id="inquiriesBody"></tbody>
+      </table>
+      <div class="empty-state" id="inquiriesEmpty" style="display:none;">Hajii koi inquiry nathi aavi.</div>
+    </div>
+
+    <!-- VEHICLES PANEL -->
+    <div class="panel" id="panel-vehicles">
+      <div class="card-header"><h2>Vehicle Listings</h2><button class="btn small" onclick="toggleVehicleForm()">+ Naya Vehicle Add karo</button></div>
+      <div class="form-grid" id="vehicleForm" style="display:none;">
+        <input type="hidden" id="v-id">
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Category</label>
+          <select id="v-category"><option>Car</option><option>Truck</option><option>Tempo</option><option>Pickup</option><option>Tractor</option><option>Bus</option></select>
+        </div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Brand</label><input id="v-brand" placeholder="e.g. Maruti Suzuki"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Model</label><input id="v-model" placeholder="e.g. Swift VXI"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Year</label><input id="v-year" placeholder="2024"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Price</label><input id="v-price" placeholder="₹6.5 L"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Fuel Type</label><input id="v-fuel" placeholder="Petrol / Diesel"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">EMI Text (homepage par batavva mate)</label><input id="v-emi" placeholder="EMI ₹13,200/mo"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL (optional)</label><input id="v-image" placeholder="https://..."></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
+        <div class="full" style="display:flex; gap:10px;">
+          <button class="btn small" onclick="saveVehicle()">Save</button>
+          <button class="btn secondary small" onclick="toggleVehicleForm()">Cancel</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Category</th><th>Brand</th><th>Model</th><th>Year</th><th>Price</th><th>Active</th><th></th></tr></thead>
+        <tbody id="vehiclesBody"></tbody>
+      </table>
+      <div class="empty-state" id="vehiclesEmpty" style="display:none;">Koi vehicle listed nathi.</div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="card-header"><h2>Change Password</h2></div>
+      <div class="form-grid" style="max-width:400px;">
+        <div class="full">
+          <label style="font-size:11px;color:rgba(255,255,255,0.5)">New Password</label>
+          <input type="password" id="newPassword" placeholder="Naya password (min 6 characters)">
+        </div>
+        <div class="full"><button class="btn small" onclick="changePassword()">Update Password</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+async function checkSession() {
+  const res = await fetch(API + '/api/admin/me');
+  const data = await res.json();
+  if (data.loggedIn) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('whoami').textContent = '👤 ' + data.username;
+    loadInquiries(); loadVehicles();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+}
+
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const errBox = document.getElementById('loginError');
+  errBox.style.display = 'none';
+  try {
+    const res = await fetch(API + '/api/admin/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) { checkSession(); }
+    else { errBox.textContent = data.error || 'Login failed'; errBox.style.display = 'block'; }
+  } catch (e) { errBox.textContent = 'Server error'; errBox.style.display = 'block'; }
+}
+
+async function doLogout() {
+  await fetch(API + '/api/admin/logout', { method: 'POST' });
+  checkSession();
+}
+
+function switchPanel(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ===== INQUIRIES =====
+async function loadInquiries() {
+  const res = await fetch(API + '/api/admin/inquiries');
+  const rows = await res.json();
+  const body = document.getElementById('inquiriesBody');
+  body.innerHTML = '';
+  document.getElementById('inquiriesEmpty').style.display = rows.length ? 'none' : 'block';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+      <td>${r.name}</td>
+      <td><a href="tel:${r.mobile}">${r.mobile}</a></td>
+      <td>${r.service || '-'}</td>
+      <td>${r.vehicle_type || '-'}</td>
+      <td style="max-width:200px; white-space:normal;">${r.message || '-'}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus(${r.id}, this.value)">
+          <option ${r.status==='New'?'selected':''}>New</option>
+          <option ${r.status==='Contacted'?'selected':''}>Contacted</option>
+          <option ${r.status==='Closed'?'selected':''}>Closed</option>
+        </select>
+      </td>
+      <td><button class="del-btn" onclick="deleteInquiry(${r.id})">Delete</button></td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+async function updateStatus(id, status) {
+  await fetch(API + '/api/admin/inquiries/' + id + '/status', {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status })
+  });
+  showToast('Status updated');
+}
+
+async function deleteInquiry(id) {
+  if (!confirm('Aa inquiry delete karvi chhe?')) return;
+  await fetch(API + '/api/admin/inquiries/' + id, { method: 'DELETE' });
+  loadInquiries();
+  showToast('Inquiry deleted');
+}
+
+// ===== VEHICLES =====
+function toggleVehicleForm() {
+  const form = document.getElementById('vehicleForm');
+  form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+  if (form.style.display === 'none') clearVehicleForm();
+}
+
+function clearVehicleForm() {
+  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('v-category').value = 'Car';
+  document.getElementById('v-icon').value = '🚗';
+  document.getElementById('v-tags').value = 'NEW,LOAN READY,INSURE';
+}
+
+async function loadVehicles() {
+  const res = await fetch(API + '/api/admin/vehicles');
+  const rows = await res.json();
+  const body = document.getElementById('vehiclesBody');
+  body.innerHTML = '';
+  document.getElementById('vehiclesEmpty').style.display = rows.length ? 'none' : 'block';
+  rows.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${v.category}</td><td>${v.brand}</td><td>${v.model}</td><td>${v.year||'-'}</td><td>${v.price||'-'}</td>
+      <td>${v.is_active ? '✅' : '❌'}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="btn secondary small" onclick='editVehicle(${JSON.stringify(v)})'>Edit</button>
+        <button class="del-btn" onclick="deleteVehicle(${v.id})">Delete</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
+
+function editVehicle(v) {
+  document.getElementById('vehicleForm').style.display = 'grid';
+  document.getElementById('v-id').value = v.id;
+  document.getElementById('v-category').value = v.category;
+  document.getElementById('v-brand').value = v.brand;
+  document.getElementById('v-model').value = v.model;
+  document.getElementById('v-year').value = v.year || '';
+  document.getElementById('v-price').value = v.price || '';
+  document.getElementById('v-fuel').value = v.fuel_type || '';
+  document.getElementById('v-image').value = v.image_url || '';
+  document.getElementById('v-desc').value = v.description || '';
+  document.getElementById('v-emi').value = v.emi || '';
+  document.getElementById('v-icon').value = v.icon || '🚗';
+  document.getElementById('v-tags').value = v.tags || 'NEW,LOAN READY,INSURE';
+}
+
+async function saveVehicle() {
+  const id = document.getElementById('v-id').value;
+  const payload = {
+    category: document.getElementById('v-category').value,
+    brand: document.getElementById('v-brand').value.trim(),
+    model: document.getElementById('v-model').value.trim(),
+    year: document.getElementById('v-year').value.trim(),
+    price: document.getElementById('v-price').value.trim(),
+    fuel_type: document.getElementById('v-fuel').value.trim(),
+    image_url: document.getElementById('v-image').value.trim(),
+    description: document.getElementById('v-desc').value.trim(),
+    emi: document.getElementById('v-emi').value.trim(),
+    icon: document.getElementById('v-icon').value.trim() || '🚗',
+    tags: document.getElementById('v-tags').value.trim() || 'NEW,LOAN READY,INSURE',
+    is_active: 1
+  };
+  if (!payload.brand || !payload.model) { showToast('Brand ane Model bharo'); return; }
+  if (id) {
+    await fetch(API + '/api/admin/vehicles/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  } else {
+    await fetch(API + '/api/admin/vehicles', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  }
+  toggleVehicleForm();
+  loadVehicles();
+  showToast('Vehicle saved');
+}
+
+async function deleteVehicle(id) {
+  if (!confirm('Aa vehicle delete karvu chhe?')) return;
+  await fetch(API + '/api/admin/vehicles/' + id, { method: 'DELETE' });
+  loadVehicles();
+  showToast('Vehicle deleted');
+}
+
+// ===== SETTINGS =====
+async function changePassword() {
+  const newPassword = document.getElementById('newPassword').value;
+  if (!newPassword || newPassword.length < 6) { showToast('Min 6 characters joiye'); return; }
+  const res = await fetch(API + '/api/admin/change-password', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ newPassword })
+  });
+  const data = await res.json();
+  if (res.ok) { showToast('Password updated!'); document.getElementById('newPassword').value = ''; }
+  else { showToast(data.error || 'Error'); }
+}
+
+checkSession();
+</script>
+</body>
+</html>
