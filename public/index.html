@@ -1224,7 +1224,7 @@ async function loadCars() {
     }
     cars.forEach(c => vehicleCache[c.id] = c);
     grid.innerHTML = cars.map(c => `
-      <div class="vehicle-card" onclick="openVehicleModal(${c.id})">
+      <div class="vehicle-card" onclick="window.location.href='vehicle.html?id=${c.id}'">
         <div class="vehicle-img">
           ${c.image_url ? `<img src="${c.image_url}" alt="${c.brand} ${c.model}" onerror="this.parentElement.innerHTML='${c.icon || '🚗'}<div class=&quot;brand-badge&quot;>${c.brand}</div>'">` : `${c.icon || '🚗'}`}
           <div class="brand-badge">${c.brand}</div>
@@ -1234,7 +1234,7 @@ async function loadCars() {
           <div class="model">${[c.year, c.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${c.price || ''} ${c.emi ? `<span class="emi">${c.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
-          <button class="vehicle-cta" onclick="event.stopPropagation(); openVehicleModal(${c.id})">View Details</button>
+          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='vehicle.html?id=${c.id}'">View Details</button>
         </div>
       </div>`).join('');
   } catch (e) {
@@ -1242,6 +1242,18 @@ async function loadCars() {
   }
 }
 loadCars();
+
+// Pre-fill message if arriving from a vehicle detail page (?vehicle=Brand Model)
+(function prefillFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const vehicleName = params.get('vehicle');
+  if (vehicleName) {
+    window.addEventListener('DOMContentLoaded', () => {
+      const msgBox = document.getElementById('f-message');
+      if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + vehicleName;
+    });
+  }
+})();
 
 let currentModalVehicle = null;
 function openVehicleModal(id) {
