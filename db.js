@@ -60,8 +60,8 @@ if (vehicleCount === 0) {
   const insert = db.prepare(`INSERT INTO vehicles (category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, description)
     VALUES (@category, @brand, @model, @year, @price, @fuel_type, @image_url, @icon, @emi, @tags, @description)`);
   const samples = [
-    { category: 'Car', brand: 'MARUTI', model: 'Swift', year: '2024', price: '₹7.49 L', fuel_type: 'Petrol | AMT', image_url: '', icon: '🚗', emi: 'EMI ₹13,200/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
-    { category: 'Car', brand: 'HYUNDAI', model: 'Creta', year: '2024', price: '₹11.11 L', fuel_type: 'Petrol | DCT', image_url: '', icon: '🏎️', emi: 'EMI ₹19,600/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
+    { category: 'Car', brand: 'MARUTI', model: 'Swift', year: '2024', price: '₹7.49 L', fuel_type: 'Petrol | AMT', image_url: 'https://commons.wikimedia.org/wiki/Special:FilePath/Suzuki%20Swift%20(2024)%20hybrid%20IMG%201869.jpg', icon: '🚗', emi: 'EMI ₹13,200/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
+    { category: 'Car', brand: 'HYUNDAI', model: 'Creta', year: '2024', price: '₹11.11 L', fuel_type: 'Petrol | DCT', image_url: 'https://commons.wikimedia.org/wiki/Special:FilePath/2024%20Hyundai%20Creta%20Alpha.jpg', icon: '🏎️', emi: 'EMI ₹19,600/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
     { category: 'Car', brand: 'TATA', model: 'Nexon EV', year: '2024', price: '₹14.74 L', fuel_type: 'Electric | Auto', image_url: '', icon: '🚙', emi: 'EMI ₹25,800/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
     { category: 'Car', brand: 'MAHINDRA', model: 'Scorpio-N', year: '2024', price: '₹13.99 L', fuel_type: 'Diesel | 4WD', image_url: '', icon: '🚗', emi: 'EMI ₹24,500/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
     { category: 'Car', brand: 'TOYOTA', model: 'Innova Crysta', year: '2024', price: '₹19.77 L', fuel_type: 'Diesel | AT', image_url: '', icon: '🏎️', emi: 'EMI ₹34,600/mo', tags: 'NEW,LOAN READY,INSURE', description: '' },
