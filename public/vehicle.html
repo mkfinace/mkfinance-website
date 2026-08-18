@@ -32,6 +32,11 @@
   .hero-img { width:100%; height:340px; border-radius:12px; overflow:hidden; background:rgba(26,110,142,0.08);
     display:flex; align-items:center; justify-content:center; font-size:8rem; border:1px solid var(--border); margin-bottom:24px; position:relative; }
   .hero-img img { width:100%; height:100%; object-fit:cover; }
+  .gallery-thumbs { display:flex; gap:8px; margin-bottom:24px; overflow-x:auto; padding-bottom:4px; }
+  .gallery-thumbs .thumb { flex:0 0 80px; height:60px; border-radius:6px; overflow:hidden; cursor:pointer;
+    border:2px solid transparent; background:rgba(26,110,142,0.08); display:flex; align-items:center; justify-content:center; font-size:1.6rem; }
+  .gallery-thumbs .thumb.active { border-color:var(--primary-light); }
+  .gallery-thumbs .thumb img { width:100%; height:100%; object-fit:cover; }
   .rating-badge { position:absolute; top:14px; right:14px; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
     border:1px solid var(--border); border-radius:8px; padding:8px 14px; text-align:center; }
   .rating-badge .num { font-size:1.1rem; font-weight:800; color:#ffb020; }
@@ -122,6 +127,7 @@
         <div class="num">MK Verified</div>
       </div>
     </div>
+    <div class="gallery-thumbs" id="galleryThumbs" style="display:none;"></div>
 
     <div class="title-row">
       <div>
@@ -233,11 +239,26 @@ function renderVehicle(v) {
   document.getElementById('specCategory').textContent = v.category || '-';
 
   const heroImg = document.getElementById('heroImg');
-  if (v.image_url) {
-    heroImg.innerHTML = `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='${v.icon || '🚗'}'">`;
-  } else {
-    heroImg.textContent = v.icon || '🚗';
+  const allImages = [v.image_url, ...((v.gallery_images || '').split(',').map(x => x.trim()).filter(Boolean))].filter(Boolean);
+
+  function showImage(url) {
+    if (url) {
+      heroImg.innerHTML = `<img src="${url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">`;
+    } else {
+      heroImg.textContent = v.icon || '🚗';
+    }
   }
+  showImage(allImages[0] || '');
+
+  if (allImages.length > 1) {
+    const thumbBox = document.getElementById('galleryThumbs');
+    thumbBox.style.display = 'flex';
+    thumbBox.innerHTML = allImages.map((url, i) => `
+      <div class="thumb ${i === 0 ? 'active' : ''}" onclick="selectThumb(this, '${url}')">
+        <img src="${url}" alt="photo ${i+1}" onerror="this.parentElement.style.display='none'">
+      </div>`).join('');
+  }
+  window.showHeroImage = showImage;
 
   const tagsBox = document.getElementById('vTags');
   tagsBox.innerHTML = (v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('');
@@ -274,6 +295,12 @@ function switchDTab(name, btn) {
   btn.classList.add('active');
   document.querySelectorAll('.dtab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('dtab-' + name).classList.add('active');
+}
+
+function selectThumb(el, url) {
+  document.querySelectorAll('.gallery-thumbs .thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (window.showHeroImage) window.showHeroImage(url);
 }
 
 function getQuote() {
