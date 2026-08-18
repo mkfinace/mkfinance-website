@@ -130,6 +130,8 @@
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL (optional)</label><input id="v-image" placeholder="https://..."></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Variants (comma sep, e.g. "LXi, VXi, ZXi")</label><input id="v-variants" placeholder="LXi, VXi, ZXi, ZXi+"></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (tamaru potanu short opinion — customer ne dekhashe)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
         <div class="full" style="display:flex; gap:10px;">
           <button class="btn small" onclick="saveVehicle()">Save</button>
@@ -261,7 +263,7 @@ function toggleVehicleForm() {
 }
 
 function clearVehicleForm() {
-  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi'].forEach(id => document.getElementById(id).value = '');
+  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi','v-variants','v-expert'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('v-category').value = 'Car';
   document.getElementById('v-icon').value = '🚗';
   document.getElementById('v-tags').value = 'NEW,LOAN READY,INSURE';
@@ -300,6 +302,8 @@ function editVehicle(v) {
   document.getElementById('v-emi').value = v.emi || '';
   document.getElementById('v-icon').value = v.icon || '🚗';
   document.getElementById('v-tags').value = v.tags || 'NEW,LOAN READY,INSURE';
+  document.getElementById('v-variants').value = v.variants || '';
+  document.getElementById('v-expert').value = v.expert_note || '';
 }
 
 async function saveVehicle() {
@@ -316,6 +320,8 @@ async function saveVehicle() {
     emi: document.getElementById('v-emi').value.trim(),
     icon: document.getElementById('v-icon').value.trim() || '🚗',
     tags: document.getElementById('v-tags').value.trim() || 'NEW,LOAN READY,INSURE',
+    variants: document.getElementById('v-variants').value.trim(),
+    expert_note: document.getElementById('v-expert').value.trim(),
     is_active: 1
   };
   if (!payload.brand || !payload.model) { showToast('Brand ane Model bharo'); return; }
