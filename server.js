@@ -122,20 +122,20 @@ app.get('/api/admin/vehicles', requireAuth, (req, res) => {
 });
 
 app.post('/api/admin/vehicles', requireAuth, (req, res) => {
-  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, description } = req.body;
+  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, description } = req.body;
   if (!category || !brand || !model) {
     return res.status(400).json({ error: 'Category, Brand, Model required.' });
   }
-  const stmt = db.prepare(`INSERT INTO vehicles (category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, description)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-  const result = stmt.run(category, brand, model, year || '', price || '', fuel_type || '', image_url || '', icon || '🚗', emi || '', tags || 'NEW,LOAN READY,INSURE', variants || '', expert_note || '', description || '');
+  const stmt = db.prepare(`INSERT INTO vehicles (category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, description)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const result = stmt.run(category, brand, model, year || '', price || '', fuel_type || '', image_url || '', icon || '🚗', emi || '', tags || 'NEW,LOAN READY,INSURE', variants || '', expert_note || '', gallery_images || '', description || '');
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.put('/api/admin/vehicles/:id', requireAuth, (req, res) => {
-  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, description, is_active } = req.body;
-  db.prepare(`UPDATE vehicles SET category=?, brand=?, model=?, year=?, price=?, fuel_type=?, image_url=?, icon=?, emi=?, tags=?, variants=?, expert_note=?, description=?, is_active=?
-    WHERE id=?`).run(category, brand, model, year, price, fuel_type, image_url, icon || '🚗', emi, tags, variants || '', expert_note || '', description, is_active ? 1 : 0, req.params.id);
+  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, description, is_active } = req.body;
+  db.prepare(`UPDATE vehicles SET category=?, brand=?, model=?, year=?, price=?, fuel_type=?, image_url=?, icon=?, emi=?, tags=?, variants=?, expert_note=?, gallery_images=?, description=?, is_active=?
+    WHERE id=?`).run(category, brand, model, year, price, fuel_type, image_url, icon || '🚗', emi, tags, variants || '', expert_note || '', gallery_images || '', description, is_active ? 1 : 0, req.params.id);
   res.json({ success: true });
 });
 
