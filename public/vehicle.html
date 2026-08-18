@@ -62,6 +62,19 @@
   .section-title { font-size:1.3rem; margin-bottom:12px; }
   .desc-text { color:rgba(255,255,255,0.65); font-size:14px; line-height:1.8; margin-bottom:32px; }
 
+  .detail-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:0; }
+  .dtab-btn { background:transparent; border:none; color:rgba(255,255,255,0.5); padding:10px 16px; font-size:13px; font-weight:600;
+    cursor:pointer; border-bottom:2px solid transparent; font-family:'Montserrat',sans-serif; }
+  .dtab-btn.active { color:var(--primary-light); border-bottom-color:var(--primary-light); }
+  .dtab-panel { display:none; margin-bottom:32px; }
+  .dtab-panel.active { display:block; }
+  .variant-chip { display:inline-block; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px;
+    padding:10px 16px; margin:0 8px 8px 0; font-size:13px; font-weight:600; }
+  .expert-box { background:rgba(255,176,32,0.06); border:1px solid rgba(255,176,32,0.25); border-radius:10px; padding:18px; }
+  .expert-box .expert-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:700; color:#ffb020; }
+  .expert-box p { font-size:14px; color:rgba(255,255,255,0.75); line-height:1.7; }
+  .empty-tab { color:rgba(255,255,255,0.4); font-size:13px; padding:20px 0; }
+
   .finance-box { background:linear-gradient(135deg, rgba(26,110,142,0.12), rgba(230,48,48,0.08)); border:1px solid var(--border);
     border-radius:12px; padding:24px; margin-bottom:32px; }
   .finance-box h3 { margin-bottom:8px; }
@@ -137,9 +150,30 @@
       <div class="spec-box"><div class="lbl">Category</div><div class="val" id="specCategory">-</div></div>
     </div>
 
-    <div id="descSection" style="display:none;">
-      <h2 class="section-title">Vishesh Mahiti</h2>
-      <p class="desc-text" id="vDesc"></p>
+    <div class="detail-tabs">
+      <button class="dtab-btn active" onclick="switchDTab('specs', this)">📋 Specs</button>
+      <button class="dtab-btn" onclick="switchDTab('variants', this)">🔧 Variants</button>
+      <button class="dtab-btn" onclick="switchDTab('expert', this)">⭐ Expert Opinion</button>
+    </div>
+
+    <div class="dtab-panel active" id="dtab-specs">
+      <div id="descSection" style="display:none;">
+        <p class="desc-text" id="vDesc" style="margin-bottom:0;"></p>
+      </div>
+      <div id="specsEmptyMsg" class="empty-tab" style="display:none;">Vadhu details mate contact karo.</div>
+    </div>
+
+    <div class="dtab-panel" id="dtab-variants">
+      <div id="variantsBox"></div>
+      <div id="variantsEmptyMsg" class="empty-tab" style="display:none;">Variants ni yaadi have update thai rahi chhe — contact karo latest options mate.</div>
+    </div>
+
+    <div class="dtab-panel" id="dtab-expert">
+      <div class="expert-box" id="expertBox" style="display:none;">
+        <div class="expert-head">⭐ MK Finance Expert Opinion</div>
+        <p id="expertText"></p>
+      </div>
+      <div id="expertEmptyMsg" class="empty-tab" style="display:none;">Aa vehicle mate expert opinion hajii nathi ummeryu — WhatsApp par puchho, ame tarat j jawab aapishu.</div>
     </div>
 
     <div class="finance-box">
@@ -211,11 +245,35 @@ function renderVehicle(v) {
   if (v.description) {
     document.getElementById('descSection').style.display = 'block';
     document.getElementById('vDesc').textContent = v.description;
+  } else {
+    document.getElementById('specsEmptyMsg').style.display = 'block';
+  }
+
+  const variantsBox = document.getElementById('variantsBox');
+  const variantList = (v.variants || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (variantList.length) {
+    variantsBox.innerHTML = variantList.map(x => `<span class="variant-chip">${x}</span>`).join('');
+  } else {
+    document.getElementById('variantsEmptyMsg').style.display = 'block';
+  }
+
+  if (v.expert_note && v.expert_note.trim()) {
+    document.getElementById('expertBox').style.display = 'block';
+    document.getElementById('expertText').textContent = v.expert_note;
+  } else {
+    document.getElementById('expertEmptyMsg').style.display = 'block';
   }
 
   window.currentVehicle = v;
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('content').style.display = 'block';
+}
+
+function switchDTab(name, btn) {
+  document.querySelectorAll('.dtab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.dtab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('dtab-' + name).classList.add('active');
 }
 
 function getQuote() {
