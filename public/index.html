@@ -278,7 +278,7 @@
   .vehicle-card {
     background: var(--dark-2); border: 1px solid var(--border);
     border-radius: 8px; overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s; cursor: pointer;
   }
   .vehicle-card:hover {
     border-color: rgba(26,110,142,0.4);
@@ -291,6 +291,7 @@
     font-size: 4rem; position: relative; overflow: hidden;
     border-bottom: 1px solid var(--border);
   }
+  .vehicle-img img { width: 100%; height: 100%; object-fit: cover; }
   .vehicle-img .brand-badge {
     position: absolute; top: 10px; left: 10px;
     background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -298,6 +299,35 @@
     font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
     color: rgba(255,255,255,0.7); border: 1px solid var(--border);
   }
+  /* Vehicle detail modal */
+  .vmodal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    z-index: 200; align-items: center; justify-content: center; padding: 20px;
+  }
+  .vmodal-overlay.open { display: flex; }
+  .vmodal-box {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px;
+    max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;
+  }
+  .vmodal-close {
+    position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border); color: #fff; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 16px; cursor: pointer; z-index: 2; display:flex; align-items:center; justify-content:center;
+  }
+  .vmodal-img { height: 240px; background: rgba(26,110,142,0.08); display:flex; align-items:center; justify-content:center; font-size:6rem; }
+  .vmodal-img img { width: 100%; height: 100%; object-fit: cover; }
+  .vmodal-body { padding: 24px; }
+  .vmodal-body h2 { font-size: 1.6rem; margin-bottom: 4px; }
+  .vmodal-body .vmodal-sub { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px; }
+  .vmodal-price-row { display:flex; align-items:baseline; gap:12px; margin-bottom: 16px; }
+  .vmodal-price-row .price { font-size: 1.6rem; font-weight: 800; color: var(--primary-light); }
+  .vmodal-price-row .emi { font-size: 13px; color: rgba(255,255,255,0.5); }
+  .vmodal-specs { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .vmodal-specs div { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .vmodal-specs div .label { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+  .vmodal-specs div .val { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .vmodal-desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 18px; }
+  .vmodal-ctas { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .vehicle-info { padding: 1.25rem; }
   .vehicle-info h4 {
     font-family: 'Rajdhani', sans-serif;
@@ -991,6 +1021,31 @@
 </section>
 
 <!-- WHY US + CONTACT -->
+<!-- Vehicle Detail Modal -->
+<div class="vmodal-overlay" id="vmodalOverlay" onclick="if(event.target===this) closeVehicleModal()">
+  <div class="vmodal-box">
+    <button class="vmodal-close" onclick="closeVehicleModal()">✕</button>
+    <div class="vmodal-img" id="vmodalImg">🚗</div>
+    <div class="vmodal-body">
+      <h2 id="vmodalTitle">-</h2>
+      <div class="vmodal-sub" id="vmodalSub">-</div>
+      <div class="vmodal-price-row">
+        <div class="price" id="vmodalPrice">-</div>
+        <div class="emi" id="vmodalEmi"></div>
+      </div>
+      <div class="vmodal-specs">
+        <div><div class="label">Year</div><div class="val" id="vmodalYear">-</div></div>
+        <div><div class="label">Fuel Type</div><div class="val" id="vmodalFuel">-</div></div>
+      </div>
+      <div class="vmodal-desc" id="vmodalDesc"></div>
+      <div class="vmodal-ctas">
+        <button class="submit-btn" style="margin-top:0;" onclick="quoteFromModal()">Get Quote →</button>
+        <a href="https://wa.me/919824742356" target="_blank" style="display:flex; align-items:center; justify-content:center; padding:14px; background:#25d366; color:white; border-radius:6px; font-size:14px; font-weight:700; text-decoration:none;">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section class="why-us" id="contact">
   <div class="why-grid">
     <div class="why-left">
@@ -1148,6 +1203,8 @@ function calcEMI() {
   document.getElementById('totalResult').textContent = fmt(total);
 }
 
+let vehicleCache = {};
+
 function tagClass(tag) {
   const t = tag.trim();
   if (t === 'NEW') return 'tag-new';
@@ -1165,15 +1222,19 @@ async function loadCars() {
       grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Hajii koi vehicle listed nathi.</div>';
       return;
     }
+    cars.forEach(c => vehicleCache[c.id] = c);
     grid.innerHTML = cars.map(c => `
-      <div class="vehicle-card">
-        <div class="vehicle-img">${c.icon || '🚗'}<div class="brand-badge">${c.brand}</div></div>
+      <div class="vehicle-card" onclick="openVehicleModal(${c.id})">
+        <div class="vehicle-img">
+          ${c.image_url ? `<img src="${c.image_url}" alt="${c.brand} ${c.model}" onerror="this.parentElement.innerHTML='${c.icon || '🚗'}<div class=&quot;brand-badge&quot;>${c.brand}</div>'">` : `${c.icon || '🚗'}`}
+          <div class="brand-badge">${c.brand}</div>
+        </div>
         <div class="vehicle-info">
           <h4>${c.model}</h4>
           <div class="model">${[c.year, c.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${c.price || ''} ${c.emi ? `<span class="emi">${c.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
-          <button class="vehicle-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get Quote</button>
+          <button class="vehicle-cta" onclick="event.stopPropagation(); openVehicleModal(${c.id})">View Details</button>
         </div>
       </div>`).join('');
   } catch (e) {
@@ -1181,6 +1242,40 @@ async function loadCars() {
   }
 }
 loadCars();
+
+let currentModalVehicle = null;
+function openVehicleModal(id) {
+  const v = vehicleCache[id];
+  if (!v) return;
+  currentModalVehicle = v;
+  document.getElementById('vmodalTitle').textContent = v.brand + ' ' + v.model;
+  document.getElementById('vmodalSub').textContent = v.category + (v.fuel_type ? ' • ' + v.fuel_type : '');
+  document.getElementById('vmodalPrice').textContent = v.price || '';
+  document.getElementById('vmodalEmi').textContent = v.emi || '';
+  document.getElementById('vmodalYear').textContent = v.year || '-';
+  document.getElementById('vmodalFuel').textContent = v.fuel_type || '-';
+  document.getElementById('vmodalDesc').textContent = v.description || '';
+  const imgBox = document.getElementById('vmodalImg');
+  if (v.image_url) {
+    imgBox.innerHTML = `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">`;
+  } else {
+    imgBox.textContent = v.icon || '🚗';
+  }
+  document.getElementById('vmodalOverlay').classList.add('open');
+}
+function closeVehicleModal() {
+  document.getElementById('vmodalOverlay').classList.remove('open');
+}
+function quoteFromModal() {
+  closeVehicleModal();
+  document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+  if (currentModalVehicle) {
+    const sel = document.getElementById('f-vehicle-type');
+    const msgBox = document.getElementById('f-message');
+    if (sel) sel.value = 'Car / SUV';
+    if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + currentModalVehicle.brand + ' ' + currentModalVehicle.model;
+  }
+}
 
 function showTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
