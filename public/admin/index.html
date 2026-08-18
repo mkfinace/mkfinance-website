@@ -129,7 +129,8 @@
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">EMI Text (homepage par batavva mate)</label><input id="v-emi" placeholder="EMI ₹13,200/mo"></div>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL (optional)</label><input id="v-image" placeholder="https://..."></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL — Main Photo (optional)</label><input id="v-image" placeholder="https://..."></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">More Photos (extra URLs, comma sep — gallery mate)</label><textarea id="v-gallery" rows="2" placeholder="https://photo2.jpg, https://photo3.jpg"></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Variants (comma sep, e.g. "LXi, VXi, ZXi")</label><input id="v-variants" placeholder="LXi, VXi, ZXi, ZXi+"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (tamaru potanu short opinion — customer ne dekhashe)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
@@ -263,7 +264,7 @@ function toggleVehicleForm() {
 }
 
 function clearVehicleForm() {
-  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi','v-variants','v-expert'].forEach(id => document.getElementById(id).value = '');
+  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi','v-variants','v-expert','v-gallery'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('v-category').value = 'Car';
   document.getElementById('v-icon').value = '🚗';
   document.getElementById('v-tags').value = 'NEW,LOAN READY,INSURE';
@@ -304,6 +305,7 @@ function editVehicle(v) {
   document.getElementById('v-tags').value = v.tags || 'NEW,LOAN READY,INSURE';
   document.getElementById('v-variants').value = v.variants || '';
   document.getElementById('v-expert').value = v.expert_note || '';
+  document.getElementById('v-gallery').value = v.gallery_images || '';
 }
 
 async function saveVehicle() {
@@ -322,6 +324,7 @@ async function saveVehicle() {
     tags: document.getElementById('v-tags').value.trim() || 'NEW,LOAN READY,INSURE',
     variants: document.getElementById('v-variants').value.trim(),
     expert_note: document.getElementById('v-expert').value.trim(),
+    gallery_images: document.getElementById('v-gallery').value.trim(),
     is_active: 1
   };
   if (!payload.brand || !payload.model) { showToast('Brand ane Model bharo'); return; }
