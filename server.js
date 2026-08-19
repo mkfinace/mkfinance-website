@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const path = require('path');
+const fs = require('fs');
 const db = require('./db');
 
 const app = express();
@@ -165,11 +166,52 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });
 
-// Pretty vehicle URL: /maruti/swift -> serves the same vehicle detail page
+// Pretty vehicle URL: /maruti/swift -> serves the vehicle detail page with real meta tags injected (SEO)
 app.get('/:brand/:model', (req, res, next) => {
   // Only handle simple slug-like segments; let everything else (e.g. real static paths) fall through
   if (!/^[a-z0-9-]+$/i.test(req.params.brand) || !/^[a-z0-9-]+$/i.test(req.params.model)) return next();
-  res.sendFile(path.join(__dirname, 'public', 'vehicle.html'));
+
+  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const wanted = req.params.brand + '-' + req.params.model;
+  const match = rows.find(v => slugify(v.brand + '-' + v.model) === wanted);
+
+  let html = fs.readFileSync(path.join(__dirname, 'public', 'vehicle.html'), 'utf8');
+
+  if (match) {
+    const title = `${match.brand} ${match.model} Price, Specs & EMI | MK Finance`;
+    const desc = `${match.brand} ${match.model} price ${match.price || ''}. Check specs, variants, EMI options and apply for a vehicle loan with MK Finance, Valsad.`.replace(/\s+/g, ' ').trim();
+    const jsonLd = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Vehicle',
+      name: `${match.brand} ${match.model}`,
+      brand: match.brand,
+      model: match.model,
+      vehicleModelDate: match.year || undefined,
+      fuelType: match.fuel_type || undefined,
+      offers: match.price ? { '@type': 'Offer', priceCurrency: 'INR', price: (match.price.match(/[\d.]+/) || [''])[0] } : undefined
+    });
+    html = html
+      .replace('<title>Vehicle Details | MK Finance</title>', `<title>${title}</title>`)
+      .replace('</head>', `<meta name="description" content="${desc}">\n<script type="application/ld+json">${jsonLd}</script>\n</head>`);
+  }
+  res.send(html);
+});
+
+// SEO: sitemap.xml listing homepage + every active vehicle
+app.get('/sitemap.xml', (req, res) => {
+  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const base = `${req.protocol}://${req.get('host')}`;
+  const urls = [
+    `<url><loc>${base}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+    `<url><loc>${base}/about.html</loc><changefreq>monthly</changefreq></url>`,
+    ...rows.map(v => `<url><loc>${base}/${slugify(v.brand)}/${slugify(v.model)}</loc><changefreq>weekly</changefreq></url>`)
+  ].join('\n');
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`);
+});
+
+app.get('/robots.txt', (req, res) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  res.type('text/plain').send(`User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: ${base}/sitemap.xml`);
 });
 
 app.listen(PORT, () => {
