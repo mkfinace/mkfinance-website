@@ -691,6 +691,12 @@
         <a href="#vehicles" class="btn-primary">Browse Vehicles</a>
         <a href="#loans" class="btn-secondary">Calculate EMI</a>
       </div>
+      <div style="max-width:480px; margin-top:1.5rem; display:flex; gap:8px;">
+        <input id="heroSearch" type="text" placeholder="Search by brand or model (e.g. Maruti, Swift)"
+          style="flex:1; padding:13px 16px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:6px; color:#fff; font-size:14px; font-family:'Montserrat',sans-serif;"
+          onkeydown="if(event.key==='Enter') runHeroSearch()">
+        <button onclick="runHeroSearch()" style="padding:13px 20px; background:var(--accent); border:none; border-radius:6px; color:#fff; font-weight:700; cursor:pointer; font-size:14px;">Search</button>
+      </div>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="num">500<span>+</span></div>
@@ -779,10 +785,18 @@
     <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
       <h2 class="section-title">Browse <span>Vehicles</span></h2>
     </div>
-    <div class="tabs-wrap">
+    <div class="tabs-wrap" id="tabsWrap">
       <button class="tab-btn active" onclick="showTab('cars', this)">🚗 Cars</button>
       <button class="tab-btn" onclick="showTab('commercial', this)">🚛 Commercial</button>
     </div>
+  </div>
+
+  <div id="searchResultsWrap" style="max-width:1200px; margin:0 auto; display:none;">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+      <button onclick="clearHeroSearch()" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:6px; font-size:13px; cursor:pointer; font-family:'Montserrat',sans-serif;">← Clear Search</button>
+      <h3 id="searchResultsTitle" style="font-family:'Rajdhani',sans-serif; font-size:1.4rem;"></h3>
+    </div>
+    <div class="vehicles-grid" id="searchResultsGrid"></div>
   </div>
 
   <div id="tab-cars" style="max-width:1200px; margin:0 auto;">
@@ -1035,6 +1049,27 @@
   </div>
 </section>
 
+<section style="padding:4rem 2rem; background:var(--dark-2);" id="areas">
+  <div style="max-width:900px; margin:0 auto; text-align:center;">
+    <div class="section-tag" style="justify-content:center;">Service Areas</div>
+    <h2 class="section-title" style="justify-content:center;">Areas We <span>Serve</span></h2>
+    <p style="color:rgba(255,255,255,0.6); font-size:14px; margin:1rem 0 2rem; max-width:600px; margin-left:auto; margin-right:auto;">
+      MK Finance is based in Dharampur, Valsad, and provides vehicle loan, insurance, and doorstep document service across South Gujarat.
+    </p>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+      <span class="brand-pill">Valsad</span>
+      <span class="brand-pill">Dharampur</span>
+      <span class="brand-pill">Vapi</span>
+      <span class="brand-pill">Surat</span>
+      <span class="brand-pill">Navsari</span>
+      <span class="brand-pill">Bharuch</span>
+      <span class="brand-pill">Daman</span>
+      <span class="brand-pill">Silvassa</span>
+      <span class="brand-pill">Ankleshwar</span>
+    </div>
+  </div>
+</section>
+
 <!-- WHY US + CONTACT -->
 <!-- Vehicle Detail Modal -->
 <div class="vmodal-overlay" id="vmodalOverlay" onclick="if(event.target===this) closeVehicleModal()">
@@ -1270,6 +1305,62 @@ async function loadCars() {
 }
 loadCars();
 
+function vehicleCardHtml(v) {
+  const isNew = (v.tags || '').split(',').map(t => t.trim()).includes('NEW');
+  const vUrl = '/' + slugify2(v.brand) + '/' + slugify2(v.model);
+  return `
+  <div class="vehicle-card" onclick="window.location.href='${vUrl}'">
+    <div class="vehicle-img">
+      ${v.image_url ? `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='${v.icon || '🚗'}<div class=&quot;brand-badge&quot;>${v.brand}</div>'">` : `${v.icon || '🚗'}`}
+      <div class="brand-badge">${v.brand}</div>
+      ${isNew ? `<div class="new-badge">Brand New</div>` : ''}
+    </div>
+    <div class="vehicle-info">
+      <h4>${v.model}</h4>
+      <div class="model">${[v.year, v.fuel_type].filter(Boolean).join(' | ')}</div>
+      <div class="vehicle-price">${v.price || ''} ${v.emi ? `<span class="emi">${v.emi}</span>` : ''}</div>
+      <div class="vehicle-tags">${(v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
+      <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='${vUrl}'">View Offers →</button>
+    </div>
+  </div>`;
+}
+
+async function runHeroSearch() {
+  const q = document.getElementById('heroSearch').value.trim();
+  if (!q) { document.getElementById('vehicles').scrollIntoView({behavior:'smooth'}); return; }
+  document.getElementById('vehicles').scrollIntoView({behavior:'smooth'});
+  document.getElementById('tabsWrap').style.display = 'none';
+  document.getElementById('tab-cars').style.display = 'none';
+  document.getElementById('tab-commercial').style.display = 'none';
+  const wrap = document.getElementById('searchResultsWrap');
+  const grid = document.getElementById('searchResultsGrid');
+  wrap.style.display = 'block';
+  document.getElementById('searchResultsTitle').textContent = `Searching "${q}"...`;
+  grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Loading...</div>';
+  try {
+    const res = await fetch('/api/vehicles');
+    const all = await res.json();
+    const qLower = q.toLowerCase();
+    const results = all.filter(v => (v.brand + ' ' + v.model).toLowerCase().includes(qLower));
+    document.getElementById('searchResultsTitle').textContent = `${results.length} result${results.length !== 1 ? 's' : ''} for "${q}"`;
+    if (!results.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem 1rem; opacity:0.6;">No vehicles found matching "${q}". <a href="#contact" style="color:var(--primary-light);">Contact us</a> for availability.</div>`;
+      return;
+    }
+    results.forEach(v => vehicleCache[v.id] = v);
+    grid.innerHTML = results.map(vehicleCardHtml).join('');
+  } catch (e) {
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Search failed. Please try again.</div>';
+  }
+}
+
+function clearHeroSearch() {
+  document.getElementById('heroSearch').value = '';
+  document.getElementById('searchResultsWrap').style.display = 'none';
+  document.getElementById('tabsWrap').style.display = 'flex';
+  document.getElementById('tab-cars').style.display = 'block';
+}
+
 // Pre-fill message if arriving from a vehicle detail page (?vehicle=Brand Model)
 (function prefillFromQuery() {
   const params = new URLSearchParams(window.location.search);
@@ -1278,6 +1369,13 @@ loadCars();
     window.addEventListener('DOMContentLoaded', () => {
       const msgBox = document.getElementById('f-message');
       if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + vehicleName;
+    });
+  }
+  const searchQuery = params.get('search');
+  if (searchQuery) {
+    window.addEventListener('DOMContentLoaded', () => {
+      const searchBox = document.getElementById('heroSearch');
+      if (searchBox) { searchBox.value = searchQuery; runHeroSearch(); }
     });
   }
 })();
