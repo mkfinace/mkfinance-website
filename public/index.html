@@ -1292,7 +1292,7 @@ async function loadCars() {
         </div>
         <div class="vehicle-info">
           <h4>${c.model}</h4>
-          <div class="model">${[c.year, c.fuel_type].filter(Boolean).join(' | ')}</div>
+          <div class="model">${['New', c.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${c.price || ''} ${c.emi ? `<span class="emi">${c.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
           <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='${vUrl}'">View Offers →</button>
@@ -1317,7 +1317,7 @@ function vehicleCardHtml(v) {
     </div>
     <div class="vehicle-info">
       <h4>${v.model}</h4>
-      <div class="model">${[v.year, v.fuel_type].filter(Boolean).join(' | ')}</div>
+      <div class="model">${['New', v.fuel_type].filter(Boolean).join(' | ')}</div>
       <div class="vehicle-price">${v.price || ''} ${v.emi ? `<span class="emi">${v.emi}</span>` : ''}</div>
       <div class="vehicle-tags">${(v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
       <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='${vUrl}'">View Offers →</button>
@@ -1389,7 +1389,7 @@ function openVehicleModal(id) {
   document.getElementById('vmodalSub').textContent = v.category + (v.fuel_type ? ' • ' + v.fuel_type : '');
   document.getElementById('vmodalPrice').textContent = v.price || '';
   document.getElementById('vmodalEmi').textContent = v.emi || '';
-  document.getElementById('vmodalYear').textContent = v.year || '-';
+  document.getElementById('vmodalYear').textContent = 'New';
   document.getElementById('vmodalFuel').textContent = v.fuel_type || '-';
   document.getElementById('vmodalDesc').textContent = v.description || '';
   const imgBox = document.getElementById('vmodalImg');
@@ -1440,7 +1440,7 @@ async function loadCommercialCategory(category, title) {
         </div>
         <div class="vehicle-info">
           <h4>${v.model}</h4>
-          <div class="model">${[v.year, v.fuel_type].filter(Boolean).join(' | ')}</div>
+          <div class="model">${['New', v.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${v.price || ''} ${v.emi ? `<span class="emi">${v.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
           <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='${vUrl}'">View Offers →</button>
