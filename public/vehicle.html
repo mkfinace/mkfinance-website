@@ -81,6 +81,20 @@ button,input,select{font:inherit}
 .spec-box{padding:18px}.spec-box h3{font-size:16px;margin-bottom:12px;color:#fff}
 .spec-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
 .spec-line:last-child{border-bottom:0}.spec-line span:first-child{color:var(--muted)}.spec-line span:last-child{font-weight:700;color:#fff}
+.colors{display:flex;gap:16px;flex-wrap:wrap;padding:18px}
+.color-item{width:130px;text-align:center}
+.color-dot{height:80px;border-radius:8px;border:1px solid rgba(255,255,255,.18);box-shadow:var(--shadow);background:linear-gradient(135deg,#1a3a4a,#0d2029);display:flex;align-items:center;justify-content:center;font-size:22px}
+.color-item p{font-size:12px;font-weight:600;margin-top:8px;color:#dbe4e8}
+.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.compare-card{padding:15px;cursor:pointer}
+.compare-img{height:110px;border-radius:7px;background:#081820;display:flex;align-items:center;justify-content:center;font-size:50px;margin-bottom:10px;overflow:hidden}
+.compare-img img{width:100%;height:100%;object-fit:cover}
+.compare-card h3{font-size:14px;color:#fff}.compare-card p{font-size:12px;color:var(--muted);margin:4px 0 10px}
+.compare-price{font-weight:800;font-size:13px;color:var(--blue)}
+.faq-item{padding:15px 0;border-bottom:1px solid var(--line)}
+.faq-item:last-child{border-bottom:0}
+.faq-q{font-size:13px;font-weight:700;color:#fff}.faq-a{font-size:12px;color:var(--muted);margin-top:5px}
+.coming-soon{padding:32px 20px;text-align:center;color:var(--muted);font-size:13px}
 .cta{background:linear-gradient(135deg,rgba(21,154,196,.13),rgba(239,48,48,.055));border:1px solid rgba(42,138,173,.25);border-radius:10px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .cta h2{font-size:21px;color:#fff}.cta p{font-size:12px;color:var(--muted);margin-top:3px}
 footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;border-top:1px solid var(--line)}
@@ -208,6 +222,39 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 </div>
 </section>
 
+<section class="section alt" id="colors" style="display:none;">
+<div class="container">
+<h2 class="section-title">Available Colours</h2><p class="section-sub">Aa vehicle ma je colours available chhe.</p>
+<div class="card colors" id="colorsList"></div>
+</div>
+</section>
+
+<section class="section" id="compare" style="display:none;">
+<div class="container">
+<h2 class="section-title">Compare More Options</h2><p class="section-sub">MK Finance thi available baki vehicles pan joi shako.</p>
+<div class="compare" id="compareList"></div>
+</div>
+</section>
+
+<section class="section alt" id="reviews">
+<div class="container">
+<h2 class="section-title">Customer Reviews</h2><p class="section-sub">Real customers na experiences.</p>
+<div class="card coming-soon">⭐ Have Reviews collect thai rahya chhe — pehla review lakhva mate ame tamne WhatsApp par contact karishu vehicle delivery pachi.</div>
+</div>
+</section>
+
+<section class="section" id="faq">
+<div class="container">
+<h2 class="section-title">Frequently Asked Questions</h2><p class="section-sub">Loan ane vehicle purchase process vishe common savalo.</p>
+<div class="card" style="padding:0 20px;">
+<div class="faq-item"><div class="faq-q">Loan mate ketla documents joiye?</div><div class="faq-a">Aadhar card, PAN card, income proof (salary slip/ITR), address proof, ane bank statement — MK Finance team tamne exact list aapshe tamari profile pramane.</div></div>
+<div class="faq-item"><div class="faq-q">Loan approval ma ketlo samay lage?</div><div class="faq-a">Sturdy documents sathe sadharan rite 24-48 kalak ma approval malshe.</div></div>
+<div class="faq-item"><div class="faq-q">Down payment ketlu bharvu padshe?</div><div class="faq-a">Aa vehicle ni ex-showroom price ane tamari eligibility par aadharit chhe — exact amount mate contact karo.</div></div>
+<div class="faq-item"><div class="faq-q">Insurance pan MK Finance thi karavi shakay?</div><div class="faq-a">Ha, MK Finance vehicle loan ni sathe insurance pan provide kare chhe.</div></div>
+</div>
+</div>
+</section>
+
 <section class="section alt">
 <div class="container">
 <div class="cta">
@@ -263,6 +310,10 @@ function renderVehicle(v) {
     ${(v.gallery_images || '').trim() ? `<a onclick="scrollToSec('images',this)">Images</a>` : ''}
     ${(v.expert_note || '').trim() ? `<a onclick="scrollToSec('expert',this)">Expert Opinion</a>` : ''}
     <a onclick="scrollToSec('specs',this)">Specs</a>
+    ${(v.colors || '').trim() ? `<a onclick="scrollToSec('colors',this)">Colours</a>` : ''}
+    <a onclick="scrollToSec('compare',this)">Compare</a>
+    <a onclick="scrollToSec('reviews',this)">Reviews</a>
+    <a onclick="scrollToSec('faq',this)">FAQs</a>
   `;
 
   const allImages = [v.image_url, ...((v.gallery_images || '').split(',').map(x => x.trim()).filter(Boolean))].filter(Boolean);
@@ -331,8 +382,36 @@ function renderVehicle(v) {
 
   document.getElementById('ctaTitle').textContent = 'Need the best loan for ' + v.brand + ' ' + v.model + '?';
 
+  // Colours
+  const colorList = (v.colors || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (colorList.length) {
+    document.getElementById('colors').style.display = 'block';
+    document.getElementById('colorsList').innerHTML = colorList.map(c => `
+      <div class="color-item"><div class="color-dot">🎨</div><p>${c}</p></div>`).join('');
+  }
+
+  // Compare with other real MK Finance vehicles
+  loadCompareVehicles(v.id, v.category);
+
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('content').style.display = 'block';
+}
+
+async function loadCompareVehicles(currentId, category) {
+  try {
+    const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category));
+    const all = await res.json();
+    const others = all.filter(x => x.id != currentId).slice(0, 3);
+    if (!others.length) return;
+    document.getElementById('compare').style.display = 'block';
+    document.getElementById('compareList').innerHTML = others.map(o => `
+      <div class="card compare-card" onclick="window.location.href='vehicle.html?id=${o.id}'">
+        <div class="compare-img">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
+        <h3>${o.brand} ${o.model}</h3>
+        <p>${o.fuel_type || ''}</p>
+        <div class="compare-price">${o.price || 'Price on request'}</div>
+      </div>`).join('');
+  } catch (e) {}
 }
 
 function selectThumb(el, url) {
