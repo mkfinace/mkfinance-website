@@ -1,203 +1,233 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vehicle Details — MK Finance</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;700&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Vehicle Details | MK Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1a6e8e; --primary-dark: #0d4d6b; --primary-light: #2a8aad;
-    --accent: #e63030; --accent-dark: #b01c1c;
-    --dark: #0a0a0a; --dark-2: #141414; --dark-3: #1e1e1e; --dark-4: #252525;
-    --border: rgba(255,255,255,0.08);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Montserrat',sans-serif; background:var(--dark); color:#fff; min-height:100vh; }
-  h1,h2,h3,h4 { font-family:'Rajdhani',sans-serif; }
-  a { color:inherit; text-decoration:none; }
-
-  header { position:sticky; top:0; z-index:50; background:rgba(10,10,10,0.95); backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; }
-  .logo { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1.3rem; }
-  .logo .mk { color:var(--accent); } .logo .fin { color:var(--primary-light); }
-  .back-link { font-size:13px; color:rgba(255,255,255,0.6); display:flex; align-items:center; gap:6px; }
-  .back-link:hover { color:var(--primary-light); }
-
-  .wrap { max-width:1000px; margin:0 auto; padding:32px 20px 80px; }
-  #loadingState { text-align:center; padding:80px 20px; opacity:0.6; }
-  #notFoundState { display:none; text-align:center; padding:80px 20px; }
-  #content { display:none; }
-
-  .hero-img { width:100%; height:340px; border-radius:12px; overflow:hidden; background:rgba(26,110,142,0.08);
-    display:flex; align-items:center; justify-content:center; font-size:8rem; border:1px solid var(--border); margin-bottom:24px; position:relative; }
-  .hero-img img { width:100%; height:100%; object-fit:cover; }
-  .gallery-thumbs { display:flex; gap:8px; margin-bottom:24px; overflow-x:auto; padding-bottom:4px; }
-  .gallery-thumbs .thumb { flex:0 0 80px; height:60px; border-radius:6px; overflow:hidden; cursor:pointer;
-    border:2px solid transparent; background:rgba(26,110,142,0.08); display:flex; align-items:center; justify-content:center; font-size:1.6rem; }
-  .gallery-thumbs .thumb.active { border-color:var(--primary-light); }
-  .gallery-thumbs .thumb img { width:100%; height:100%; object-fit:cover; }
-  .rating-badge { position:absolute; top:14px; right:14px; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
-    border:1px solid var(--border); border-radius:8px; padding:8px 14px; text-align:center; }
-  .rating-badge .num { font-size:1.1rem; font-weight:800; color:#ffb020; }
-  .rating-badge .lbl { font-size:9px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; }
-
-  .title-row { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px; }
-  h1.vtitle { font-size:2.2rem; }
-  .vsub { color:rgba(255,255,255,0.5); font-size:14px; margin-bottom:20px; }
-  .tags { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
-  .tag { padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.3px; }
-  .tag-new { background:rgba(26,158,89,0.15); color:#2ecf7a; border:1px solid rgba(46,207,122,0.3); }
-  .tag-loan { background:rgba(26,110,142,0.15); color:var(--primary-light); border:1px solid rgba(42,138,173,0.3); }
-  .tag-ins { background:rgba(230,48,48,0.15); color:var(--accent); border:1px solid rgba(230,48,48,0.3); }
-
-  .price-card { background:var(--dark-2); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:24px;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
-  .price-card .price-main { font-size:2rem; font-weight:800; color:var(--primary-light); }
-  .price-card .price-sub { font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px; }
-  .price-card .emi-box { text-align:right; }
-  .price-card .emi-box .emi-amt { font-size:1.2rem; font-weight:700; }
-  .price-card .emi-box .emi-lbl { font-size:11px; color:rgba(255,255,255,0.5); }
-
-  .specs-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
-  .spec-box { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:16px; text-align:center; }
-  .spec-box .lbl { font-size:10px; text-transform:uppercase; color:rgba(255,255,255,0.4); letter-spacing:0.5px; margin-bottom:6px; }
-  .spec-box .val { font-size:15px; font-weight:700; }
-
-  .section-title { font-size:1.3rem; margin-bottom:12px; }
-  .desc-text { color:rgba(255,255,255,0.65); font-size:14px; line-height:1.8; margin-bottom:32px; }
-
-  .detail-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:0; }
-  .dtab-btn { background:transparent; border:none; color:rgba(255,255,255,0.5); padding:10px 16px; font-size:13px; font-weight:600;
-    cursor:pointer; border-bottom:2px solid transparent; font-family:'Montserrat',sans-serif; }
-  .dtab-btn.active { color:var(--primary-light); border-bottom-color:var(--primary-light); }
-  .dtab-panel { display:none; margin-bottom:32px; }
-  .dtab-panel.active { display:block; }
-  .variant-chip { display:inline-block; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px;
-    padding:10px 16px; margin:0 8px 8px 0; font-size:13px; font-weight:600; }
-  .expert-box { background:rgba(255,176,32,0.06); border:1px solid rgba(255,176,32,0.25); border-radius:10px; padding:18px; }
-  .expert-box .expert-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:700; color:#ffb020; }
-  .expert-box p { font-size:14px; color:rgba(255,255,255,0.75); line-height:1.7; }
-  .empty-tab { color:rgba(255,255,255,0.4); font-size:13px; padding:20px 0; }
-
-  .finance-box { background:linear-gradient(135deg, rgba(26,110,142,0.12), rgba(230,48,48,0.08)); border:1px solid var(--border);
-    border-radius:12px; padding:24px; margin-bottom:32px; }
-  .finance-box h3 { margin-bottom:8px; }
-  .finance-box p { font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:18px; }
-
-  .cta-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .btn-primary { background:var(--accent); color:#fff; border:none; padding:16px; border-radius:8px; font-size:15px; font-weight:700;
-    cursor:pointer; text-align:center; }
-  .btn-primary:hover { background:var(--accent-dark); }
-  .btn-whatsapp { background:#25d366; color:#fff; padding:16px; border-radius:8px; font-size:15px; font-weight:700; text-align:center; }
-
-  .why-mk { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:32px; }
-  .why-mk .item { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:18px; text-align:center; }
-  .why-mk .item .ic { font-size:1.8rem; margin-bottom:8px; }
-  .why-mk .item .t { font-size:13px; font-weight:700; margin-bottom:4px; }
-  .why-mk .item .d { font-size:11px; color:rgba(255,255,255,0.5); }
-
-  @media (max-width:700px) {
-    .specs-grid { grid-template-columns:repeat(2,1fr); }
-    .why-mk { grid-template-columns:1fr; }
-    .cta-row { grid-template-columns:1fr; }
-    h1.vtitle { font-size:1.6rem; }
-    .hero-img { height:220px; font-size:5rem; }
-  }
+:root{
+  --blue:#159ac4;
+  --blue-dark:#1f56c5;
+  --red:#ef3030;
+  --text:#ffffff;
+  --muted:#8fa3ad;
+  --light:#0b1b23;
+  --line:rgba(42,138,173,.20);
+  --white:#ffffff;
+  --green:#159447;
+  --shadow:0 18px 45px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Roboto,Arial,sans-serif;background:#06131a;color:var(--text);line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+.container{max-width:1200px;margin:auto;padding:0 18px}
+.topbar{height:68px;border-bottom:1px solid var(--line);background:#07151c;display:flex;align-items:center;position:sticky;top:0;z-index:1000}
+.topbar-inner{display:flex;align-items:center;gap:22px;width:100%}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px;white-space:nowrap}
+.logo span:first-child{color:var(--red)} .logo span:last-child{color:var(--blue)}
+.top-links{margin-left:auto;display:flex;gap:20px;font-size:13px;color:#a8b7be;align-items:center}
+.city{font-weight:600;color:#fff}
+.top-links a.call{font-weight:700;color:var(--blue)}
+.subnav{background:#07151c;border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:900}
+.subnav .nav{height:50px;display:flex;align-items:center;gap:25px;overflow:auto;white-space:nowrap}
+.subnav a{font-size:13px;font-weight:600;color:#aebbc1;padding:16px 0;cursor:pointer}
+.subnav a.active{color:var(--blue);border-bottom:3px solid var(--blue)}
+.hero{padding:22px 0 26px;background:linear-gradient(135deg,#06131a 0%,#081b24 45%,#061117 100%);position:relative;overflow:hidden}
+.hero:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 35%,rgba(21,154,196,.08),transparent 34%),linear-gradient(90deg,transparent 0,rgba(239,48,48,.025) 50%,transparent 100%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:56% 44%;gap:26px;align-items:center}
+.gallery{height:390px;border:1px solid rgba(42,138,173,.25);border-radius:10px;background:rgba(21,154,196,.045);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.gallery img{width:100%;height:100%;object-fit:cover}
+.gallery-fallback{font-size:110px;filter:drop-shadow(0 12px 15px rgba(0,0,0,.45))}
+.photo-count{position:absolute;bottom:14px;left:14px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:#0b1b23}
+.thumb-row{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
+.thumb-row .thumb{flex:0 0 72px;height:54px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:rgba(21,154,196,.08)}
+.thumb-row .thumb.active{border-color:var(--blue)}
+.thumb-row .thumb img{width:100%;height:100%;object-fit:cover}
+.vehicle-title h1{font-size:31px;line-height:1.15;margin-bottom:8px;color:#fff}
+.rating-row{display:flex;align-items:center;gap:9px;font-size:13px;margin-bottom:14px;color:#a8b7be}
+.tag-chip{font-size:10px;background:rgba(21,154,196,.15);color:var(--blue);padding:4px 9px;border-radius:20px;font-weight:700;border:1px solid rgba(21,154,196,.3)}
+.price{font-size:26px;font-weight:800;color:#fff;margin-bottom:3px}
+.price-note{font-size:11px;color:#879da7;margin-bottom:17px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:6px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--blue-dark)}
+.btn.outline{background:transparent;color:var(--blue)}
+.offer{margin-top:18px;background:rgba(239,48,48,.055);border:1px solid rgba(239,48,48,.28);border-radius:8px;padding:13px}
+.offer b{color:#ff5a5a;font-size:13px}.offer p{font-size:12px;color:#9aabb2;margin-top:3px}
+.spec-strip{border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden;margin-top:18px}
+.spec{padding:15px 12px;border-right:1px solid var(--line);background:#0a1a22}
+.spec:last-child{border-right:0}.spec-label{font-size:11px;color:#8299a3;margin-bottom:3px}.spec-value{font-size:13px;font-weight:700;color:#fff}
+.section{padding:28px 0;background:#06131a}.section.alt{background:#0a1a22;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+.section-title{font-size:23px;color:#fff;margin-bottom:5px}.section-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.card{background:#0b1b23;border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow)}
+.price-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.side-card{padding:18px}.side-card h3{font-size:16px;margin-bottom:12px;color:#fff}.side-card p{font-size:12px;color:var(--muted);margin-bottom:14px}
+.emi-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.emi-row strong{color:#fff}.full{width:100%;margin-top:14px}
+.variant-list{display:flex;flex-wrap:wrap;gap:10px;padding:18px}
+.variant-chip{background:#0d2029;border:1px solid var(--line);border-radius:7px;padding:12px 16px;font-size:13px;font-weight:700;color:#fff}
+.expert-card{padding:22px}
+.expert-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.expert-badge{background:var(--green);color:#fff;padding:5px 10px;border-radius:5px;font-weight:800;font-size:12px}
+.expert-card p{font-size:13px;color:#c3d0d5;line-height:1.8}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gallery-tile{height:160px;background:#0b1b23;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+.gallery-tile img{width:100%;height:100%;object-fit:cover}
+.specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.spec-box{padding:18px}.spec-box h3{font-size:16px;margin-bottom:12px;color:#fff}
+.spec-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.spec-line:last-child{border-bottom:0}.spec-line span:first-child{color:var(--muted)}.spec-line span:last-child{font-weight:700;color:#fff}
+.cta{background:linear-gradient(135deg,rgba(21,154,196,.13),rgba(239,48,48,.055));border:1px solid rgba(42,138,173,.25);border-radius:10px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.cta h2{font-size:21px;color:#fff}.cta p{font-size:12px;color:var(--muted);margin-top:3px}
+footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;border-top:1px solid var(--line)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px}
+.footer-logo{font-size:24px;font-weight:800;color:#fff}.footer-logo span{color:var(--blue)}
+.footer-grid h4{font-size:12px;color:#fff;margin-bottom:12px}
+.footer-grid a{display:block;font-size:12px;color:#9ca3af;margin:7px 0;cursor:pointer}
+.footer-desc{font-size:12px;color:#9ca3af;max-width:300px;margin-top:8px}
+.copyright{border-top:1px solid #374151;margin-top:28px;padding-top:17px;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#loadingState,#notFoundState{text-align:center;padding:100px 20px;color:var(--muted)}
+#notFoundState{display:none}
+#content{display:none}
+@media(max-width:900px){.top-links{display:none}.hero-grid,.price-layout,.specs-grid{grid-template-columns:1fr}.spec-strip{grid-template-columns:repeat(2,1fr)}.gallery{height:320px}.footer-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.topbar{height:auto;padding:10px 0}.vehicle-title h1{font-size:25px}.cta{flex-direction:column;align-items:flex-start}.footer-grid{grid-template-columns:1fr}.copyright{flex-direction:column;gap:6px}}
 </style>
 </head>
 <body>
 
-<header>
-  <a href="index.html" class="logo"><span class="mk">MK</span> <span class="fin">Finance</span></a>
-  <a href="index.html#vehicles" class="back-link">← Badha Vehicles jovo</a>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="index.html"><span>MK</span> <span>Finance</span></a>
+    <div class="top-links">
+      <span class="city">📍 Valsad, Gujarat</span>
+      <a class="call" href="tel:9824742356">📞 98247 42356</a>
+    </div>
+  </div>
 </header>
 
-<div class="wrap">
-  <div id="loadingState">Loading vehicle details...</div>
-  <div id="notFoundState">
-    <h2>Vehicle nathi malyu</h2>
-    <p style="color:rgba(255,255,255,0.5); margin-top:8px;">Aa vehicle have available nathi.</p>
-    <a href="index.html" class="btn-primary" style="display:inline-block; margin-top:20px; text-decoration:none;">Home par pacha javo</a>
-  </div>
+<nav class="subnav">
+  <div class="container nav" id="subnavLinks"></div>
+</nav>
 
-  <div id="content">
-    <div class="hero-img" id="heroImg">🚗
-      <div class="rating-badge" id="ratingBadge" style="display:none;">
-        <div class="num">MK Verified</div>
-      </div>
-    </div>
-    <div class="gallery-thumbs" id="galleryThumbs" style="display:none;"></div>
-
-    <div class="title-row">
-      <div>
-        <h1 class="vtitle" id="vTitle">-</h1>
-        <div class="vsub" id="vSub">-</div>
-      </div>
-    </div>
-
-    <div class="tags" id="vTags"></div>
-
-    <div class="price-card">
-      <div>
-        <div class="price-main" id="vPrice">-</div>
-        <div class="price-sub">On-road price estimate</div>
-      </div>
-      <div class="emi-box">
-        <div class="emi-amt" id="vEmi">-</div>
-        <div class="emi-lbl">Starting EMI*</div>
-      </div>
-    </div>
-
-    <div class="specs-grid">
-      <div class="spec-box"><div class="lbl">Brand</div><div class="val" id="specBrand">-</div></div>
-      <div class="spec-box"><div class="lbl">Year</div><div class="val" id="specYear">-</div></div>
-      <div class="spec-box"><div class="lbl">Fuel Type</div><div class="val" id="specFuel">-</div></div>
-      <div class="spec-box"><div class="lbl">Category</div><div class="val" id="specCategory">-</div></div>
-    </div>
-
-    <div class="detail-tabs">
-      <button class="dtab-btn active" onclick="switchDTab('specs', this)">📋 Specs</button>
-      <button class="dtab-btn" onclick="switchDTab('variants', this)">🔧 Variants</button>
-      <button class="dtab-btn" onclick="switchDTab('expert', this)">⭐ Expert Opinion</button>
-    </div>
-
-    <div class="dtab-panel active" id="dtab-specs">
-      <div id="descSection" style="display:none;">
-        <p class="desc-text" id="vDesc" style="margin-bottom:0;"></p>
-      </div>
-      <div id="specsEmptyMsg" class="empty-tab" style="display:none;">Vadhu details mate contact karo.</div>
-    </div>
-
-    <div class="dtab-panel" id="dtab-variants">
-      <div id="variantsBox"></div>
-      <div id="variantsEmptyMsg" class="empty-tab" style="display:none;">Variants ni yaadi have update thai rahi chhe — contact karo latest options mate.</div>
-    </div>
-
-    <div class="dtab-panel" id="dtab-expert">
-      <div class="expert-box" id="expertBox" style="display:none;">
-        <div class="expert-head">⭐ MK Finance Expert Opinion</div>
-        <p id="expertText"></p>
-      </div>
-      <div id="expertEmptyMsg" class="empty-tab" style="display:none;">Aa vehicle mate expert opinion hajii nathi ummeryu — WhatsApp par puchho, ame tarat j jawab aapishu.</div>
-    </div>
-
-    <div class="finance-box">
-      <h3>💰 MK Finance sathe Loan mate Apply karo</h3>
-      <p>Amara experts tamane best interest rate ane fastest approval sathe loan apavva madad karshe. Naam ane number aapo, ame tamne contact karishu.</p>
-      <div class="cta-row">
-        <button class="btn-primary" onclick="getQuote()">Get Finance Quote →</button>
-        <a href="https://wa.me/919824742356" target="_blank" class="btn-whatsapp">💬 WhatsApp par Puchho</a>
-      </div>
-    </div>
-
-    <div class="why-mk">
-      <div class="item"><div class="ic">⚡</div><div class="t">Fast Approval</div><div class="d">24-48 kalak ma loan approval</div></div>
-      <div class="item"><div class="ic">📋</div><div class="t">Ochha Documents</div><div class="d">Simple paperwork process</div></div>
-      <div class="item"><div class="ic">🤝</div><div class="t">Best Rates</div><div class="d">Badha major banks/NBFC sathe tie-up</div></div>
-    </div>
-  </div>
+<div class="container" id="loadingState">Loading vehicle details...</div>
+<div class="container" id="notFoundState">
+  <h2>Vehicle nathi malyu</h2>
+  <p style="margin-top:8px;">Aa vehicle have available nathi.</p>
+  <a href="index.html" class="btn" style="display:inline-block; margin-top:20px;">Home par pacha javo</a>
 </div>
+
+<main id="content">
+<section class="hero" id="overview">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="gallery" id="heroGallery">
+          <div class="gallery-fallback" id="galleryFallback">🚗</div>
+          <div class="photo-count" id="photoCount" style="display:none;">📷 1 Photo</div>
+        </div>
+        <div class="thumb-row" id="thumbRow" style="display:none;"></div>
+      </div>
+      <div class="vehicle-title">
+        <h1 id="vTitle">-</h1>
+        <div class="rating-row"><span class="tag-chip">Brand New</span><span class="tag-chip" id="fuelChip"></span></div>
+        <div class="price" id="vPrice">-</div>
+        <div class="price-note">*Ex-showroom price estimate — MK Finance thi loan/EMI available</div>
+        <div class="btn-row">
+          <button class="btn" onclick="getQuote()">Get Finance Quote</button>
+          <a href="https://wa.me/919824742356" target="_blank" class="btn outline">💬 WhatsApp par Puchho</a>
+        </div>
+        <div class="offer"><b>Special Finance Offer</b><p>MK Finance thi personalised EMI ane loan quote 24-48 kalak ma malshe.</p></div>
+      </div>
+    </div>
+    <div class="spec-strip" id="specStrip"></div>
+  </div>
+</section>
+
+<section class="section" id="price">
+<div class="container">
+<h2 class="section-title" id="priceTitleText">Price & EMI</h2><p class="section-sub">Estimated on-road price ane EMI details.</p>
+<div class="price-layout">
+<div class="card side-card">
+<h3>Vehicle Price</h3>
+<div class="emi-row"><span>Ex-showroom Price</span><strong id="sidePrice">-</strong></div>
+<div class="emi-row"><span>Fuel Type</span><strong id="sideFuel">-</strong></div>
+<div class="emi-row"><span>Model Year</span><strong id="sideYear">-</strong></div>
+<div class="emi-row"><span>Category</span><strong id="sideCategory">-</strong></div>
+<p style="margin-top:14px;">Exact on-road price (RTO + Insurance sathe) mate showroom ne contact karo — hu tamane best deal apavu.</p>
+</div>
+<div class="card side-card">
+<h3>EMI Estimate</h3><p>Approximate monthly payment.</p>
+<div class="emi-row"><span>Starting EMI</span><strong id="sideEmi">-</strong></div>
+<div class="emi-row"><span>Loan Tenure</span><strong>Upto 84 Months</strong></div>
+<div class="emi-row"><span>Processing</span><strong>24-48 Hours</strong></div>
+<button class="btn full" onclick="getQuote()">Get Personalised EMI</button>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section alt" id="variants">
+<div class="container">
+<h2 class="section-title">Available Variants</h2><p class="section-sub">Aa vehicle ma je variants available chhe.</p>
+<div class="card variant-list" id="variantList"></div>
+</div>
+</section>
+
+<section class="section" id="images" style="display:none;">
+<div class="container">
+<h2 class="section-title">Photo Gallery</h2><p class="section-sub">Vehicle ni badhi photos.</p>
+<div class="gallery-grid" id="galleryGrid"></div>
+</div>
+</section>
+
+<section class="section alt" id="expert" style="display:none;">
+<div class="container">
+<h2 class="section-title">MK Finance Expert Opinion</h2><p class="section-sub">Amara team no opinion aa vehicle vishe.</p>
+<div class="card expert-card">
+<div class="expert-head"><span class="expert-badge">⭐ MK Verified</span></div>
+<p id="expertText"></p>
+</div>
+</div>
+</section>
+
+<section class="section" id="specs">
+<div class="container">
+<h2 class="section-title">Full Specifications</h2><p class="section-sub">Vehicle ni badhi details ek jagya par.</p>
+<div class="card spec-box" style="max-width:600px;">
+<div class="spec-line"><span>Brand</span><span id="specBrand2">-</span></div>
+<div class="spec-line"><span>Model</span><span id="specModel2">-</span></div>
+<div class="spec-line"><span>Year</span><span id="specYear2">-</span></div>
+<div class="spec-line"><span>Fuel Type</span><span id="specFuel2">-</span></div>
+<div class="spec-line"><span>Category</span><span id="specCategory2">-</span></div>
+<div class="spec-line"><span>Price</span><span id="specPrice2">-</span></div>
+</div>
+</div>
+</section>
+
+<section class="section alt">
+<div class="container">
+<div class="cta">
+  <div><h2 id="ctaTitle">Need the best loan for this vehicle?</h2><p>Get vehicle finance, insurance and on-road assistance from MK Finance.</p></div>
+  <button class="btn" onclick="getQuote()">Get Finance Quote</button>
+</div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="container">
+<div class="footer-grid">
+<div><div class="footer-logo"><span>MK</span> Finance</div><p class="footer-desc">Tamaru financial partner — vehicle loans, commercial vehicle finance ane vehicle insurance mate.</p></div>
+<div><h4>Finance</h4><a href="index.html#loans">Car Loan</a><a href="index.html#loans">Commercial Vehicle Loan</a><a href="index.html#services">EMI Calculator</a><a href="index.html#insurance">Insurance</a></div>
+<div><h4>Quick Links</h4><a onclick="document.getElementById('price').scrollIntoView({behavior:'smooth'})">Price</a><a onclick="document.getElementById('variants').scrollIntoView({behavior:'smooth'})">Variants</a><a onclick="document.getElementById('specs').scrollIntoView({behavior:'smooth'})">Specs</a><a href="index.html">Home</a></div>
+</div>
+<div class="copyright"><span>© 2026 MK Finance. All Rights Reserved.</span><span>Call: 9824742356</span></div>
+</div>
+</footer>
 
 <script>
 async function loadVehicle() {
@@ -209,9 +239,7 @@ async function loadVehicle() {
     if (!res.ok) { showNotFound(); return; }
     const v = await res.json();
     renderVehicle(v);
-  } catch (e) {
-    showNotFound();
-  }
+  } catch (e) { showNotFound(); }
 }
 
 function showNotFound() {
@@ -219,88 +247,105 @@ function showNotFound() {
   document.getElementById('notFoundState').style.display = 'block';
 }
 
-function tagClass(tag) {
-  const t = tag.trim();
-  if (t === 'NEW') return 'tag-new';
-  if (t === 'LOAN READY') return 'tag-loan';
-  if (t === 'INSURE') return 'tag-ins';
-  return 'tag-new';
-}
-
 function renderVehicle(v) {
-  document.title = v.brand + ' ' + v.model + ' — MK Finance';
+  document.title = v.brand + ' ' + v.model + ' | MK Finance';
+  window.currentVehicle = v;
+
   document.getElementById('vTitle').textContent = v.brand + ' ' + v.model;
-  document.getElementById('vSub').textContent = [v.year, v.fuel_type, v.category].filter(Boolean).join(' • ');
-  document.getElementById('vPrice').textContent = v.price || 'Price on request';
-  document.getElementById('vEmi').textContent = v.emi || '-';
-  document.getElementById('specBrand').textContent = v.brand || '-';
-  document.getElementById('specYear').textContent = v.year || '-';
-  document.getElementById('specFuel').textContent = v.fuel_type || '-';
-  document.getElementById('specCategory').textContent = v.category || '-';
+  document.getElementById('vPrice').textContent = v.price ? (v.price + '*') : 'Price on request';
+  document.getElementById('fuelChip').textContent = v.fuel_type || '';
 
-  const heroImg = document.getElementById('heroImg');
+  const subnav = document.getElementById('subnavLinks');
+  subnav.innerHTML = `
+    <a class="active" onclick="scrollToSec('overview',this)">${v.brand} ${v.model}</a>
+    <a onclick="scrollToSec('price',this)">Price & EMI</a>
+    <a onclick="scrollToSec('variants',this)">Variants</a>
+    ${(v.gallery_images || '').trim() ? `<a onclick="scrollToSec('images',this)">Images</a>` : ''}
+    ${(v.expert_note || '').trim() ? `<a onclick="scrollToSec('expert',this)">Expert Opinion</a>` : ''}
+    <a onclick="scrollToSec('specs',this)">Specs</a>
+  `;
+
   const allImages = [v.image_url, ...((v.gallery_images || '').split(',').map(x => x.trim()).filter(Boolean))].filter(Boolean);
-
-  function showImage(url) {
+  const galleryBox = document.getElementById('heroGallery');
+  const fallback = document.getElementById('galleryFallback');
+  function showMain(url) {
     if (url) {
-      heroImg.innerHTML = `<img src="${url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">`;
+      galleryBox.innerHTML = `<img src="${url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='<div class=&quot;gallery-fallback&quot;>${v.icon || '🚗'}</div>'">`;
     } else {
-      heroImg.textContent = v.icon || '🚗';
+      galleryBox.innerHTML = `<div class="gallery-fallback">${v.icon || '🚗'}</div>`;
     }
   }
-  showImage(allImages[0] || '');
+  if (allImages.length) {
+    showMain(allImages[0]);
+    document.getElementById('photoCount').style.display = 'block';
+    document.getElementById('photoCount').textContent = '📷 ' + allImages.length + ' Photo' + (allImages.length > 1 ? 's' : '');
+  } else {
+    fallback.textContent = v.icon || '🚗';
+  }
+  window.showMainImg = showMain;
 
   if (allImages.length > 1) {
-    const thumbBox = document.getElementById('galleryThumbs');
-    thumbBox.style.display = 'flex';
-    thumbBox.innerHTML = allImages.map((url, i) => `
-      <div class="thumb ${i === 0 ? 'active' : ''}" onclick="selectThumb(this, '${url}')">
-        <img src="${url}" alt="photo ${i+1}" onerror="this.parentElement.style.display='none'">
-      </div>`).join('');
-  }
-  window.showHeroImage = showImage;
+    const thumbRow = document.getElementById('thumbRow');
+    thumbRow.style.display = 'flex';
+    thumbRow.innerHTML = allImages.map((url, i) => `
+      <div class="thumb ${i === 0 ? 'active' : ''}" onclick="selectThumb(this,'${url}')"><img src="${url}" onerror="this.parentElement.style.display='none'"></div>`).join('');
 
-  const tagsBox = document.getElementById('vTags');
-  tagsBox.innerHTML = (v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('');
-
-  if (v.description) {
-    document.getElementById('descSection').style.display = 'block';
-    document.getElementById('vDesc').textContent = v.description;
-  } else {
-    document.getElementById('specsEmptyMsg').style.display = 'block';
+    document.getElementById('images').style.display = 'block';
+    document.getElementById('galleryGrid').innerHTML = allImages.map(url => `
+      <div class="gallery-tile"><img src="${url}" onerror="this.parentElement.style.display='none'"></div>`).join('');
   }
 
-  const variantsBox = document.getElementById('variantsBox');
+  document.getElementById('specStrip').innerHTML = `
+    <div class="spec"><div class="spec-label">Brand</div><div class="spec-value">${v.brand || '-'}</div></div>
+    <div class="spec"><div class="spec-label">Model Year</div><div class="spec-value">${v.year || '-'}</div></div>
+    <div class="spec"><div class="spec-label">Fuel Type</div><div class="spec-value">${v.fuel_type || '-'}</div></div>
+    <div class="spec"><div class="spec-label">Category</div><div class="spec-value">${v.category || '-'}</div></div>
+  `;
+
+  document.getElementById('priceTitleText').textContent = v.brand + ' ' + v.model + ' Price & EMI';
+  document.getElementById('sidePrice').textContent = v.price || '-';
+  document.getElementById('sideFuel').textContent = v.fuel_type || '-';
+  document.getElementById('sideYear').textContent = v.year || '-';
+  document.getElementById('sideCategory').textContent = v.category || '-';
+  document.getElementById('sideEmi').textContent = v.emi || '-';
+
   const variantList = (v.variants || '').split(',').map(x => x.trim()).filter(Boolean);
+  const variantBox = document.getElementById('variantList');
   if (variantList.length) {
-    variantsBox.innerHTML = variantList.map(x => `<span class="variant-chip">${x}</span>`).join('');
+    variantBox.innerHTML = variantList.map(x => `<div class="variant-chip">${x}</div>`).join('');
   } else {
-    document.getElementById('variantsEmptyMsg').style.display = 'block';
+    variantBox.innerHTML = `<p style="color:var(--muted); font-size:13px;">Variants ni yaadi update thai rahi chhe — contact karo latest options mate.</p>`;
   }
 
   if (v.expert_note && v.expert_note.trim()) {
-    document.getElementById('expertBox').style.display = 'block';
+    document.getElementById('expert').style.display = 'block';
     document.getElementById('expertText').textContent = v.expert_note;
-  } else {
-    document.getElementById('expertEmptyMsg').style.display = 'block';
   }
 
-  window.currentVehicle = v;
+  document.getElementById('specBrand2').textContent = v.brand || '-';
+  document.getElementById('specModel2').textContent = v.model || '-';
+  document.getElementById('specYear2').textContent = v.year || '-';
+  document.getElementById('specFuel2').textContent = v.fuel_type || '-';
+  document.getElementById('specCategory2').textContent = v.category || '-';
+  document.getElementById('specPrice2').textContent = v.price || '-';
+
+  document.getElementById('ctaTitle').textContent = 'Need the best loan for ' + v.brand + ' ' + v.model + '?';
+
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 }
 
-function switchDTab(name, btn) {
-  document.querySelectorAll('.dtab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.dtab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('dtab-' + name).classList.add('active');
+function selectThumb(el, url) {
+  document.querySelectorAll('.thumb-row .thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (window.showMainImg) window.showMainImg(url);
 }
 
-function selectThumb(el, url) {
-  document.querySelectorAll('.gallery-thumbs .thumb').forEach(t => t.classList.remove('active'));
+function scrollToSec(id, el) {
+  document.querySelectorAll('.subnav a').forEach(a => a.classList.remove('active'));
   el.classList.add('active');
-  if (window.showHeroImage) window.showHeroImage(url);
+  const target = document.getElementById(id);
+  if (target) target.scrollIntoView({behavior:'smooth'});
 }
 
 function getQuote() {
