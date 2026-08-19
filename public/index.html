@@ -42,12 +42,16 @@
     border-bottom: 1px solid var(--border);
     padding: 0 2rem;
     display: flex; align-items: center; justify-content: space-between;
-    height: 70px;
+    height: 76px;
   }
   .nav-logo {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
   }
-  .nav-logo img { height: 48px; width: auto; }
+  .nav-logo img { height: 44px; width: auto; }
+  .nav-tagline {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase;
+    color: rgba(255,255,255,0.45); font-family: 'Montserrat', sans-serif; padding-left: 2px;
+  }
   .nav-links {
     display: flex; align-items: center; gap: 2rem;
     list-style: none;
@@ -74,7 +78,7 @@
     background: linear-gradient(135deg, #050e14 0%, #0a1a24 40%, #0d1010 100%);
     display: flex; align-items: center;
     position: relative; overflow: hidden;
-    padding-top: 70px;
+    padding-top: 76px;
   }
   .hero::before {
     content: '';
@@ -632,7 +636,7 @@
   /* ===== MOBILE ===== */
   @media (max-width: 968px) {
     .nav-links { display: none; }
-    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 70px; left: 0; right: 0; background: rgba(10,10,10,0.98); padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); z-index: 999; }
+    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 76px; left: 0; right: 0; background: rgba(10,10,10,0.98); padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); z-index: 999; }
     .hamburger { display: block; }
     .hero-content { grid-template-columns: 1fr; gap: 2rem; }
     .hero-visual { display: none; }
@@ -657,6 +661,7 @@
 <nav>
   <div class="nav-logo">
     <img src="MK_FINANCE_LOGO.png" alt="MK Finance Logo">
+    <span class="nav-tagline">Your Financial Partner</span>
   </div>
   <ul class="nav-links" id="navLinks">
     <li><a href="#services">Services</a></li>
