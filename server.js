@@ -59,6 +59,18 @@ app.get('/api/vehicles/:id', (req, res) => {
   res.json(row);
 });
 
+function slugify(text) {
+  return String(text).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+// Public: lookup vehicle by SEO-friendly slug e.g. "maruti-swift"
+app.get('/api/vehicles/by-slug/:slug', (req, res) => {
+  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const match = rows.find(v => slugify(v.brand + '-' + v.model) === req.params.slug);
+  if (!match) return res.status(404).json({ error: 'Not found' });
+  res.json(match);
+});
+
 // =========================================================
 // ADMIN AUTH
 // =========================================================
@@ -151,6 +163,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+});
+
+// Pretty vehicle URL: /vehicle/maruti-swift -> serves the same vehicle detail page
+app.get('/vehicle/:slug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'vehicle.html'));
 });
 
 app.listen(PORT, () => {
