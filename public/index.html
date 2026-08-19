@@ -1220,6 +1220,10 @@ function calcEMI() {
 
 let vehicleCache = {};
 
+function slugify(brand, model) {
+  return (brand + '-' + model).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 function tagClass(tag) {
   const t = tag.trim();
   if (t === 'NEW') return 'tag-new';
@@ -1241,7 +1245,7 @@ async function loadCars() {
     grid.innerHTML = cars.map(c => {
       const isNew = (c.tags || '').split(',').map(t => t.trim()).includes('NEW');
       return `
-      <div class="vehicle-card" onclick="window.location.href='vehicle.html?id=${c.id}'">
+      <div class="vehicle-card" onclick="window.location.href='/vehicle/' + slugify(c.brand, c.model)">
         <div class="vehicle-img">
           ${c.image_url ? `<img src="${c.image_url}" alt="${c.brand} ${c.model}" onerror="this.parentElement.innerHTML='${c.icon || '🚗'}<div class=&quot;brand-badge&quot;>${c.brand}</div>'">` : `${c.icon || '🚗'}`}
           <div class="brand-badge">${c.brand}</div>
@@ -1252,7 +1256,7 @@ async function loadCars() {
           <div class="model">${[c.year, c.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${c.price || ''} ${c.emi ? `<span class="emi">${c.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
-          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='vehicle.html?id=${c.id}'">View Offers →</button>
+          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='/vehicle/' + slugify(c.brand, c.model)">View Offers →</button>
         </div>
       </div>`;
     }).join('');
@@ -1325,7 +1329,7 @@ async function loadCommercialCategory(category, title) {
     grid.innerHTML = vehicles.map(v => {
       const isNew = (v.tags || '').split(',').map(t => t.trim()).includes('NEW');
       return `
-      <div class="vehicle-card" onclick="window.location.href='vehicle.html?id=${v.id}'">
+      <div class="vehicle-card" onclick="window.location.href='/vehicle/' + slugify(v.brand, v.model)">
         <div class="vehicle-img">
           ${v.image_url ? `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='${v.icon || '🚛'}<div class=&quot;brand-badge&quot;>${v.brand}</div>'">` : `${v.icon || '🚛'}`}
           <div class="brand-badge">${v.brand}</div>
@@ -1336,7 +1340,7 @@ async function loadCommercialCategory(category, title) {
           <div class="model">${[v.year, v.fuel_type].filter(Boolean).join(' | ')}</div>
           <div class="vehicle-price">${v.price || ''} ${v.emi ? `<span class="emi">${v.emi}</span>` : ''}</div>
           <div class="vehicle-tags">${(v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
-          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='vehicle.html?id=${v.id}'">View Offers →</button>
+          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='/vehicle/' + slugify(v.brand, v.model)">View Offers →</button>
         </div>
       </div>`;
     }).join('');
