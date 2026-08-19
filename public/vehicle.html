@@ -312,6 +312,11 @@ function slugify(brand, model) {
 function slugify2(text) {
   return String(text).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
+// Safe DOM helpers — never crash the page if an element is missing (e.g. mismatched HTML/JS versions)
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setHtml(id, val) { const el = document.getElementById(id); if (el) el.innerHTML = val; }
+function setShow(id, show) { const el = document.getElementById(id); if (el) el.style.display = show ? 'block' : 'none'; }
+function setShowFlex(id, show) { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; }
 
 async function loadVehicle() {
   // Support /brand/model (pretty URL, e.g. /maruti/swift) and vehicle.html?id=1 (legacy)
@@ -326,7 +331,15 @@ async function loadVehicle() {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) { console.error('Vehicle fetch failed with status', res.status); showNotFound(); return; }
     const v = await res.json();
-    renderVehicle(v);
+    try {
+      renderVehicle(v);
+    } catch (renderErr) {
+      // Data loaded fine but a page element was missing/mismatched — show whatever rendered
+      // instead of a false "Not Found", and log the real cause for debugging.
+      console.error('renderVehicle partial failure (showing page anyway):', renderErr);
+      setShow('loadingState', false);
+      setShow('content', true);
+    }
     // Normalize legacy ?id= links to the pretty URL without reloading
     if (!slug && window.history && window.history.replaceState) {
       window.history.replaceState(null, '', '/' + slugify2(v.brand) + '/' + slugify2(v.model));
@@ -373,10 +386,10 @@ function renderVehicle(v) {
   }
   if (allImages.length) {
     showMain(allImages[0]);
-    document.getElementById('photoCount').style.display = 'block';
-    document.getElementById('photoCount').textContent = '📷 ' + allImages.length + ' Photo' + (allImages.length > 1 ? 's' : '');
+    setShow('photoCount', true);
+    setText('photoCount', '📷 ' + allImages.length + ' Photo' + (allImages.length > 1 ? 's' : ''));
     if (allImages.some(u => u.includes('wikimedia.org'))) {
-      document.getElementById('photoCredit').style.display = 'block';
+      setShow('photoCredit', true);
     }
   } else {
     fallback.textContent = v.icon || '🚗';
