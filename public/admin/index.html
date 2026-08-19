@@ -115,7 +115,21 @@
 
     <!-- VEHICLES PANEL -->
     <div class="panel" id="panel-vehicles">
-      <div class="card-header"><h2>Vehicle Listings</h2><button class="btn small" onclick="toggleVehicleForm()">+ Naya Vehicle Add karo</button></div>
+      <div class="card-header"><h2>Vehicle Listings</h2><div style="display:flex; gap:8px;"><button class="btn secondary small" onclick="toggleCsvImport()">📄 Bulk CSV Import</button><button class="btn small" onclick="toggleVehicleForm()">+ Naya Vehicle Add karo</button></div></div>
+      <div id="csvImportBox" style="display:none; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:8px;">Bulk Import Vehicles (CSV)</h3>
+        <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:12px;">
+          CSV columns (first row = header, in this order): <code>category,brand,model,year,price,fuel_type,image_url,icon,emi,tags,variants,colors,description</code><br>
+          Example row: <code>Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,"NEW,LOAN READY,INSURE","Sigma:₹6.6 L,Delta:₹7.5 L",,"Premium hatchback"</code>
+        </p>
+        <textarea id="csvInput" rows="8" style="width:100%; background:var(--dark-3); color:#fff; border:1px solid var(--border); border-radius:6px; padding:10px; font-family:monospace; font-size:12px;" placeholder="category,brand,model,year,price,fuel_type,image_url,icon,emi,tags,variants,colors,description
+Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button class="btn small" onclick="importCsv()">Import Vehicles</button>
+          <button class="btn secondary small" onclick="toggleCsvImport()">Cancel</button>
+        </div>
+        <div id="csvImportResult" style="margin-top:10px; font-size:13px;"></div>
+      </div>
       <div class="form-grid" id="vehicleForm" style="display:none;">
         <input type="hidden" id="v-id">
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Category</label>
@@ -258,6 +272,60 @@ async function deleteInquiry(id) {
 }
 
 // ===== VEHICLES =====
+function toggleCsvImport() {
+  const box = document.getElementById('csvImportBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function parseCsvLine(line) {
+  // Simple CSV parser that handles quoted fields with commas inside
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(cur); cur = ''; }
+    else { cur += ch; }
+  }
+  result.push(cur);
+  return result.map(s => s.trim());
+}
+
+async function importCsv() {
+  const raw = document.getElementById('csvInput').value.trim();
+  const resultBox = document.getElementById('csvImportResult');
+  if (!raw) { resultBox.textContent = 'CSV data khali chhe.'; return; }
+  const lines = raw.split('\n').filter(l => l.trim());
+  const header = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
+  const rows = lines.slice(1).map(line => {
+    const cells = parseCsvLine(line);
+    const obj = {};
+    header.forEach((h, i) => obj[h] = cells[i] || '');
+    return obj;
+  });
+
+  resultBox.textContent = `Importing ${rows.length} vehicles...`;
+  let success = 0, failed = 0;
+  for (const row of rows) {
+    try {
+      const res = await fetch(API + '/api/admin/vehicles', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          category: row.category, brand: row.brand, model: row.model, year: row.year,
+          price: row.price, fuel_type: row.fuel_type, image_url: row.image_url,
+          icon: row.icon || '🚗', emi: row.emi, tags: row.tags || 'NEW,LOAN READY,INSURE',
+          variants: row.variants, colors: row.colors, description: row.description
+        })
+      });
+      if (res.ok) success++; else failed++;
+    } catch (e) { failed++; }
+  }
+  resultBox.innerHTML = `✅ ${success} vehicles imported. ${failed ? `❌ ${failed} failed.` : ''}`;
+  document.getElementById('csvInput').value = '';
+  loadVehicles();
+}
+
 function toggleVehicleForm() {
   const form = document.getElementById('vehicleForm');
   form.style.display = form.style.display === 'none' ? 'grid' : 'none';
