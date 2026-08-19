@@ -302,11 +302,14 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 function slugify(brand, model) {
   return (brand + '-' + model).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
+function slugify2(text) {
+  return String(text).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
 
 async function loadVehicle() {
-  // Support both /vehicle/maruti-swift (pretty URL) and vehicle.html?id=1 (legacy)
-  const pathMatch = window.location.pathname.match(/^\/vehicle\/([a-z0-9-]+)$/i);
-  const slug = pathMatch ? pathMatch[1] : null;
+  // Support /brand/model (pretty URL, e.g. /maruti/swift) and vehicle.html?id=1 (legacy)
+  const pathMatch = window.location.pathname.match(/^\/([a-z0-9-]+)\/([a-z0-9-]+)$/i);
+  const slug = pathMatch ? (pathMatch[1] + '-' + pathMatch[2]) : null;
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
 
@@ -319,7 +322,7 @@ async function loadVehicle() {
     renderVehicle(v);
     // Normalize legacy ?id= links to the pretty URL without reloading
     if (!slug && window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', '/vehicle/' + slugify(v.brand, v.model));
+      window.history.replaceState(null, '', '/' + slugify2(v.brand) + '/' + slugify2(v.model));
     }
   } catch (e) { showNotFound(); }
 }
@@ -450,7 +453,7 @@ async function loadCompareVehicles(currentId, category) {
     if (!others.length) return;
     document.getElementById('compare').style.display = 'block';
     document.getElementById('compareList').innerHTML = others.map(o => `
-      <div class="card compare-card" onclick="window.location.href='/vehicle/' + slugify('${o.brand}', '${o.model}')">
+      <div class="card compare-card" onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')">
         <div class="compare-img">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
         <h3>${o.brand} ${o.model}</h3>
         <p>${o.fuel_type || ''}</p>
