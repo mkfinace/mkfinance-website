@@ -796,14 +796,23 @@
   </div>
 
   <div id="tab-commercial" style="max-width:1200px; margin:0 auto; display:none;">
-    <div class="commercial-grid">
-      <div class="commercial-card"><div class="commercial-icon">🚚</div><div class="commercial-info"><h4>Trucks & Heavy Vehicles</h4><p>9T, 16T, 24T, 40T heavy duty trucks.</p><div class="brands">Tata · Ashok Leyland · Eicher · BharatBenz</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚐</div><div class="commercial-info"><h4>Tempo & Mini Trucks</h4><p>Ideal for city delivery and intracity logistics.</p><div class="brands">Tata Ace · Ashok Leyland Dost · Bajaj · Mahindra</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🛻</div><div class="commercial-info"><h4>Pickup Vehicles</h4><p>Agriculture, construction, and local transport.</p><div class="brands">Tata Xenon · Mahindra Bolero Pickup · Isuzu</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚜</div><div class="commercial-info"><h4>Tractors</h4><p>Farm tractors, rotavators, and all agriculture equipment.</p><div class="brands">Mahindra · TAFE · John Deere · Sonalika · New Holland</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚌</div><div class="commercial-info"><h4>Buses & Travellers</h4><p>School buses, staff buses, tourist buses.</p><div class="brands">Tata · Ashok Leyland · Force · Volvo</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🏗️</div><div class="commercial-info"><h4>Construction Vehicles</h4><p>JCB, tipper, crane, mixer trucks.</p><div class="brands">JCB · TATA · ACE · Volvo · Komatsu</div></div></div>
+    <div class="commercial-grid" id="commercialGrid">
+      <div class="commercial-card" style="cursor:pointer;" onclick="loadCommercialCategory('Truck','Trucks & Heavy Vehicles')"><div class="commercial-icon">🚚</div><div class="commercial-info"><h4>Trucks & Heavy Vehicles</h4><p>9T, 16T, 24T, 40T heavy duty trucks.</p><div class="brands">Tata · Ashok Leyland · Eicher · BharatBenz</div></div></div>
+      <div class="commercial-card" style="cursor:pointer;" onclick="loadCommercialCategory('Tempo','Tempo & Mini Trucks')"><div class="commercial-icon">🚐</div><div class="commercial-info"><h4>Tempo & Mini Trucks</h4><p>Ideal for city delivery and intracity logistics.</p><div class="brands">Tata Ace · Ashok Leyland Dost · Bajaj · Mahindra</div></div></div>
+      <div class="commercial-card" style="cursor:pointer;" onclick="loadCommercialCategory('Pickup','Pickup Vehicles')"><div class="commercial-icon">🛻</div><div class="commercial-info"><h4>Pickup Vehicles</h4><p>Agriculture, construction, and local transport.</p><div class="brands">Tata Xenon · Mahindra Bolero Pickup · Isuzu</div></div></div>
+      <div class="commercial-card" style="cursor:pointer;" onclick="loadCommercialCategory('Tractor','Tractors')"><div class="commercial-icon">🚜</div><div class="commercial-info"><h4>Tractors</h4><p>Farm tractors, rotavators, and all agriculture equipment.</p><div class="brands">Mahindra · TAFE · John Deere · Sonalika · New Holland</div></div></div>
+      <div class="commercial-card" style="cursor:pointer;" onclick="loadCommercialCategory('Bus','Buses & Travellers')"><div class="commercial-icon">🚌</div><div class="commercial-info"><h4>Buses & Travellers</h4><p>School buses, staff buses, tourist buses.</p><div class="brands">Tata · Ashok Leyland · Force · Volvo</div></div></div>
+      <div class="commercial-card" style="cursor:pointer;" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"><div class="commercial-icon">🏗️</div><div class="commercial-info"><h4>Construction Vehicles</h4><p>JCB, tipper, crane, mixer trucks.</p><div class="brands">JCB · TATA · ACE · Volvo · Komatsu</div></div></div>
     </div>
+
+    <div id="commercialListing" style="display:none;">
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+        <button onclick="backToCommercialCategories()" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:6px; font-size:13px; cursor:pointer; font-family:'Montserrat',sans-serif;">← All Categories</button>
+        <h3 id="commercialListingTitle" style="font-family:'Rajdhani',sans-serif; font-size:1.4rem;"></h3>
+      </div>
+      <div class="vehicles-grid" id="commercialVehiclesGrid"></div>
+    </div>
+
     <div style="text-align:center; margin-top:3rem;">
       <a href="#contact" class="btn-secondary" style="display:inline-block; text-decoration:none;">Enquire Commercial Vehicle →</a>
     </div>
@@ -1298,6 +1307,48 @@ function quoteFromModal() {
     if (sel) sel.value = 'Car / SUV';
     if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + currentModalVehicle.brand + ' ' + currentModalVehicle.model;
   }
+}
+
+async function loadCommercialCategory(category, title) {
+  document.getElementById('commercialGrid').style.display = 'none';
+  document.getElementById('commercialListing').style.display = 'block';
+  document.getElementById('commercialListingTitle').textContent = title;
+  const grid = document.getElementById('commercialVehiclesGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Loading vehicles...</div>';
+  try {
+    const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category));
+    const vehicles = await res.json();
+    if (!vehicles.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem 1rem; opacity:0.6;">No ${title.toLowerCase()} listed yet. <a href="#contact" style="color:var(--primary-light);">Contact us</a> for availability.</div>`;
+      return;
+    }
+    vehicles.forEach(v => vehicleCache[v.id] = v);
+    grid.innerHTML = vehicles.map(v => {
+      const isNew = (v.tags || '').split(',').map(t => t.trim()).includes('NEW');
+      return `
+      <div class="vehicle-card" onclick="window.location.href='vehicle.html?id=${v.id}'">
+        <div class="vehicle-img">
+          ${v.image_url ? `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='${v.icon || '🚛'}<div class=&quot;brand-badge&quot;>${v.brand}</div>'">` : `${v.icon || '🚛'}`}
+          <div class="brand-badge">${v.brand}</div>
+          ${isNew ? `<div class="new-badge">Brand New</div>` : ''}
+        </div>
+        <div class="vehicle-info">
+          <h4>${v.model}</h4>
+          <div class="model">${[v.year, v.fuel_type].filter(Boolean).join(' | ')}</div>
+          <div class="vehicle-price">${v.price || ''} ${v.emi ? `<span class="emi">${v.emi}</span>` : ''}</div>
+          <div class="vehicle-tags">${(v.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
+          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='vehicle.html?id=${v.id}'">View Offers →</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Unable to load vehicles.</div>';
+  }
+}
+
+function backToCommercialCategories() {
+  document.getElementById('commercialGrid').style.display = 'grid';
+  document.getElementById('commercialListing').style.display = 'none';
 }
 
 function goToTab(tab) {
