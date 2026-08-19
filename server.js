@@ -7,6 +7,8 @@ const fs = require('fs');
 const db = require('./db');
 
 const app = express();
+app.disable('etag'); // prevent 304 Not Modified responses that break fetch() res.ok checks
+app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
