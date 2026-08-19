@@ -323,7 +323,7 @@ async function loadVehicle() {
   if (!slug && !id) { showNotFound(); return; }
   try {
     const url = slug ? '/api/vehicles/by-slug/' + slug : '/api/vehicles/' + id;
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) { showNotFound(); return; }
     const v = await res.json();
     renderVehicle(v);
@@ -474,7 +474,7 @@ function renderVehicle(v) {
 
 async function loadCompareVehicles(currentId, category) {
   try {
-    const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category));
+    const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category), { cache: 'no-store' });
     const all = await res.json();
     const others = all.filter(x => x.id != currentId).slice(0, 3);
     if (!others.length) return;
