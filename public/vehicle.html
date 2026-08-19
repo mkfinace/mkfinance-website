@@ -265,9 +265,16 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 </div>
 </section>
 
-<section class="section" id="faq">
+<section class="section" id="vfaq" style="display:none;">
 <div class="container">
-<h2 class="section-title">Frequently Asked Questions</h2><p class="section-sub">Loan ane vehicle purchase process vishe common savalo.</p>
+<h2 class="section-title" id="vfaqTitle">FAQs</h2><p class="section-sub">Quick answers about this vehicle.</p>
+<div class="card faq" id="vfaqList" style="padding:0 20px;"></div>
+</div>
+</section>
+
+<section class="section alt" id="faq">
+<div class="container">
+<h2 class="section-title">Loan & Finance FAQs</h2><p class="section-sub">Common questions about the loan and purchase process.</p>
 <div class="card" style="padding:0 20px;">
 <div class="faq-item"><div class="faq-q">What documents are needed for a loan?</div><div class="faq-a">Aadhar card, PAN card, income proof (salary slip/ITR), address proof, and bank statement — the MK Finance team will give you the exact list based on your profile.</div></div>
 <div class="faq-item"><div class="faq-q">Loan approval ma ketlo samay lage?</div><div class="faq-a">Sturdy documents sathe sadharan rite 24-48 kalak ma approval malshe.</div></div>
@@ -351,7 +358,7 @@ function renderVehicle(v) {
     ${(v.colors || '').trim() ? `<a onclick="scrollToSec('colors',this)">Colours</a>` : ''}
     <a onclick="scrollToSec('compare',this)">Compare</a>
     <a onclick="scrollToSec('reviews',this)">Reviews</a>
-    <a onclick="scrollToSec('faq',this)">FAQs</a>
+    <a onclick="scrollToSec('vfaq',this)">FAQs</a>
   `;
 
   const allImages = [v.image_url, ...((v.gallery_images || '').split(',').map(x => x.trim()).filter(Boolean))].filter(Boolean);
@@ -418,7 +425,7 @@ function renderVehicle(v) {
 
   if (v.expert_note && v.expert_note.trim()) {
     document.getElementById('expert').style.display = 'block';
-    document.getElementById('expertText').textContent = v.expert_note;
+    document.getElementById('expertText').innerHTML = v.expert_note.split('\n\n').map(p => `<p style="margin-bottom:14px;">${p.replace(/\n/g, '<br>')}</p>`).join('');
   }
 
   document.getElementById('specBrand2').textContent = v.brand || '-';
@@ -429,6 +436,26 @@ function renderVehicle(v) {
   document.getElementById('specPrice2').textContent = v.price || '-';
 
   document.getElementById('ctaTitle').textContent = 'Need the best loan for ' + v.brand + ' ' + v.model + '?';
+
+  // Vehicle-specific FAQ (built from this vehicle's real data — no fabricated numbers)
+  const vfaqItems = [];
+  if (v.price) vfaqItems.push({ q: `What is the price of ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is priced at ${v.price}${v.price.includes('-') || v.price.includes('–') ? '' : ' onwards'} (ex-showroom estimate).` });
+  if (v.emi) vfaqItems.push({ q: `What is the EMI for ${v.brand} ${v.model}?`, a: `${v.brand} ${v.model} EMI ${v.emi.toLowerCase().includes('starting') ? 'is ' + v.emi.toLowerCase() : 'starts at ' + v.emi}. Contact MK Finance for a personalised quote based on your down payment and tenure.` });
+  if (v.category) vfaqItems.push({ q: `What type of vehicle is the ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is a ${v.category.toLowerCase()}${v.fuel_type ? ', available in ' + v.fuel_type : ''}.` });
+  const variantCount = (v.variants || '').split(',').filter(Boolean).length;
+  if (variantCount) vfaqItems.push({ q: `How many variants does the ${v.brand} ${v.model} have?`, a: `The ${v.brand} ${v.model} is available in ${variantCount} variant${variantCount > 1 ? 's' : ''}${v.variants ? ': ' + v.variants.split(',').map(x => x.split(':')[0].trim()).join(', ') : ''}.` });
+  if (v.colors && v.colors.trim()) {
+    const colorCount = v.colors.split(',').filter(Boolean).length;
+    vfaqItems.push({ q: `What colours are available for ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is available in ${colorCount} colour${colorCount > 1 ? 's' : ''}: ${v.colors}.` });
+  }
+  vfaqItems.push({ q: `Can I get a loan for ${v.brand} ${v.model} through MK Finance?`, a: `Yes, MK Finance offers vehicle loans and insurance for the ${v.brand} ${v.model}. Contact us for a personalised EMI quote.` });
+
+  if (vfaqItems.length) {
+    document.getElementById('vfaq').style.display = 'block';
+    document.getElementById('vfaqTitle').textContent = v.brand + ' ' + v.model + ' FAQs';
+    document.getElementById('vfaqList').innerHTML = vfaqItems.map(item => `
+      <div class="faq-item"><div class="faq-q">${item.q}</div><div class="faq-a">${item.a}</div></div>`).join('');
+  }
 
   // Colours
   const colorList = (v.colors || '').split(',').map(x => x.trim()).filter(Boolean);
