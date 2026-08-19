@@ -125,7 +125,7 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 
 <header class="topbar">
   <div class="container topbar-inner">
-    <a class="logo" href="index.html"><span>MK</span> <span>Finance</span></a>
+    <a class="logo" href="/index.html"><span>MK</span> <span>Finance</span></a>
     <div class="search">⌕ <input id="searchBox" placeholder="Search cars, brands or models" onkeydown="if(event.key==='Enter') doSearch()"></div>
     <div class="top-links">
       <span class="city">📍 Valsad, Gujarat</span>
@@ -136,9 +136,9 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 
 <nav class="mainnav">
   <div class="container nav">
-    <a onclick="window.location.href='index.html#vehicles'">New Cars</a>
-    <a onclick="window.location.href='index.html#loans'">Car Loans</a>
-    <a onclick="window.location.href='index.html#insurance'">Insurance</a>
+    <a onclick="window.location.href='/index.html#vehicles'">New Cars</a>
+    <a onclick="window.location.href='/index.html#loans'">Car Loans</a>
+    <a onclick="window.location.href='/index.html#insurance'">Insurance</a>
     <a onclick="scrollToSec('reviews', document.querySelector('.subnav a'))">Reviews</a>
     <a onclick="scrollToSec('compare', document.querySelector('.subnav a'))">Compare Cars</a>
   </div>
@@ -152,7 +152,7 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <div class="container" id="notFoundState">
   <h2>Vehicle Not Found</h2>
   <p style="margin-top:8px;">This vehicle is no longer available.</p>
-  <a href="index.html" class="btn" style="display:inline-block; margin-top:20px;">Home par pacha javo</a>
+  <a href="/index.html" class="btn" style="display:inline-block; margin-top:20px;">Home par pacha javo</a>
 </div>
 
 <main id="content">
@@ -291,23 +291,36 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <div class="container">
 <div class="footer-grid">
 <div><div class="footer-logo"><span>MK</span> Finance</div><p class="footer-desc">Your financial partner — for vehicle loans, commercial vehicle finance and vehicle insurance.</p></div>
-<div><h4>Finance</h4><a href="index.html#loans">Car Loan</a><a href="index.html#loans">Commercial Vehicle Loan</a><a href="index.html#services">EMI Calculator</a><a href="index.html#insurance">Insurance</a></div>
-<div><h4>Quick Links</h4><a onclick="document.getElementById('price').scrollIntoView({behavior:'smooth'})">Price</a><a onclick="document.getElementById('variants').scrollIntoView({behavior:'smooth'})">Variants</a><a onclick="document.getElementById('specs').scrollIntoView({behavior:'smooth'})">Specs</a><a href="index.html">Home</a></div>
+<div><h4>Finance</h4><a href="/index.html#loans">Car Loan</a><a href="/index.html#loans">Commercial Vehicle Loan</a><a href="/index.html#services">EMI Calculator</a><a href="/index.html#insurance">Insurance</a></div>
+<div><h4>Quick Links</h4><a onclick="document.getElementById('price').scrollIntoView({behavior:'smooth'})">Price</a><a onclick="document.getElementById('variants').scrollIntoView({behavior:'smooth'})">Variants</a><a onclick="document.getElementById('specs').scrollIntoView({behavior:'smooth'})">Specs</a><a href="/index.html">Home</a></div>
 </div>
 <div class="copyright"><span>© 2026 MK Finance. All Rights Reserved.</span><span>Call: 9824742356</span></div>
 </div>
 </footer>
 
 <script>
+function slugify(brand, model) {
+  return (brand + '-' + model).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 async function loadVehicle() {
+  // Support both /vehicle/maruti-swift (pretty URL) and vehicle.html?id=1 (legacy)
+  const pathMatch = window.location.pathname.match(/^\/vehicle\/([a-z0-9-]+)$/i);
+  const slug = pathMatch ? pathMatch[1] : null;
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
-  if (!id) { showNotFound(); return; }
+
+  if (!slug && !id) { showNotFound(); return; }
   try {
-    const res = await fetch('/api/vehicles/' + id);
+    const url = slug ? '/api/vehicles/by-slug/' + slug : '/api/vehicles/' + id;
+    const res = await fetch(url);
     if (!res.ok) { showNotFound(); return; }
     const v = await res.json();
     renderVehicle(v);
+    // Normalize legacy ?id= links to the pretty URL without reloading
+    if (!slug && window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', '/vehicle/' + slugify(v.brand, v.model));
+    }
   } catch (e) { showNotFound(); }
 }
 
@@ -437,7 +450,7 @@ async function loadCompareVehicles(currentId, category) {
     if (!others.length) return;
     document.getElementById('compare').style.display = 'block';
     document.getElementById('compareList').innerHTML = others.map(o => `
-      <div class="card compare-card" onclick="window.location.href='vehicle.html?id=${o.id}'">
+      <div class="card compare-card" onclick="window.location.href='/vehicle/' + slugify('${o.brand}', '${o.model}')">
         <div class="compare-img">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
         <h3>${o.brand} ${o.model}</h3>
         <p>${o.fuel_type || ''}</p>
@@ -448,7 +461,7 @@ async function loadCompareVehicles(currentId, category) {
 
 function doSearch() {
   const q = document.getElementById('searchBox').value.trim();
-  window.location.href = 'index.html' + (q ? '?search=' + encodeURIComponent(q) : '') + '#vehicles';
+  window.location.href = '/index.html' + (q ? '?search=' + encodeURIComponent(q) : '') + '#vehicles';
 }
 
 function selectThumb(el, url) {
@@ -467,7 +480,7 @@ function scrollToSec(id, el) {
 function getQuote() {
   const v = window.currentVehicle;
   const q = v ? ('?vehicle=' + encodeURIComponent(v.brand + ' ' + v.model)) : '';
-  window.location.href = 'index.html' + q + '#contact';
+  window.location.href = '/index.html' + q + '#contact';
 }
 
 loadVehicle();
