@@ -165,8 +165,10 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });
 
-// Pretty vehicle URL: /vehicle/maruti-swift -> serves the same vehicle detail page
-app.get('/vehicle/:slug', (req, res) => {
+// Pretty vehicle URL: /maruti/swift -> serves the same vehicle detail page
+app.get('/:brand/:model', (req, res, next) => {
+  // Only handle simple slug-like segments; let everything else (e.g. real static paths) fall through
+  if (!/^[a-z0-9-]+$/i.test(req.params.brand) || !/^[a-z0-9-]+$/i.test(req.params.model)) return next();
   res.sendFile(path.join(__dirname, 'public', 'vehicle.html'));
 });
 
