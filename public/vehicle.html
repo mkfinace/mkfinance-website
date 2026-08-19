@@ -29,10 +29,15 @@ button,input,select{font:inherit}
 .topbar-inner{display:flex;align-items:center;gap:22px;width:100%}
 .logo{font-size:24px;font-weight:800;letter-spacing:-1px;white-space:nowrap}
 .logo span:first-child{color:var(--red)} .logo span:last-child{color:var(--blue)}
+.search{flex:1;max-width:420px;border:1px solid rgba(255,255,255,.14);border-radius:7px;height:42px;display:flex;align-items:center;padding:0 13px;color:#9ca3af}
+.search input{border:0;outline:0;width:100%;padding-left:9px;color:#fff;background:transparent}
+.mainnav{border-bottom:1px solid var(--line);background:#081820}
+.mainnav .nav{height:46px;display:flex;align-items:center;gap:26px;overflow:auto;white-space:nowrap}
+.mainnav a{font-size:13px;color:#b5c2c8;cursor:pointer}.mainnav a:hover{color:var(--blue)}
 .top-links{margin-left:auto;display:flex;gap:20px;font-size:13px;color:#a8b7be;align-items:center}
 .city{font-weight:600;color:#fff}
 .top-links a.call{font-weight:700;color:var(--blue)}
-.subnav{background:#07151c;border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:900}
+.subnav{background:#07151c;border-bottom:1px solid var(--line);position:sticky;top:114px;z-index:900}
 .subnav .nav{height:50px;display:flex;align-items:center;gap:25px;overflow:auto;white-space:nowrap}
 .subnav a{font-size:13px;font-weight:600;color:#aebbc1;padding:16px 0;cursor:pointer}
 .subnav a.active{color:var(--blue);border-bottom:3px solid var(--blue)}
@@ -116,12 +121,23 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <header class="topbar">
   <div class="container topbar-inner">
     <a class="logo" href="index.html"><span>MK</span> <span>Finance</span></a>
+    <div class="search">⌕ <input id="searchBox" placeholder="Search cars, brands or models" onkeydown="if(event.key==='Enter') doSearch()"></div>
     <div class="top-links">
       <span class="city">📍 Valsad, Gujarat</span>
       <a class="call" href="tel:9824742356">📞 98247 42356</a>
     </div>
   </div>
 </header>
+
+<nav class="mainnav">
+  <div class="container nav">
+    <a onclick="window.location.href='index.html#vehicles'">New Cars</a>
+    <a onclick="window.location.href='index.html#loans'">Car Loans</a>
+    <a onclick="window.location.href='index.html#insurance'">Insurance</a>
+    <a onclick="scrollToSec('reviews', document.querySelector('.subnav a'))">Reviews</a>
+    <a onclick="scrollToSec('compare', document.querySelector('.subnav a'))">Compare Cars</a>
+  </div>
+</nav>
 
 <nav class="subnav">
   <div class="container nav" id="subnavLinks"></div>
@@ -412,6 +428,11 @@ async function loadCompareVehicles(currentId, category) {
         <div class="compare-price">${o.price || 'Price on request'}</div>
       </div>`).join('');
   } catch (e) {}
+}
+
+function doSearch() {
+  const q = document.getElementById('searchBox').value.trim();
+  window.location.href = 'index.html' + (q ? '?search=' + encodeURIComponent(q) : '') + '#vehicles';
 }
 
 function selectThumb(el, url) {
