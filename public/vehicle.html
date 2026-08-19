@@ -410,7 +410,7 @@ function renderVehicle(v) {
 
   document.getElementById('specStrip').innerHTML = `
     <div class="spec"><div class="spec-label">Brand</div><div class="spec-value">${v.brand || '-'}</div></div>
-    <div class="spec"><div class="spec-label">Model Year</div><div class="spec-value">${v.year || '-'}</div></div>
+    <div class="spec"><div class="spec-label">Model Year</div><div class="spec-value">New</div></div>
     <div class="spec"><div class="spec-label">Fuel Type</div><div class="spec-value">${v.fuel_type || '-'}</div></div>
     <div class="spec"><div class="spec-label">Category</div><div class="spec-value">${v.category || '-'}</div></div>
   `;
@@ -418,7 +418,7 @@ function renderVehicle(v) {
   document.getElementById('priceTitleText').textContent = v.brand + ' ' + v.model + ' Price & EMI';
   document.getElementById('sidePrice').textContent = v.price || '-';
   document.getElementById('sideFuel').textContent = v.fuel_type || '-';
-  document.getElementById('sideYear').textContent = v.year || '-';
+  document.getElementById('sideYear').textContent = 'New';
   document.getElementById('sideCategory').textContent = v.category || '-';
   document.getElementById('sideEmi').textContent = v.emi || '-';
 
@@ -444,7 +444,7 @@ function renderVehicle(v) {
 
   document.getElementById('specBrand2').textContent = v.brand || '-';
   document.getElementById('specModel2').textContent = v.model || '-';
-  document.getElementById('specYear2').textContent = v.year || '-';
+  document.getElementById('specYear2').textContent = 'New';
   document.getElementById('specFuel2').textContent = v.fuel_type || '-';
   document.getElementById('specCategory2').textContent = v.category || '-';
   document.getElementById('specPrice2').textContent = v.price || '-';
