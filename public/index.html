@@ -1,1355 +1,313 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MK Finance - Your Financial Partner</title>
+<title>MK Finance | Mahindra Scorpio N</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;700&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1a6e8e;
-    --primary-dark: #0d4d6b;
-    --primary-light: #2a8aad;
-    --accent: #e63030;
-    --accent-dark: #b01c1c;
-    --dark: #0a0a0a;
-    --dark-2: #141414;
-    --dark-3: #1e1e1e;
-    --dark-4: #252525;
-    --gray: #888;
-    --light-gray: #aaa;
-    --white: #fff;
-    --text-muted: #666;
-    --border: rgba(255,255,255,0.08);
-    --card-bg: rgba(255,255,255,0.03);
-    --section-bg: #0f0f0f;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--dark);
-    color: var(--white);
-    overflow-x: hidden;
-  }
-
-  /* ===== NAVBAR ===== */
-  nav {
-    position: fixed; top: 0; width: 100%; z-index: 1000;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 70px;
-  }
-  .nav-logo {
-    display: flex; align-items: center; gap: 12px;
-  }
-  .nav-logo img { height: 48px; width: auto; }
-  .nav-links {
-    display: flex; align-items: center; gap: 2rem;
-    list-style: none;
-  }
-  .nav-links a {
-    color: rgba(255,255,255,0.75); text-decoration: none;
-    font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--primary-light); }
-  .nav-cta {
-    background: var(--accent); color: white;
-    padding: 9px 22px; border-radius: 4px;
-    font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
-    text-decoration: none; transition: background 0.2s;
-  }
-  .nav-cta:hover { background: var(--accent-dark); }
-  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
-  .hamburger span { display: block; width: 24px; height: 2px; background: white; margin: 5px 0; transition: 0.3s; }
-
-  /* ===== HERO ===== */
-  .hero {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #050e14 0%, #0a1a24 40%, #0d1010 100%);
-    display: flex; align-items: center;
-    position: relative; overflow: hidden;
-    padding-top: 70px;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a6e8e' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.5;
-  }
-  .hero-accent-line {
-    position: absolute; left: 0; top: 0; bottom: 0;
-    width: 4px; background: linear-gradient(to bottom, transparent, var(--accent), var(--primary), transparent);
-  }
-  .hero-grid-line {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 1px; background: linear-gradient(to right, transparent, var(--primary-light), transparent);
-    opacity: 0.3;
-  }
-  .hero-content {
-    max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
-    position: relative; z-index: 1;
-  }
-  .hero-eyebrow {
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--primary-light); font-weight: 600;
-    display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;
-  }
-  .hero-eyebrow::before {
-    content: ''; display: block; width: 32px; height: 2px; background: var(--primary-light);
-  }
-  .hero h1 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: clamp(3rem, 5vw, 5rem);
-    font-weight: 700; line-height: 1.05; margin-bottom: 1.5rem;
-  }
-  .hero h1 .mk { color: var(--accent); }
-  .hero h1 .finance { color: var(--primary-light); }
-  .hero-desc {
-    font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.6);
-    margin-bottom: 2.5rem; max-width: 480px;
-  }
-  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .btn-primary {
-    background: var(--accent); color: white;
-    padding: 14px 32px; border-radius: 4px;
-    font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
-    text-decoration: none; display: inline-block;
-    transition: all 0.2s; border: 2px solid var(--accent);
-  }
-  .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); transform: translateY(-2px); }
-  .btn-secondary {
-    background: transparent; color: white;
-    padding: 14px 32px; border-radius: 4px;
-    font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
-    text-decoration: none; display: inline-block;
-    transition: all 0.2s; border: 2px solid rgba(255,255,255,0.3);
-  }
-  .btn-secondary:hover { border-color: var(--primary-light); color: var(--primary-light); }
-  .hero-stats {
-    display: flex; gap: 2rem; margin-top: 3rem;
-    padding-top: 2rem; border-top: 1px solid var(--border);
-  }
-  .hero-stat { }
-  .hero-stat .num {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 2.2rem; font-weight: 700; color: var(--primary-light);
-    line-height: 1;
-  }
-  .hero-stat .num span { color: var(--accent); }
-  .hero-stat .label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; letter-spacing: 1px; }
-  .hero-visual {
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .hero-logo-wrap {
-    width: 400px; height: 300px;
-    background: rgba(26,110,142,0.08);
-    border: 1px solid rgba(26,110,142,0.2);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-  }
-  .hero-logo-wrap::before {
-    content: ''; position: absolute;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background: conic-gradient(from 0deg, transparent 0deg, rgba(26,110,142,0.06) 60deg, transparent 120deg);
-    animation: rotate 8s linear infinite;
-  }
-  @keyframes rotate { to { transform: rotate(360deg); } }
-  .hero-logo-wrap img { width: 320px; position: relative; z-index: 1; }
-  .hero-badge {
-    position: absolute; top: 10px; right: -10px;
-    background: var(--accent); padding: 8px 16px;
-    border-radius: 4px 0 0 4px;
-    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  }
-  .floating-card {
-    position: absolute;
-    background: rgba(15,15,15,0.95);
-    border: 1px solid rgba(26,110,142,0.3);
-    border-radius: 8px; padding: 12px 16px;
-    font-size: 12px;
-  }
-  .floating-card.card-1 { bottom: 20px; left: -20px; }
-  .floating-card.card-2 { top: 20px; right: -10px; }
-  .floating-card .fc-label { color: rgba(255,255,255,0.4); margin-bottom: 2px; }
-  .floating-card .fc-val { font-weight: 700; color: var(--primary-light); font-size: 16px; }
-
-  /* ===== SERVICES ===== */
-  .services {
-    padding: 6rem 2rem; background: var(--section-bg);
-    position: relative;
-  }
-  .section-header {
-    max-width: 1200px; margin: 0 auto 4rem;
-    display: flex; align-items: flex-end; justify-content: space-between;
-    flex-wrap: wrap; gap: 1rem;
-  }
-  .section-tag {
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--primary-light); font-weight: 600;
-    display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;
-  }
-  .section-tag::before { content: ''; display: block; width: 24px; height: 2px; background: var(--primary-light); }
-  .section-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
-    line-height: 1.1;
-  }
-  .section-title span { color: var(--accent); }
-  .section-desc { color: rgba(255,255,255,0.5); font-size: 15px; max-width: 400px; line-height: 1.7; }
-  .services-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
-  }
-  .service-card {
-    background: var(--dark-2); padding: 2.5rem 2rem;
-    position: relative; overflow: hidden;
-    border: 1px solid var(--border);
-    transition: all 0.3s; cursor: pointer;
-  }
-  .service-card:hover {
-    background: rgba(26,110,142,0.08);
-    border-color: rgba(26,110,142,0.4);
-    transform: translateY(-4px);
-    z-index: 2;
-  }
-  .service-card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; width: 100%; height: 3px;
-    background: var(--primary);
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.3s;
-  }
-  .service-card:hover::before { transform: scaleX(1); }
-  .service-icon {
-    width: 56px; height: 56px; margin-bottom: 1.5rem;
-    background: rgba(26,110,142,0.15);
-    border: 1px solid rgba(26,110,142,0.25);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem;
-  }
-  .service-card h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.4rem; font-weight: 700; margin-bottom: 0.75rem;
-    color: var(--white);
-  }
-  .service-card p {
-    font-size: 13px; line-height: 1.7;
-    color: rgba(255,255,255,0.5);
-  }
-  .service-card .service-arrow {
-    margin-top: 1.5rem;
-    color: var(--primary-light); font-size: 13px; font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .service-card:hover .service-arrow { opacity: 1; }
-
-  /* ===== VEHICLES ===== */
-  .vehicles { padding: 6rem 2rem; background: var(--dark); }
-  .tabs-wrap {
-    max-width: 1200px; margin: 0 auto 3rem;
-    display: flex; gap: 0; border: 1px solid var(--border);
-    border-radius: 6px; width: fit-content; overflow: hidden;
-  }
-  .tab-btn {
-    padding: 12px 28px; background: transparent; border: none;
-    color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 600;
-    letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
-    font-family: 'Montserrat', sans-serif;
-  }
-  .tab-btn.active {
-    background: var(--primary); color: white;
-  }
-  .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
-  .vehicles-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
-  }
-  .vehicle-card {
-    background: var(--dark-2); border: 1px solid var(--border);
-    border-radius: 8px; overflow: hidden;
-    transition: all 0.3s; cursor: pointer;
-  }
-  .vehicle-card:hover {
-    border-color: rgba(26,110,142,0.4);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-  }
-  .vehicle-img {
-    height: 140px; background: rgba(26,110,142,0.06);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 4rem; position: relative; overflow: hidden;
-    border-bottom: 1px solid var(--border);
-  }
-  .vehicle-img img { width: 100%; height: 100%; object-fit: cover; }
-  .vehicle-img .brand-badge {
-    position: absolute; top: 10px; left: 10px;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-    padding: 3px 10px; border-radius: 20px;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-    color: rgba(255,255,255,0.7); border: 1px solid var(--border);
-  }
-  /* Vehicle detail modal */
-  .vmodal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-    z-index: 200; align-items: center; justify-content: center; padding: 20px;
-  }
-  .vmodal-overlay.open { display: flex; }
-  .vmodal-box {
-    background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px;
-    max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;
-  }
-  .vmodal-close {
-    position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
-    border: 1px solid var(--border); color: #fff; width: 32px; height: 32px; border-radius: 50%;
-    font-size: 16px; cursor: pointer; z-index: 2; display:flex; align-items:center; justify-content:center;
-  }
-  .vmodal-img { height: 240px; background: rgba(26,110,142,0.08); display:flex; align-items:center; justify-content:center; font-size:6rem; }
-  .vmodal-img img { width: 100%; height: 100%; object-fit: cover; }
-  .vmodal-body { padding: 24px; }
-  .vmodal-body h2 { font-size: 1.6rem; margin-bottom: 4px; }
-  .vmodal-body .vmodal-sub { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px; }
-  .vmodal-price-row { display:flex; align-items:baseline; gap:12px; margin-bottom: 16px; }
-  .vmodal-price-row .price { font-size: 1.6rem; font-weight: 800; color: var(--primary-light); }
-  .vmodal-price-row .emi { font-size: 13px; color: rgba(255,255,255,0.5); }
-  .vmodal-specs { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-  .vmodal-specs div { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
-  .vmodal-specs div .label { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
-  .vmodal-specs div .val { font-size: 14px; font-weight: 600; margin-top: 2px; }
-  .vmodal-desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 18px; }
-  .vmodal-ctas { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .vehicle-info { padding: 1.25rem; }
-  .vehicle-info h4 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;
-  }
-  .vehicle-info .model { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
-  .vehicle-price {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.4rem; font-weight: 700; color: var(--primary-light);
-    margin-bottom: 0.5rem;
-  }
-  .vehicle-price .emi {
-    font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 400;
-    font-family: 'Montserrat', sans-serif;
-  }
-  .vehicle-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
-  .tag {
-    font-size: 10px; padding: 3px 8px; border-radius: 3px;
-    font-weight: 600; letter-spacing: 0.3px; border: 1px solid;
-  }
-  .tag-new { border-color: rgba(26,200,100,0.4); color: #4ecb70; background: rgba(26,200,100,0.08); }
-  .tag-loan { border-color: rgba(26,110,142,0.4); color: var(--primary-light); background: rgba(26,110,142,0.08); }
-  .tag-ins { border-color: rgba(230,48,48,0.4); color: #f07070; background: rgba(230,48,48,0.08); }
-  .vehicle-cta {
-    width: 100%; padding: 10px;
-    background: rgba(26,110,142,0.1); border: 1px solid rgba(26,110,142,0.25);
-    color: var(--primary-light); font-size: 12px; font-weight: 600;
-    border-radius: 4px; cursor: pointer; transition: all 0.2s;
-    font-family: 'Montserrat', sans-serif; letter-spacing: 0.3px;
-  }
-  .vehicle-cta:hover { background: var(--primary); color: white; border-color: var(--primary); }
-  .commercial-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-  }
-  .commercial-card {
-    background: var(--dark-2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1.5rem;
-    display: flex; gap: 1rem; align-items: center;
-    transition: all 0.3s;
-  }
-  .commercial-card:hover {
-    border-color: rgba(26,110,142,0.3);
-    background: rgba(26,110,142,0.04);
-  }
-  .commercial-icon { font-size: 2.5rem; flex-shrink: 0; }
-  .commercial-info h4 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;
-  }
-  .commercial-info p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
-  .commercial-info .brands { font-size: 11px; color: var(--primary-light); margin-top: 6px; font-weight: 500; }
-
-  /* ===== LOAN CALCULATOR ===== */
-  .loan-section {
-    padding: 6rem 2rem; background: var(--section-bg);
-  }
-  .loan-container {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
-  }
-  .loan-calc {
-    background: var(--dark-2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 2.5rem;
-  }
-  .loan-calc h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.6rem; font-weight: 700; margin-bottom: 2rem;
-  }
-  .calc-field { margin-bottom: 1.5rem; }
-  .calc-field label {
-    display: flex; justify-content: space-between;
-    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-    margin-bottom: 10px;
-  }
-  .calc-field label span { color: var(--primary-light); font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; text-transform: none; letter-spacing: 0; }
-  input[type="range"] {
-    width: 100%; -webkit-appearance: none; height: 4px;
-    background: rgba(255,255,255,0.1); border-radius: 4px; outline: none;
-    cursor: pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 18px; height: 18px;
-    background: var(--primary-light); border-radius: 50%;
-    border: 2px solid white; cursor: pointer;
-  }
-  .calc-range-labels {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px;
-  }
-  .calc-result {
-    background: rgba(26,110,142,0.1); border: 1px solid rgba(26,110,142,0.25);
-    border-radius: 8px; padding: 1.5rem; margin-top: 2rem;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-  }
-  .calc-result-item .r-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 4px; letter-spacing: 0.5px; }
-  .calc-result-item .r-val {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.6rem; font-weight: 700; color: var(--primary-light);
-  }
-  .calc-result-item:first-child .r-val { color: var(--accent); font-size: 2rem; }
-  .loan-types { }
-  .loan-type-card {
-    background: var(--dark-2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1.5rem 2rem;
-    margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start;
-    transition: all 0.3s; cursor: pointer;
-  }
-  .loan-type-card:hover {
-    border-color: rgba(26,110,142,0.3);
-    background: rgba(26,110,142,0.06);
-  }
-  .loan-type-icon {
-    width: 44px; height: 44px; flex-shrink: 0;
-    background: rgba(26,110,142,0.12); border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-  }
-  .loan-type-info h4 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;
-  }
-  .loan-type-info p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
-  .loan-rate {
-    margin-left: auto; text-align: right; flex-shrink: 0;
-  }
-  .loan-rate .rate-num { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--primary-light); }
-  .loan-rate .rate-label { font-size: 10px; color: rgba(255,255,255,0.3); }
-
-  /* ===== INSURANCE ===== */
-  .insurance { padding: 6rem 2rem; background: var(--dark); }
-  .insurance-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-  }
-  .insurance-card {
-    background: var(--dark-2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 2rem; overflow: hidden; position: relative;
-    transition: all 0.3s;
-  }
-  .insurance-card:hover {
-    border-color: rgba(26,110,142,0.3);
-    transform: translateY(-4px);
-  }
-  .insurance-card .ins-accent {
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--primary);
-  }
-  .insurance-card .ins-icon { font-size: 2rem; margin-bottom: 1rem; }
-  .insurance-card h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;
-  }
-  .insurance-card p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 1.5rem; }
-  .ins-companies { display: flex; flex-wrap: wrap; gap: 6px; }
-  .ins-co {
-    font-size: 10px; padding: 4px 10px; border-radius: 20px;
-    background: rgba(26,110,142,0.1); border: 1px solid rgba(26,110,142,0.2);
-    color: var(--primary-light); font-weight: 500;
-  }
-  .ins-feature-list { list-style: none; margin-bottom: 1.5rem; }
-  .ins-feature-list li {
-    font-size: 12px; color: rgba(255,255,255,0.5);
-    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .ins-feature-list li::before { content: '✓'; color: var(--primary-light); font-weight: 700; }
-
-  /* ===== BRANDS ===== */
-  .brands-section {
-    padding: 4rem 2rem; background: var(--section-bg);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .brands-label {
-    text-align: center; font-size: 11px; letter-spacing: 3px;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-    margin-bottom: 2.5rem;
-  }
-  .brands-row {
-    max-width: 1200px; margin: 0 auto;
-    display: flex; flex-wrap: wrap; justify-content: center;
-    gap: 1rem;
-  }
-  .brand-pill {
-    padding: 8px 20px; border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.03);
-    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-    color: rgba(255,255,255,0.5);
-    transition: all 0.2s; cursor: default;
-  }
-  .brand-pill:hover {
-    border-color: rgba(26,110,142,0.4);
-    color: var(--primary-light);
-    background: rgba(26,110,142,0.08);
-  }
-
-  /* ===== WHY US ===== */
-  .why-us { padding: 6rem 2rem; background: var(--dark); }
-  .why-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
-  }
-  .why-left {}
-  .why-feature { display: flex; gap: 1.5rem; margin-bottom: 2.5rem; align-items: flex-start; }
-  .why-num {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 3.5rem; font-weight: 700;
-    color: rgba(26,110,142,0.2); line-height: 1; flex-shrink: 0;
-    width: 60px;
-  }
-  .why-text h4 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem;
-  }
-  .why-text p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; }
-  .why-right {
-    background: linear-gradient(135deg, rgba(26,110,142,0.12), rgba(26,110,142,0.04));
-    border: 1px solid rgba(26,110,142,0.2);
-    border-radius: 12px; padding: 3rem;
-  }
-  .why-right h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;
-  }
-  .why-right p { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 2rem; }
-  .contact-form-fields { display: flex; flex-direction: column; gap: 12px; }
-  .form-field input, .form-field select, .form-field textarea {
-    width: 100%; padding: 12px 16px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px; color: white; font-size: 14px;
-    font-family: 'Montserrat', sans-serif; outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-    border-color: rgba(26,110,142,0.5);
-  }
-  .form-field select option { background: #1a1a1a; }
-  .form-field textarea { resize: vertical; min-height: 80px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .submit-btn {
-    width: 100%; padding: 14px;
-    background: var(--primary); color: white; border: none;
-    border-radius: 6px; font-size: 14px; font-weight: 700;
-    letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
-    font-family: 'Montserrat', sans-serif; margin-top: 8px;
-  }
-  .submit-btn:hover { background: var(--primary-dark); }
-
-  /* ===== FOOTER ===== */
-  footer {
-    background: var(--dark-2); border-top: 1px solid var(--border);
-    padding: 4rem 2rem 2rem;
-  }
-  .footer-grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem;
-    margin-bottom: 3rem;
-  }
-  .footer-brand img { height: 52px; margin-bottom: 1rem; }
-  .footer-brand p { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 260px; }
-  .footer-contact { margin-top: 1.5rem; }
-  .footer-contact a {
-    display: block; font-size: 12px; color: rgba(255,255,255,0.5);
-    text-decoration: none; margin-bottom: 6px; transition: color 0.2s;
-  }
-  .footer-contact a:hover { color: var(--primary-light); }
-  footer h5 {
-    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-    margin-bottom: 1.25rem;
-  }
-  .footer-links { list-style: none; }
-  .footer-links li { margin-bottom: 10px; }
-  .footer-links a {
-    font-size: 13px; color: rgba(255,255,255,0.5);
-    text-decoration: none; transition: color 0.2s;
-  }
-  .footer-links a:hover { color: var(--primary-light); }
-  .footer-bottom {
-    max-width: 1200px; margin: 0 auto;
-    padding-top: 2rem; border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 1rem;
-  }
-  .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.25); }
-  .footer-badge {
-    font-size: 11px; color: var(--primary-light);
-    background: rgba(26,110,142,0.12); border: 1px solid rgba(26,110,142,0.25);
-    padding: 4px 12px; border-radius: 20px;
-  }
-
-  /* ===== MOBILE ===== */
-  @media (max-width: 968px) {
-    .nav-links { display: none; }
-    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 70px; left: 0; right: 0; background: rgba(10,10,10,0.98); padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); z-index: 999; }
-    .hamburger { display: block; }
-    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
-    .hero-visual { display: none; }
-    .services-grid { grid-template-columns: 1fr; }
-    .vehicles-grid { grid-template-columns: repeat(2, 1fr); }
-    .commercial-grid { grid-template-columns: 1fr; }
-    .loan-container { grid-template-columns: 1fr; }
-    .insurance-grid { grid-template-columns: 1fr; }
-    .why-grid { grid-template-columns: 1fr; }
-    .footer-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 600px) {
-    .vehicles-grid { grid-template-columns: 1fr; }
-    .footer-grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 2.5rem; }
-  }
+:root{
+  --blue:#159ac4;
+  --blue-dark:#1f56c5;
+  --red:#ef3030;
+  --text:#ffffff;
+  --muted:#8fa3ad;
+  --light:#0b1b23;
+  --line:rgba(42,138,173,.20);
+  --white:#ffffff;
+  --green:#159447;
+  --shadow:0 18px 45px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Roboto,Arial,sans-serif;background:#06131a;color:var(--text);line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+.container{max-width:1200px;margin:auto;padding:0 18px}
+.topbar{height:68px;border-bottom:1px solid var(--line);background:#07151c;display:flex;align-items:center;position:sticky;top:0;z-index:1000}
+.topbar-inner{display:flex;align-items:center;gap:22px;width:100%}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px;white-space:nowrap}
+.logo span:first-child{color:var(--red)} .logo span:last-child{color:var(--blue)}
+.search{flex:1;max-width:520px;border:1px solid rgba(255,255,255,.14);border-radius:7px;height:42px;display:flex;align-items:center;padding:0 13px;color:#9ca3af}
+.search input{border:0;outline:0;width:100%;padding-left:9px;color:#fff;background:transparent}
+.top-links{margin-left:auto;display:flex;gap:20px;font-size:13px;color:#a8b7be;align-items:center}
+.city{font-weight:600;color:#fff}
+.login{font-weight:700;color:#fff}
+.mainnav{border-bottom:1px solid var(--line);background:#081820}
+.mainnav .nav{height:46px;display:flex;align-items:center;gap:26px;overflow:auto;white-space:nowrap}
+.mainnav a{font-size:13px;color:#b5c2c8}.mainnav a:hover{color:var(--blue)}
+.subnav{background:#07151c;border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:900}
+.subnav .nav{height:50px;display:flex;align-items:center;gap:25px;overflow:auto;white-space:nowrap}
+.subnav a{font-size:13px;font-weight:600;color:#aebbc1;padding:16px 0}
+.subnav a.active{color:var(--blue);border-bottom:3px solid var(--blue)}
+.hero{padding:22px 0 26px;background:linear-gradient(135deg,#06131a 0%,#081b24 45%,#061117 100%);position:relative;overflow:hidden}.hero:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 35%,rgba(21,154,196,.08),transparent 34%),linear-gradient(90deg,transparent 0,rgba(239,48,48,.025) 50%,transparent 100%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:56% 44%;gap:26px;align-items:center}
+.gallery{height:390px;border:1px solid rgba(42,138,173,.25);border-radius:10px;background:rgba(21,154,196,.045);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.gallery img{width:100%;height:100%;object-fit:contain;padding:22px}
+.gallery-fallback{font-size:110px;filter:drop-shadow(0 12px 15px rgba(0,0,0,.45))}
+.photo-count{position:absolute;bottom:14px;left:14px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700}
+.gallery-actions{position:absolute;right:14px;bottom:14px;display:flex;gap:8px}
+.gallery-actions button{background:#0b171d;border:1px solid rgba(255,255,255,.15);color:#fff;padding:8px 11px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+.vehicle-title h1{font-size:31px;line-height:1.15;margin-bottom:8px;color:#fff}
+.rating-row{display:flex;align-items:center;gap:9px;font-size:13px;margin-bottom:18px}
+.rating{background:#198754;color:#fff;padding:4px 7px;border-radius:4px;font-weight:800}
+.reviews{color:#38b8e3;font-weight:600}
+.price{font-size:26px;font-weight:800;color:#fff;margin-bottom:3px}
+.price-note{font-size:11px;color:#879da7;margin-bottom:17px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:6px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--blue-dark)}
+.btn.outline{background:#fff;color:var(--blue)}
+.offer{margin-top:18px;background:rgba(239,48,48,.055);border:1px solid rgba(239,48,48,.28);border-radius:8px;padding:13px}
+.offer b{color:#ff5a5a;font-size:13px}.offer p{font-size:12px;color:#6b7280;margin-top:3px}
+.spec-strip{border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(6,1fr);overflow:hidden;margin-top:4px}
+.spec{padding:15px 12px;border-right:1px solid var(--line);background:#0a1a22}
+.spec:last-child{border-right:0}.spec-label{font-size:11px;color:#8299a3;margin-bottom:3px}.spec-value{font-size:13px;font-weight:700;color:#fff}
+.section{padding:28px 0;background:#06131a}.section.alt{background:#0a1a22;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+.section-title{font-size:23px;color:#fff;margin-bottom:5px}.section-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.card{background:#0b1b23;border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow)}
+.price-layout{display:grid;grid-template-columns:1.7fr 1fr;gap:18px}
+.table-wrap{overflow:auto}.price-table{width:100%;border-collapse:collapse;font-size:12px}.price-table th{text-align:left;background:#0d2029;color:#91a5ae;font-weight:600}.price-table th,.price-table td{padding:13px;border-bottom:1px solid var(--line);white-space:nowrap}.price-table tr:last-child td{border-bottom:0}.price-table .name{font-weight:700;color:#fff}.price-table .price-cell{font-weight:800}.tag{font-size:10px;background:#eef4ff;color:var(--blue);padding:4px 7px;border-radius:4px;font-weight:700}
+.side-card{padding:18px}.side-card h3{font-size:16px;margin-bottom:12px;color:#fff}.side-card p{font-size:12px;color:var(--muted);margin-bottom:14px}.emi-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.emi-row strong{color:#fff}.full{width:100%;margin-top:14px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.feature{padding:18px}.feature h3{font-size:15px;margin-bottom:5px;color:#fff}.feature p{font-size:12px;color:var(--muted)}
+.compare{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.compare-card{padding:15px}.compare-img{height:120px;border-radius:7px;background:#081820;display:flex;align-items:center;justify-content:center;font-size:58px;margin-bottom:12px}.compare-card h3{font-size:14px;color:#fff}.compare-card p{font-size:12px;color:var(--muted);margin:4px 0 12px}.compare-price{font-weight:800;font-size:14px}.compare-card .btn{width:100%;margin-top:10px;padding:9px}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.gallery-tile{height:160px;background:#0b1b23;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}.gallery-tile span{position:absolute;bottom:8px;left:9px;background:#fff;padding:4px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.spec-box{padding:18px}.spec-box h3{font-size:16px;margin-bottom:12px;color:#fff}.spec-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.spec-line:last-child{border-bottom:0}.spec-line span:first-child{color:var(--muted)}.spec-line span:last-child{font-weight:700;color:#fff}
+.review-top{display:grid;grid-template-columns:230px 1fr;gap:22px}.score{padding:22px;text-align:center}.score .big{font-size:42px;font-weight:800;color:#fff}.stars{color:#f59e0b;font-size:20px}.review-bars{padding:18px}.bar{display:grid;grid-template-columns:90px 1fr 35px;align-items:center;gap:8px;font-size:11px;margin:10px 0}.barline{height:7px;background:#e5e7eb;border-radius:10px;overflow:hidden}.barline i{display:block;height:100%;background:#f59e0b;border-radius:10px}.review{padding:18px;border-top:1px solid var(--line)}.review:first-child{border-top:0}.review-head{display:flex;justify-content:space-between;font-size:12px}.review p{font-size:12px;color:#9aabb2;margin-top:7px}
+.variants{overflow:auto}.variant-grid{min-width:760px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr}.variant-grid>div{padding:12px;border-bottom:1px solid var(--line);font-size:12px}.variant-head>div{background:#0d2029;color:#91a5ae;font-weight:700}.variant-name{font-weight:700;color:#fff}
+.video-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.video-card{overflow:hidden}.video-thumb{height:170px;background:#07131a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:42px}.video-card h3{font-size:13px;padding:12px 12px 3px;color:#fff}.video-card p{font-size:11px;color:var(--muted);padding:0 12px 13px}
+.colors{display:flex;gap:18px;flex-wrap:wrap}.color{width:145px}.color-dot{height:100px;border-radius:8px;border:1px solid rgba(255,255,255,.18);box-shadow:var(--shadow)}.color p{font-size:12px;font-weight:600;margin-top:7px;color:#dbe4e8}
+.faq{padding:0 18px}.faq-item{padding:15px 0;border-bottom:1px solid var(--line)}.faq-q{font-size:13px;font-weight:700;color:#fff}.faq-a{font-size:12px;color:var(--muted);margin-top:5px}
+.cta{background:linear-gradient(135deg,rgba(21,154,196,.13),rgba(239,48,48,.055));border:1px solid rgba(42,138,173,.25);border-radius:10px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:20px}.cta h2{font-size:21px;color:#fff}.cta p{font-size:12px;color:var(--muted);margin-top:3px}
+footer{background:#111827;color:#d1d5db;padding:38px 0 20px;margin-top:30px}.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px}.footer-logo{font-size:24px;font-weight:800;color:#fff}.footer-logo span{color:#60a5fa}.footer-grid h4{font-size:12px;color:#fff;margin-bottom:12px}.footer-grid a{display:block;font-size:12px;color:#9ca3af;margin:7px 0}.footer-desc{font-size:12px;color:#9ca3af;max-width:300px;margin-top:8px}.copyright{border-top:1px solid #374151;margin-top:28px;padding-top:17px;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between}
+@media(max-width:900px){.top-links{display:none}.hero-grid,.price-layout,.review-top,.specs-grid{grid-template-columns:1fr}.spec-strip{grid-template-columns:repeat(3,1fr)}.features{grid-template-columns:1fr 1fr}.compare{grid-template-columns:1fr 1fr}.gallery{height:320px}.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.topbar{height:auto;padding:10px 0}.topbar-inner{flex-wrap:wrap}.search{order:3;max-width:none;flex-basis:100%}.subnav{top:0}.hero{padding-top:16px}.vehicle-title h1{font-size:25px}.spec-strip{grid-template-columns:repeat(2,1fr)}.features,.compare,.gallery-grid,.video-grid{grid-template-columns:1fr}.gallery-grid .gallery-tile{height:190px}.cta{flex-direction:column;align-items:flex-start}.footer-grid{grid-template-columns:1fr}.copyright{flex-direction:column;gap:6px}}
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav>
-  <div class="nav-logo">
-    <img src="MK_FINANCE_LOGO.png" alt="MK Finance Logo">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="#"><span>MK</span> <span>Finance</span></a>
+    <div class="search">⌕ <input placeholder="Search cars, brands or models"></div>
+    <div class="top-links"><span class="city">📍 Valsad</span><span>English</span><span class="login">Login / Register</span></div>
   </div>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#services">Services</a></li>
-    <li><a href="#vehicles">Vehicles</a></li>
-    <li><a href="#loans">Loans</a></li>
-    <li><a href="#insurance">Insurance</a></li>
-    <li><a href="#brands">Brands</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#contact" class="nav-cta">Get Quote</a></li>
-  </ul>
-  <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')">
-    <span></span><span></span><span></span>
-  </button>
+</header>
+
+<nav class="mainnav">
+  <div class="container nav">
+    <a href="#">New Cars</a><a href="#">Used Cars</a><a href="#">Commercial Vehicles</a>
+    <a href="#">Car Loans</a><a href="#">Insurance</a><a href="#">Reviews</a>
+    <a href="#">Videos</a><a href="#">Compare Cars</a>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-accent-line"></div>
-  <div class="hero-grid-line"></div>
-  <div class="hero-content">
-    <div class="hero-text">
-      <div class="hero-eyebrow">Your Financial Partner</div>
-      <h1>
-        <span class="mk">MK</span><br>
-        <span class="finance">Finance</span><br>
-        <span style="font-size:0.55em; color:rgba(255,255,255,0.85);">Vehicle & Loan Solutions</span>
-      </h1>
-      <p class="hero-desc">
-        નવી કાર, Commercial Vehicle, Truck, Tempo, Tractor — ખરીદો, Loan કરો, Insurance ઉતારો. 
-        સૌ Brand ના Vehicle, સૌ Insurance Company, એક જ ઠેકાણે.
-      </p>
-      <div class="hero-btns">
-        <a href="#vehicles" class="btn-primary">Browse Vehicles</a>
-        <a href="#loans" class="btn-secondary">Calculate EMI</a>
+<nav class="subnav">
+  <div class="container nav">
+    <a class="active" href="#overview">Scorpio N</a>
+    <a href="#price">Price</a><a href="#compare">Compare</a><a href="#images">Images</a>
+    <a href="#specs">Specs</a><a href="#reviews">User Reviews</a><a href="#variants">Variants</a>
+    <a href="#videos">Videos</a><a href="#colors">Colours</a><a href="#faq">FAQs</a>
+  </div>
+</nav>
+
+<main>
+<section class="hero" id="overview">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="gallery">
+        <div class="gallery-fallback">🚙</div>
+        <div class="photo-count">📷 37 Photos</div>
+        <div class="gallery-actions"><button>View Photos</button><button>360° View</button></div>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="num">500<span>+</span></div>
-          <div class="label">Vehicles Listed</div>
-        </div>
-        <div class="hero-stat">
-          <div class="num">20<span>+</span></div>
-          <div class="label">Insurance Partners</div>
-        </div>
-        <div class="hero-stat">
-          <div class="num">98<span>%</span></div>
-          <div class="label">Loan Approval Rate</div>
-        </div>
+      <div class="vehicle-title">
+        <h1>Mahindra Scorpio N</h1>
+        <div class="rating-row"><span class="rating">4.6 ★</span><span class="reviews">7 Reviews</span><span>•</span><span>Rate & Win ₹1000</span></div>
+        <div class="price">₹13.69 - 25.49 Lakh*</div>
+        <div class="price-note">*Ex-showroom Price in New Delhi</div>
+        <div class="btn-row"><button class="btn">Get On-Road Price</button><button class="btn outline">View August Offers</button></div>
+        <div class="offer"><b>Special Finance Offer</b><p>Get a personalised EMI and loan quote from MK Finance.</p></div>
       </div>
     </div>
-    <div class="hero-visual">
-      <div class="hero-logo-wrap">
-        <img src="MK_FINANCE_LOGO.png" alt="MK Finance">
-      </div>
-      <div class="hero-badge">Est. Since 2015</div>
-      <div class="floating-card card-1">
-        <div class="fc-label">Today's Best Rate</div>
-        <div class="fc-val">7.5% p.a.</div>
-      </div>
-      <div class="floating-card card-2">
-        <div class="fc-label">Quick Approval</div>
-        <div class="fc-val">24 Hrs</div>
-      </div>
+    <div class="spec-strip">
+      <div class="spec"><div class="spec-label">Engine</div><div class="spec-value">1997 - 2198 cc</div></div>
+      <div class="spec"><div class="spec-label">Power</div><div class="spec-value">130 - 200 bhp</div></div>
+      <div class="spec"><div class="spec-label">Torque</div><div class="spec-value">300 - 400 Nm</div></div>
+      <div class="spec"><div class="spec-label">Seating</div><div class="spec-value">6 / 7 Seater</div></div>
+      <div class="spec"><div class="spec-label">Drive Type</div><div class="spec-value">RWD / 4WD</div></div>
+      <div class="spec"><div class="spec-label">Safety</div><div class="spec-value">5 Star GNCAP</div></div>
     </div>
   </div>
 </section>
 
-<!-- SERVICES -->
-<section class="services" id="services">
-  <div class="section-header">
-    <div>
-      <div class="section-tag">What We Offer</div>
-      <h2 class="section-title">Our <span>Services</span></h2>
-    </div>
-    <p class="section-desc">Vehicle purchase, financing, and insurance — complete solution under one roof.</p>
-  </div>
-  <div class="services-grid">
-    <div class="service-card">
-      <div class="service-icon">🚗</div>
-      <h3>New Car Sales</h3>
-      <p>Maruti, Hyundai, Tata, Honda, Toyota, Kia, Mahindra — સૌ Brand ની નવી Car ઓ ની listing. Best price guarantee.</p>
-      <div class="service-arrow">Explore Cars →</div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🚛</div>
-      <h3>Commercial Vehicles</h3>
-      <p>Trucks, Tempos, Pickup, Tractor, Mini Truck, Auto — Business vehicle ની full range. Ashok Leyland, Tata, Eicher, Mahindra.</p>
-      <div class="service-arrow">View Vehicles →</div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">💰</div>
-      <h3>Vehicle Loan</h3>
-      <p>New vehicle par low interest rate par loan. Fast approval, minimum documents, flexible EMI options. 7.5% p.a. থেকে.</p>
-      <div class="service-arrow">Apply Now →</div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🔄</div>
-      <h3>Refinance & Top-Up</h3>
-      <p>Existing vehicle par refinance athva top-up loan. Better interest rate par switch karo. Old vehicle par fresh loan.</p>
-      <div class="service-arrow">Check Eligibility →</div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🛡️</div>
-      <h3>Vehicle Insurance</h3>
-      <p>Darek vehicle ni darek insurance company na plans. Comprehensive, Third Party, Zero Depreciation — best premium pan compare karo.</p>
-      <div class="service-arrow">Get Quote →</div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">📋</div>
-      <h3>Document Assistance</h3>
-      <p>RC Transfer, Hypothecation, NOC, Insurance renewal — darek vehicle related kaam ma help. Door-to-door service available.</p>
-      <div class="service-arrow">Learn More →</div>
-    </div>
-  </div>
-</section>
-
-<!-- VEHICLES -->
-<section class="vehicles" id="vehicles">
-  <div style="max-width:1200px; margin: 0 auto 2rem;">
-    <div class="section-tag">Our Stock</div>
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
-      <h2 class="section-title">Browse <span>Vehicles</span></h2>
-    </div>
-    <div class="tabs-wrap">
-      <button class="tab-btn active" onclick="showTab('cars', this)">🚗 Cars</button>
-      <button class="tab-btn" onclick="showTab('commercial', this)">🚛 Commercial</button>
-    </div>
-  </div>
-
-  <div id="tab-cars" style="max-width:1200px; margin:0 auto;">
-    <div class="vehicles-grid" id="carsGrid">
-      <div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Loading vehicles...</div>
-    </div>
-    <div style="text-align:center; margin-top:3rem;">
-      <a href="#contact" class="btn-secondary" style="display:inline-block; text-decoration:none;">View All Cars — 100+ Models Available</a>
-    </div>
-  </div>
-
-  <div id="tab-commercial" style="max-width:1200px; margin:0 auto; display:none;">
-    <div class="commercial-grid">
-      <div class="commercial-card"><div class="commercial-icon">🚚</div><div class="commercial-info"><h4>Trucks & Heavy Vehicles</h4><p>9T, 16T, 24T, 40T ना heavy duty trucks.</p><div class="brands">Tata · Ashok Leyland · Eicher · BharatBenz</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚐</div><div class="commercial-info"><h4>Tempo & Mini Trucks</h4><p>City delivery, intracity logistics mate ideal.</p><div class="brands">Tata Ace · Ashok Leyland Dost · Bajaj · Mahindra</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🛻</div><div class="commercial-info"><h4>Pickup Vehicles</h4><p>Agriculture, construction, local transport.</p><div class="brands">Tata Xenon · Mahindra Bolero Pickup · Isuzu</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚜</div><div class="commercial-info"><h4>Tractors</h4><p>Farm tractor, rotavator, all agriculture equipment.</p><div class="brands">Mahindra · TAFE · John Deere · Sonalika · New Holland</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🚌</div><div class="commercial-info"><h4>Buses & Travellers</h4><p>School bus, staff bus, tourist bus.</p><div class="brands">Tata · Ashok Leyland · Force · Volvo</div></div></div>
-      <div class="commercial-card"><div class="commercial-icon">🏗️</div><div class="commercial-info"><h4>Construction Vehicles</h4><p>JCB, tipper, crane, mixer truck.</p><div class="brands">JCB · TATA · ACE · Volvo · Komatsu</div></div></div>
-    </div>
-    <div style="text-align:center; margin-top:3rem;">
-      <a href="#contact" class="btn-secondary" style="display:inline-block; text-decoration:none;">Enquire Commercial Vehicle →</a>
-    </div>
-  </div>
-</section>
-
-<!-- LOAN CALCULATOR -->
-<section class="loan-section" id="loans">
-  <div style="max-width:1200px; margin:0 auto 3rem;">
-    <div class="section-tag">Financing Options</div>
-    <h2 class="section-title">Vehicle <span>Loans</span></h2>
-  </div>
-  <div class="loan-container">
-    <div class="loan-calc">
-      <h3>🧮 EMI Calculator</h3>
-      <div class="calc-field">
-        <label>Vehicle Price <span id="priceLabel">₹10,00,000</span></label>
-        <input type="range" id="loanAmt" min="100000" max="5000000" step="50000" value="1000000" oninput="calcEMI()">
-        <div class="calc-range-labels"><span>₹1 Lakh</span><span>₹50 Lakh</span></div>
-      </div>
-      <div class="calc-field">
-        <label>Down Payment <span id="dpLabel">₹2,00,000</span></label>
-        <input type="range" id="downPay" min="0" max="2000000" step="50000" value="200000" oninput="calcEMI()">
-        <div class="calc-range-labels"><span>₹0</span><span>₹20 Lakh</span></div>
-      </div>
-      <div class="calc-field">
-        <label>Interest Rate <span id="rateLabel">8.5%</span></label>
-        <input type="range" id="rate" min="7" max="18" step="0.5" value="8.5" oninput="calcEMI()">
-        <div class="calc-range-labels"><span>7%</span><span>18%</span></div>
-      </div>
-      <div class="calc-field">
-        <label>Loan Tenure <span id="tenureLabel">48 Months</span></label>
-        <input type="range" id="tenure" min="12" max="84" step="6" value="48" oninput="calcEMI()">
-        <div class="calc-range-labels"><span>12 Mo</span><span>84 Mo</span></div>
-      </div>
-      <div class="calc-result">
-        <div class="calc-result-item">
-          <div class="r-label">Monthly EMI</div>
-          <div class="r-val" id="emiResult">₹19,300</div>
-        </div>
-        <div class="calc-result-item">
-          <div class="r-label">Total Interest</div>
-          <div class="r-val" id="interestResult">₹1,26,400</div>
-        </div>
-        <div class="calc-result-item">
-          <div class="r-label">Loan Amount</div>
-          <div class="r-val" id="loanResult">₹8,00,000</div>
-        </div>
-        <div class="calc-result-item">
-          <div class="r-label">Total Payable</div>
-          <div class="r-val" id="totalResult">₹9,26,400</div>
-        </div>
-      </div>
-      <button class="submit-btn" style="margin-top:1.5rem;" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Apply for This Loan →</button>
-    </div>
-    <div class="loan-types">
-      <div style="margin-bottom:2rem;">
-        <div class="section-tag">Loan Products</div>
-        <h3 style="font-family:'Rajdhani',sans-serif; font-size:1.8rem; font-weight:700;">All Types of <span style="color:var(--accent);">Loans</span></h3>
-      </div>
-      <div class="loan-type-card">
-        <div class="loan-type-icon">🚗</div>
-        <div class="loan-type-info"><h4>New Car Loan</h4><p>Brand new vehicle par 90% tak financing. Minimum documents, fast approval.</p></div>
-        <div class="loan-rate"><div class="rate-num">7.5%</div><div class="rate-label">Starts at</div></div>
-      </div>
-      <div class="loan-type-card">
-        <div class="loan-type-icon">🚛</div>
-        <div class="loan-type-info"><h4>Commercial Vehicle Loan</h4><p>Truck, tempo, tractor par business loan. Revenue based approval.</p></div>
-        <div class="loan-rate"><div class="rate-num">8.5%</div><div class="rate-label">Starts at</div></div>
-      </div>
-      <div class="loan-type-card">
-        <div class="loan-type-icon">🔄</div>
-        <div class="loan-type-info"><h4>Refinance Loan</h4><p>Existing vehicle par fresh loan. Better rate par switch. Old high-rate loan close karo.</p></div>
-        <div class="loan-rate"><div class="rate-num">9%</div><div class="rate-label">Starts at</div></div>
-      </div>
-      <div class="loan-type-card">
-        <div class="loan-type-icon">📈</div>
-        <div class="loan-type-info"><h4>Top-Up Loan</h4><p>Existing loan par additional loan. Business need, emergency funds mate.</p></div>
-        <div class="loan-rate"><div class="rate-num">10%</div><div class="rate-label">Starts at</div></div>
-      </div>
-      <div class="loan-type-card">
-        <div class="loan-type-icon">🚜</div>
-        <div class="loan-type-info"><h4>Tractor & Farm Loan</h4><p>Agriculture equipment, tractor, implements par subsidized rate par loan.</p></div>
-        <div class="loan-rate"><div class="rate-num">7%</div><div class="rate-label">Starts at</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INSURANCE -->
-<section class="insurance" id="insurance">
-  <div style="max-width:1200px; margin:0 auto 3rem;">
-    <div class="section-tag">Protection Plans</div>
-    <h2 class="section-title">Vehicle <span>Insurance</span></h2>
-    <p style="color:rgba(255,255,255,0.45); margin-top:0.75rem;">Darek brand na vehicle nu, darek insurance company na plan compare karo. Best premium, fastest claim.</p>
-  </div>
-  <div class="insurance-grid">
-    <div class="insurance-card">
-      <div class="ins-accent"></div>
-      <div class="ins-icon">🛡️</div>
-      <h3>Comprehensive Cover</h3>
-      <p>Own damage + third party — full protection. Accident, theft, fire, natural calamity — badhu cover.</p>
-      <ul class="ins-feature-list">
-        <li>Own Damage Cover</li>
-        <li>Third Party Liability</li>
-        <li>Personal Accident Cover</li>
-        <li>Road Side Assistance</li>
-      </ul>
-      <div class="ins-companies">
-        <span class="ins-co">New India</span><span class="ins-co">National</span><span class="ins-co">HDFC Ergo</span><span class="ins-co">ICICI Lombard</span><span class="ins-co">Bajaj Allianz</span>
-      </div>
-    </div>
-    <div class="insurance-card">
-      <div class="ins-accent" style="background:var(--accent)"></div>
-      <div class="ins-icon">🔰</div>
-      <h3>Zero Depreciation</h3>
-      <p>Claim time par depreciation deduction nahi. Full replacement value malshe. New car mate best option.</p>
-      <ul class="ins-feature-list">
-        <li>Nil Depreciation on Parts</li>
-        <li>Full Claim Settlement</li>
-        <li>Bumper to Bumper Cover</li>
-        <li>Return to Invoice Option</li>
-      </ul>
-      <div class="ins-companies">
-        <span class="ins-co">HDFC Ergo</span><span class="ins-co">Tata AIG</span><span class="ins-co">Reliance</span><span class="ins-co">Future Generali</span>
-      </div>
-    </div>
-    <div class="insurance-card">
-      <div class="ins-accent" style="background:#4ecb70"></div>
-      <div class="ins-icon">📜</div>
-      <h3>Third Party Only</h3>
-      <p>Legally mandatory cover. Other person nu vehicle athva injury — liability cover. Most affordable option.</p>
-      <ul class="ins-feature-list">
-        <li>Third Party Property Damage</li>
-        <li>Bodily Injury Liability</li>
-        <li>Personal Accident (Owner)</li>
-        <li>Legal Compliance</li>
-      </ul>
-      <div class="ins-companies">
-        <span class="ins-co">New India</span><span class="ins-co">United India</span><span class="ins-co">Oriental</span><span class="ins-co">National</span>
-      </div>
-    </div>
-    <div class="insurance-card">
-      <div class="ins-accent" style="background:#f0c040"></div>
-      <div class="ins-icon">🚛</div>
-      <h3>Commercial Vehicle Insurance</h3>
-      <p>Truck, tempo, bus, tractor — commercial use vehicle mate specialized plans.</p>
-      <ul class="ins-feature-list">
-        <li>Goods in Transit Cover</li>
-        <li>Passenger Liability</li>
-        <li>Fleet Insurance Available</li>
-        <li>Driver & Cleaner Cover</li>
-      </ul>
-      <div class="ins-companies">
-        <span class="ins-co">New India</span><span class="ins-co">Cholamandalam</span><span class="ins-co">IFFCO Tokio</span>
-      </div>
-    </div>
-    <div class="insurance-card">
-      <div class="ins-accent" style="background:#8b5cf6"></div>
-      <div class="ins-icon">🌊</div>
-      <h3>Add-On Covers</h3>
-      <p>Extra protection layers — customized protection mate optional riders add karo.</p>
-      <ul class="ins-feature-list">
-        <li>Engine Protection Cover</li>
-        <li>Tyre Damage Cover</li>
-        <li>Key Replacement Cover</li>
-        <li>Consumables Cover</li>
-      </ul>
-      <div class="ins-companies">
-        <span class="ins-co">HDFC Ergo</span><span class="ins-co">Bajaj Allianz</span><span class="ins-co">Tata AIG</span>
-      </div>
-    </div>
-    <div class="insurance-card" style="background:rgba(26,110,142,0.08); border-color:rgba(26,110,142,0.25);">
-      <div class="ins-accent"></div>
-      <div class="ins-icon">⚡</div>
-      <h3>Insurance Partners</h3>
-      <p>20+ insurance companies. Best premium comparison. Instant policy issuance.</p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:1rem;">
-        <span class="ins-co">LIC Housing</span><span class="ins-co">SBI General</span>
-        <span class="ins-co">Digit Insurance</span><span class="ins-co">Acko</span>
-        <span class="ins-co">Royal Sundaram</span><span class="ins-co">Liberty General</span>
-        <span class="ins-co">Universal Sompo</span><span class="ins-co">Go Digit</span>
-      </div>
-      <button class="submit-btn" style="margin-top:1.5rem; background:var(--primary);" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get Insurance Quote →</button>
-    </div>
-  </div>
-</section>
-
-<!-- BRANDS -->
-<section class="brands-section" id="brands">
-  <div class="brands-label">Vehicle Brands We Finance & Insure</div>
-  <div class="brands-row">
-    <span class="brand-pill">Maruti Suzuki</span>
-    <span class="brand-pill">Hyundai</span>
-    <span class="brand-pill">Tata Motors</span>
-    <span class="brand-pill">Mahindra</span>
-    <span class="brand-pill">Toyota</span>
-    <span class="brand-pill">Honda</span>
-    <span class="brand-pill">Kia</span>
-    <span class="brand-pill">Volkswagen</span>
-    <span class="brand-pill">Skoda</span>
-    <span class="brand-pill">MG Motor</span>
-    <span class="brand-pill">Renault</span>
-    <span class="brand-pill">Nissan</span>
-    <span class="brand-pill">Ford</span>
-    <span class="brand-pill">Jeep</span>
-    <span class="brand-pill">BMW</span>
-    <span class="brand-pill">Mercedes</span>
-    <span class="brand-pill">Audi</span>
-    <span class="brand-pill">Ashok Leyland</span>
-    <span class="brand-pill">Eicher</span>
-    <span class="brand-pill">BharatBenz</span>
-    <span class="brand-pill">Force Motors</span>
-    <span class="brand-pill">Piaggio</span>
-    <span class="brand-pill">John Deere</span>
-    <span class="brand-pill">TAFE</span>
-    <span class="brand-pill">Sonalika</span>
-    <span class="brand-pill">New Holland</span>
-    <span class="brand-pill">Kubota</span>
-    <span class="brand-pill">Swaraj</span>
-  </div>
-</section>
-
-<!-- WHY US + CONTACT -->
-<!-- Vehicle Detail Modal -->
-<div class="vmodal-overlay" id="vmodalOverlay" onclick="if(event.target===this) closeVehicleModal()">
-  <div class="vmodal-box">
-    <button class="vmodal-close" onclick="closeVehicleModal()">✕</button>
-    <div class="vmodal-img" id="vmodalImg">🚗</div>
-    <div class="vmodal-body">
-      <h2 id="vmodalTitle">-</h2>
-      <div class="vmodal-sub" id="vmodalSub">-</div>
-      <div class="vmodal-price-row">
-        <div class="price" id="vmodalPrice">-</div>
-        <div class="emi" id="vmodalEmi"></div>
-      </div>
-      <div class="vmodal-specs">
-        <div><div class="label">Year</div><div class="val" id="vmodalYear">-</div></div>
-        <div><div class="label">Fuel Type</div><div class="val" id="vmodalFuel">-</div></div>
-      </div>
-      <div class="vmodal-desc" id="vmodalDesc"></div>
-      <div class="vmodal-ctas">
-        <button class="submit-btn" style="margin-top:0;" onclick="quoteFromModal()">Get Quote →</button>
-        <a href="https://wa.me/919824742356" target="_blank" style="display:flex; align-items:center; justify-content:center; padding:14px; background:#25d366; color:white; border-radius:6px; font-size:14px; font-weight:700; text-decoration:none;">💬 WhatsApp</a>
-      </div>
-    </div>
-  </div>
+<section class="section" id="price">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Price</h2>
+<p class="section-sub">Explore variant-wise pricing and financing options.</p>
+<div class="price-layout">
+<div class="card table-wrap">
+<table class="price-table">
+<thead><tr><th>Variant</th><th>Engine</th><th>Transmission</th><th>Fuel</th><th>Price</th><th></th></tr></thead>
+<tbody>
+<tr><td class="name">Scorpio N Z2</td><td>1997 cc</td><td>Manual</td><td>Petrol</td><td class="price-cell">₹13.69 Lakh</td><td><span class="tag">Base Model</span></td></tr>
+<tr><td class="name">Scorpio N Z2 Diesel</td><td>2198 cc</td><td>Manual</td><td>Diesel</td><td class="price-cell">₹14.19 Lakh</td><td></td></tr>
+<tr><td class="name">Scorpio N Z4</td><td>1997 cc</td><td>Manual</td><td>Petrol</td><td class="price-cell">₹15.57 Lakh</td><td><span class="tag">Popular</span></td></tr>
+<tr><td class="name">Scorpio N Z6 Diesel</td><td>2198 cc</td><td>Manual</td><td>Diesel</td><td class="price-cell">₹17.17 Lakh</td><td></td></tr>
+<tr><td class="name">Scorpio N Z8L 7-Seater</td><td>2198 cc</td><td>Automatic</td><td>Diesel</td><td class="price-cell">₹23.49 Lakh</td><td></td></tr>
+<tr><td class="name">Scorpio N Z8L 4WD AT</td><td>2198 cc</td><td>Automatic</td><td>Diesel</td><td class="price-cell">₹25.49 Lakh</td><td><span class="tag">Top Model</span></td></tr>
+</tbody>
+</table>
 </div>
-
-<section class="why-us" id="contact">
-  <div class="why-grid">
-    <div class="why-left">
-      <div class="section-tag">Why Choose Us</div>
-      <h2 class="section-title" style="margin-bottom:3rem;">MK Finance <span>Advantage</span></h2>
-      <div class="why-feature">
-        <div class="why-num">01</div>
-        <div class="why-text">
-          <h4>All Brands, One Platform</h4>
-          <p>Car, truck, tractor — darek brand nu vehicle, darek company nu loan, darek insurance — ek j jagya thhi.</p>
-        </div>
-      </div>
-      <div class="why-feature">
-        <div class="why-num">02</div>
-        <div class="why-text">
-          <h4>Fastest Loan Approval</h4>
-          <p>24 hours ma loan approval. Minimum documents. Salaried, self-employed, farmer — badha mate options.</p>
-        </div>
-      </div>
-      <div class="why-feature">
-        <div class="why-num">03</div>
-        <div class="why-text">
-          <h4>Best Insurance Rates</h4>
-          <p>20+ companies compare kari ne best premium. Instant policy, digital copy, cashless claim network.</p>
-        </div>
-      </div>
-      <div class="why-feature">
-        <div class="why-num">04</div>
-        <div class="why-text">
-          <h4>Doorstep Service</h4>
-          <p>Tamara ghar athva office par aavi ne document collection, vehicle delivery, insurance — badhu service apu chu.</p>
-        </div>
-      </div>
-    </div>
-    <div class="why-right">
-      <h3>Get in Touch</h3>
-      <p>Vehicle, Loan athva Insurance mate inquiry karo. 24 hours ma response guaranteed.</p>
-      <div class="contact-form-fields">
-        <div id="formMsg" style="display:none; padding:10px 14px; border-radius:6px; font-size:13px; margin-bottom:4px;"></div>
-        <div class="form-row">
-          <div class="form-field"><input id="f-name" type="text" placeholder="તમારું નામ / Your Name"></div>
-          <div class="form-field"><input id="f-mobile" type="tel" placeholder="Mobile Number"></div>
-        </div>
-        <div class="form-field">
-          <select id="f-service">
-            <option value="">Service Select karo</option>
-            <option>New Car Purchase</option>
-            <option>Commercial Vehicle Purchase</option>
-            <option>New Vehicle Loan</option>
-            <option>Refinance / Top-Up Loan</option>
-            <option>Vehicle Insurance</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <select id="f-vehicle-type">
-            <option value="">Vehicle Type</option>
-            <option>Car / SUV</option>
-            <option>Truck / Heavy Vehicle</option>
-            <option>Tempo / Mini Truck</option>
-            <option>Pickup</option>
-            <option>Tractor</option>
-            <option>Bus / Traveller</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <textarea id="f-message" placeholder="Tamaro message / requirement likho..."></textarea>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
-          <button class="submit-btn" id="submitBtn" style="margin-top:0;" onclick="handleSubmit(this)">Submit Inquiry →</button>
-          <a href="https://wa.me/919824742356" target="_blank" style="display:block; text-align:center; padding:14px; background:#25d366; color:white; border-radius:6px; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:0.3px;">💬 WhatsApp</a>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="card side-card">
+<h3>Scorpio N EMI Calculator</h3><p>Estimate your monthly payment instantly.</p>
+<div class="emi-row"><span>Loan Amount</span><strong>₹14.75 Lakh</strong></div>
+<div class="emi-row"><span>Tenure</span><strong>60 Months</strong></div>
+<div class="emi-row"><span>Interest Rate</span><strong>9.8%</strong></div>
+<div class="emi-row"><span>Estimated EMI</span><strong>₹31,204 / month</strong></div>
+<button class="btn full">Get Personalised EMI</button>
+</div>
+</div>
+</div>
 </section>
 
-<!-- FOOTER -->
+<section class="section alt">
+<div class="container">
+<h2 class="section-title">Scorpio N Specs & Features</h2><p class="section-sub">Key highlights at a glance.</p>
+<div class="features">
+<div class="card feature"><h3>Powerful Engines</h3><p>2.0-litre turbo petrol and 2.2-litre diesel engine options.</p></div>
+<div class="card feature"><h3>6-Speed Gearbox</h3><p>Manual and automatic transmission options across variants.</p></div>
+<div class="card feature"><h3>4WD Capability</h3><p>Selected diesel variants offer four-wheel-drive capability.</p></div>
+<div class="card feature"><h3>Premium Cabin</h3><p>Large touchscreen, connected features and premium upholstery on higher variants.</p></div>
+<div class="card feature"><h3>Advanced Safety</h3><p>Multiple airbags, ESC, hill control and advanced driver assistance on top variants.</p></div>
+<div class="card feature"><h3>7-Seater SUV</h3><p>Spacious family-friendly seating with multiple configurations.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="compare">
+<div class="container">
+<h2 class="section-title">Compare More</h2><p class="section-sub">Compare Scorpio N with popular SUVs before you decide.</p>
+<div class="compare">
+<div class="card compare-card"><div class="compare-img">🚙</div><h3>Mahindra Thar ROXX</h3><p>Rugged SUV with strong road presence.</p><div class="compare-price">From ₹12.52 Lakh</div><button class="btn outline">Compare</button></div>
+<div class="card compare-card"><div class="compare-img">🚘</div><h3>Tata Safari</h3><p>Premium 7-seater family SUV.</p><div class="compare-price">From ₹16.19 Lakh</div><button class="btn outline">Compare</button></div>
+<div class="card compare-card"><div class="compare-img">🚘</div><h3>Hyundai Alcazar</h3><p>Comfort-focused three-row SUV.</p><div class="compare-price">From ₹15.69 Lakh</div><button class="btn outline">Compare</button></div>
+<div class="card compare-card"><div class="compare-img">🚙</div><h3>MG Hector</h3><p>Feature-rich premium SUV.</p><div class="compare-price">From ₹11.99 Lakh</div><button class="btn outline">Compare</button></div>
+</div>
+</div>
+</section>
+
+<section class="section alt" id="images">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Images</h2><p class="section-sub">Explore exterior, interior, colours and design details.</p>
+<div class="gallery-grid">
+<div class="gallery-tile">🚙<span>Exterior</span></div><div class="gallery-tile">💡<span>Headlamps</span></div>
+<div class="gallery-tile">🛞<span>Alloy Wheels</span></div><div class="gallery-tile">🪑<span>Interior</span></div>
+<div class="gallery-tile">🖥️<span>Dashboard</span></div><div class="gallery-tile">🌤️<span>Sunroof</span></div>
+<div class="gallery-tile">🎛️<span>Controls</span></div><div class="gallery-tile">🚘<span>Rear Design</span></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="specs">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Specifications</h2><p class="section-sub">Detailed technical specifications.</p>
+<div class="specs-grid">
+<div class="card spec-box"><h3>Engine & Performance</h3><div class="spec-line"><span>Engine Displacement</span><span>1997 - 2198 cc</span></div><div class="spec-line"><span>Max Power</span><span>130 - 200 bhp</span></div><div class="spec-line"><span>Max Torque</span><span>300 - 400 Nm</span></div><div class="spec-line"><span>Fuel Type</span><span>Petrol / Diesel</span></div><div class="spec-line"><span>Mileage</span><span>12.12 - 15.94 kmpl</span></div></div>
+<div class="card spec-box"><h3>Dimensions & Capacity</h3><div class="spec-line"><span>Seating Capacity</span><span>6 / 7</span></div><div class="spec-line"><span>Drive Type</span><span>RWD / 4WD</span></div><div class="spec-line"><span>Transmission</span><span>6-Speed MT / AT</span></div><div class="spec-line"><span>Body Type</span><span>SUV</span></div><div class="spec-line"><span>Safety Rating</span><span>5 Star GNCAP</span></div></div>
+</div>
+</div>
+</section>
+
+<section class="section alt" id="reviews">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N User Reviews</h2><p class="section-sub">What owners and buyers are saying.</p>
+<div class="card review-top">
+<div class="score"><div class="big">4.6</div><div class="stars">★★★★★</div><div style="font-size:12px;color:#6b7280">7 Reviews</div></div>
+<div class="review-bars">
+<div class="bar"><span>5 Star</span><div class="barline"><i style="width:82%"></i></div><span>82%</span></div>
+<div class="bar"><span>4 Star</span><div class="barline"><i style="width:12%"></i></div><span>12%</span></div>
+<div class="bar"><span>3 Star</span><div class="barline"><i style="width:4%"></i></div><span>4%</span></div>
+<div class="bar"><span>2 Star</span><div class="barline"><i style="width:1%"></i></div><span>1%</span></div>
+<div class="bar"><span>1 Star</span><div class="barline"><i style="width:1%"></i></div><span>1%</span></div>
+</div>
+</div>
+<div class="card" style="margin-top:14px">
+<div class="review"><div class="review-head"><b>Alok Yadav</b><span class="rating">5 ★</span></div><p>Solid road presence and ultimate comfort. The seating position is commanding and the SUV feels confident on long routes.</p></div>
+<div class="review"><div class="review-head"><b>Samrat Chaturvedi</b><span class="rating">5 ★</span></div><p>Excellent safety, size and road presence. A strong choice for buyers looking for a large SUV in this segment.</p></div>
+<div class="review"><div class="review-head"><b>Manimaran</b><span class="rating">4 ★</span></div><p>Powerful diesel engine, spacious cabin and comfortable ride. A good family and highway SUV.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="variants">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Variants</h2><p class="section-sub">Browse the variant range by engine, transmission and price.</p>
+<div class="card variants">
+<div class="variant-grid variant-head"><div>Variant</div><div>Engine</div><div>Fuel</div><div>Transmission</div><div>Price</div></div>
+<div class="variant-grid"><div class="variant-name">Z2 Petrol MT</div><div>1997 cc</div><div>Petrol</div><div>Manual</div><div>₹13.69 L</div></div>
+<div class="variant-grid"><div class="variant-name">Z4 Diesel MT</div><div>2198 cc</div><div>Diesel</div><div>Manual</div><div>₹16.12 L</div></div>
+<div class="variant-grid"><div class="variant-name">Z6 Diesel MT</div><div>2198 cc</div><div>Diesel</div><div>Manual</div><div>₹17.17 L</div></div>
+<div class="variant-grid"><div class="variant-name">Z8S Petrol AT</div><div>1997 cc</div><div>Petrol</div><div>Automatic</div><div>₹19.26 L</div></div>
+<div class="variant-grid"><div class="variant-name">Z8T Diesel 4WD AT</div><div>2198 cc</div><div>Diesel</div><div>Automatic</div><div>₹24.39 L</div></div>
+<div class="variant-grid"><div class="variant-name">Z8L Diesel 4WD AT</div><div>2198 cc</div><div>Diesel</div><div>Automatic</div><div>₹25.49 L</div></div>
+</div>
+</div>
+</section>
+
+<section class="section alt" id="videos">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Videos</h2><p class="section-sub">Watch reviews, comparisons and walkarounds.</p>
+<div class="video-grid">
+<div class="card video-card"><div class="video-thumb">▶</div><h3>Scorpio N Detailed Review</h3><p>Exterior, interior, features and driving experience.</p></div>
+<div class="card video-card"><div class="video-thumb">▶</div><h3>Thar ROXX vs Scorpio N</h3><p>Compare performance, practicality and features.</p></div>
+<div class="card video-card"><div class="video-thumb">▶</div><h3>Scorpio N Walkaround</h3><p>Explore the SUV from every angle.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="colors">
+<div class="container">
+<h2 class="section-title">Mahindra Scorpio N Colours</h2><p class="section-sub">Choose your preferred Scorpio N colour.</p>
+<div class="colors">
+<div class="color"><div class="color-dot" style="background:#f5f5f2"></div><p>Everest White</p></div>
+<div class="color"><div class="color-dot" style="background:#17191c"></div><p>Stealth Black</p></div>
+<div class="color"><div class="color-dot" style="background:#a9adb2"></div><p>Valyrian Silver</p></div>
+<div class="color"><div class="color-dot" style="background:#31443b"></div><p>Deep Forest</p></div>
+<div class="color"><div class="color-dot" style="background:#080a0d"></div><p>Midnight Black</p></div>
+</div>
+</div>
+</section>
+
+<section class="section alt" id="faq">
+<div class="container">
+<h2 class="section-title">FAQs on Mahindra Scorpio N</h2><p class="section-sub">Quick answers to common buyer questions.</p>
+<div class="card faq">
+<div class="faq-item"><div class="faq-q">What is the price of Mahindra Scorpio N?</div><div class="faq-a">The Scorpio N is listed from ₹13.69 Lakh to ₹25.49 Lakh ex-showroom in the current reference data.</div></div>
+<div class="faq-item"><div class="faq-q">Is Scorpio N available as a 7-seater?</div><div class="faq-a">Yes. The Scorpio N is available in 6-seater and 7-seater configurations depending on the variant.</div></div>
+<div class="faq-item"><div class="faq-q">Does Scorpio N have 4WD?</div><div class="faq-a">Selected diesel variants are available with 4WD.</div></div>
+<div class="faq-item"><div class="faq-q">What is the mileage of Scorpio N?</div><div class="faq-a">The reference range is approximately 12.12 - 15.94 kmpl depending on variant and powertrain.</div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<div class="cta"><div><h2>Need the best Scorpio N loan?</h2><p>Get vehicle finance, insurance and on-road assistance from MK Finance.</p></div><button class="btn">Get Finance Quote</button></div>
+</div>
+</section>
+</main>
+
 <footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <img src="MK_FINANCE_LOGO.png" alt="MK Finance">
-      <p>MK Finance — Your trusted financial partner for all vehicle needs. Buying, selling, financing, insuring — everything under one roof.</p>
-      <div class="footer-contact">
-        <a href="tel:+919824742356">📞 +91 98247 42356</a>
-        <a href="mailto:mkfinance.guj@gmail.com">✉️ mkfinance.guj@gmail.com</a>
-        <a href="mailto:kirandahir@gmail.com">✉️ kirandahir@gmail.com</a>
-      </div>
-    </div>
-    <div>
-      <h5>Services</h5>
-      <ul class="footer-links">
-        <li><a href="#">New Car Sales</a></li>
-        <li><a href="#">Commercial Vehicles</a></li>
-        <li><a href="#">Vehicle Loan</a></li>
-        <li><a href="#">Refinance Loan</a></li>
-        <li><a href="#">Top-Up Loan</a></li>
-        <li><a href="#">Vehicle Insurance</a></li>
-      </ul>
-    </div>
-    <div>
-      <h5>Vehicles</h5>
-      <ul class="footer-links">
-        <li><a href="#">Cars & SUVs</a></li>
-        <li><a href="#">Trucks</a></li>
-        <li><a href="#">Tempos</a></li>
-        <li><a href="#">Pickup</a></li>
-        <li><a href="#">Tractors</a></li>
-        <li><a href="#">Buses</a></li>
-      </ul>
-    </div>
-    <div>
-      <h5>Quick Links</h5>
-      <ul class="footer-links">
-        <li><a href="#">EMI Calculator</a></li>
-        <li><a href="#">Insurance Quote</a></li>
-        <li><a href="#">Apply for Loan</a></li>
-        <li><a href="#">Compare Plans</a></li>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2024 MK Finance. All Rights Reserved. | Powered by Your Financial Partner</p>
-    <span class="footer-badge">🛡️ RBI Registered NBFC Partner</span>
-  </div>
+<div class="container">
+<div class="footer-grid">
+<div><div class="footer-logo"><span>MK</span> Finance</div><p class="footer-desc">Your financial partner for vehicle loans, commercial vehicle finance and vehicle insurance.</p></div>
+<div><h4>Cars</h4><a href="#">New Cars</a><a href="#">Used Cars</a><a href="#">Compare Cars</a><a href="#">Car Reviews</a></div>
+<div><h4>Finance</h4><a href="#">Car Loan</a><a href="#">Commercial Vehicle Loan</a><a href="#">EMI Calculator</a><a href="#">Insurance</a></div>
+<div><h4>Quick Links</h4><a href="#price">Price</a><a href="#variants">Variants</a><a href="#specs">Specs</a><a href="#reviews">Reviews</a></div>
+</div>
+<div class="copyright"><span>© 2026 MK Finance. All Rights Reserved.</span><span>Call: 9824742356</span></div>
+</div>
 </footer>
-
-<script>
-function calcEMI() {
-  const price = parseInt(document.getElementById('loanAmt').value);
-  const dp = parseInt(document.getElementById('downPay').value);
-  const rate = parseFloat(document.getElementById('rate').value);
-  const months = parseInt(document.getElementById('tenure').value);
-
-  document.getElementById('priceLabel').textContent = '₹' + (price/100000).toFixed(1) + ' L';
-  document.getElementById('dpLabel').textContent = '₹' + (dp/100000).toFixed(1) + ' L';
-  document.getElementById('rateLabel').textContent = rate.toFixed(1) + '%';
-  document.getElementById('tenureLabel').textContent = months + ' Months';
-
-  const loan = price - dp;
-  const r = rate / 12 / 100;
-  let emi;
-  if (r === 0) { emi = loan / months; }
-  else { emi = loan * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1); }
-  const total = emi * months;
-  const interest = total - loan;
-
-  const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
-  document.getElementById('emiResult').textContent = fmt(emi);
-  document.getElementById('interestResult').textContent = fmt(interest);
-  document.getElementById('loanResult').textContent = fmt(loan);
-  document.getElementById('totalResult').textContent = fmt(total);
-}
-
-let vehicleCache = {};
-
-function tagClass(tag) {
-  const t = tag.trim();
-  if (t === 'NEW') return 'tag-new';
-  if (t === 'LOAN READY') return 'tag-loan';
-  if (t === 'INSURE') return 'tag-ins';
-  return 'tag-new';
-}
-
-async function loadCars() {
-  const grid = document.getElementById('carsGrid');
-  try {
-    const res = await fetch('/api/vehicles?category=Car');
-    const cars = await res.json();
-    if (!cars.length) {
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Hajii koi vehicle listed nathi.</div>';
-      return;
-    }
-    cars.forEach(c => vehicleCache[c.id] = c);
-    grid.innerHTML = cars.map(c => `
-      <div class="vehicle-card" onclick="window.location.href='vehicle.html?id=${c.id}'">
-        <div class="vehicle-img">
-          ${c.image_url ? `<img src="${c.image_url}" alt="${c.brand} ${c.model}" onerror="this.parentElement.innerHTML='${c.icon || '🚗'}<div class=&quot;brand-badge&quot;>${c.brand}</div>'">` : `${c.icon || '🚗'}`}
-          <div class="brand-badge">${c.brand}</div>
-        </div>
-        <div class="vehicle-info">
-          <h4>${c.model}</h4>
-          <div class="model">${[c.year, c.fuel_type].filter(Boolean).join(' | ')}</div>
-          <div class="vehicle-price">${c.price || ''} ${c.emi ? `<span class="emi">${c.emi}</span>` : ''}</div>
-          <div class="vehicle-tags">${(c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag ${tagClass(t)}">${t.trim()}</span>`).join('')}</div>
-          <button class="vehicle-cta" onclick="event.stopPropagation(); window.location.href='vehicle.html?id=${c.id}'">View Details</button>
-        </div>
-      </div>`).join('');
-  } catch (e) {
-    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.6;">Vehicles load thai shakya nathi.</div>';
-  }
-}
-loadCars();
-
-// Pre-fill message if arriving from a vehicle detail page (?vehicle=Brand Model)
-(function prefillFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const vehicleName = params.get('vehicle');
-  if (vehicleName) {
-    window.addEventListener('DOMContentLoaded', () => {
-      const msgBox = document.getElementById('f-message');
-      if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + vehicleName;
-    });
-  }
-})();
-
-let currentModalVehicle = null;
-function openVehicleModal(id) {
-  const v = vehicleCache[id];
-  if (!v) return;
-  currentModalVehicle = v;
-  document.getElementById('vmodalTitle').textContent = v.brand + ' ' + v.model;
-  document.getElementById('vmodalSub').textContent = v.category + (v.fuel_type ? ' • ' + v.fuel_type : '');
-  document.getElementById('vmodalPrice').textContent = v.price || '';
-  document.getElementById('vmodalEmi').textContent = v.emi || '';
-  document.getElementById('vmodalYear').textContent = v.year || '-';
-  document.getElementById('vmodalFuel').textContent = v.fuel_type || '-';
-  document.getElementById('vmodalDesc').textContent = v.description || '';
-  const imgBox = document.getElementById('vmodalImg');
-  if (v.image_url) {
-    imgBox.innerHTML = `<img src="${v.image_url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">`;
-  } else {
-    imgBox.textContent = v.icon || '🚗';
-  }
-  document.getElementById('vmodalOverlay').classList.add('open');
-}
-function closeVehicleModal() {
-  document.getElementById('vmodalOverlay').classList.remove('open');
-}
-function quoteFromModal() {
-  closeVehicleModal();
-  document.getElementById('contact').scrollIntoView({behavior:'smooth'});
-  if (currentModalVehicle) {
-    const sel = document.getElementById('f-vehicle-type');
-    const msgBox = document.getElementById('f-message');
-    if (sel) sel.value = 'Car / SUV';
-    if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + currentModalVehicle.brand + ' ' + currentModalVehicle.model;
-  }
-}
-
-function showTab(tab, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-cars').style.display = tab === 'cars' ? 'block' : 'none';
-  document.getElementById('tab-commercial').style.display = tab === 'commercial' ? 'block' : 'none';
-}
-
-async function handleSubmit(btn) {
-  const name = document.getElementById('f-name').value.trim();
-  const mobile = document.getElementById('f-mobile').value.trim();
-  const service = document.getElementById('f-service').value;
-  const vehicle_type = document.getElementById('f-vehicle-type').value;
-  const message = document.getElementById('f-message').value.trim();
-  const msgBox = document.getElementById('formMsg');
-
-  function showMsg(text, ok) {
-    msgBox.style.display = 'block';
-    msgBox.textContent = text;
-    msgBox.style.background = ok ? 'rgba(26,110,142,0.15)' : 'rgba(230,48,48,0.15)';
-    msgBox.style.color = ok ? '#2a8aad' : '#e63030';
-    msgBox.style.border = '1px solid ' + (ok ? 'rgba(26,110,142,0.4)' : 'rgba(230,48,48,0.4)');
-  }
-
-  if (!name || !mobile) {
-    showMsg('Krupya Naam ane Mobile Number bharo.', false);
-    return;
-  }
-
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-
-  try {
-    const res = await fetch('/api/inquiry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, mobile, service, vehicle_type, message })
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      showMsg('✅ Tamari inquiry receive thai gai chhe! Amे tamane joldi j contact karishu.', true);
-      btn.textContent = '✅ Submitted';
-      document.getElementById('f-name').value = '';
-      document.getElementById('f-mobile').value = '';
-      document.getElementById('f-service').value = '';
-      document.getElementById('f-vehicle-type').value = '';
-      document.getElementById('f-message').value = '';
-      setTimeout(() => { btn.disabled = false; btn.textContent = originalText; }, 3000);
-    } else {
-      showMsg(data.error || 'Kaink error thai. Ferithi try karo.', false);
-      btn.disabled = false;
-      btn.textContent = originalText;
-    }
-  } catch (err) {
-    showMsg('Server sathe connect thai sakyu nathi. Ferithi try karo.', false);
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-}
-
-calcEMI();
-</script>
 </body>
 </html>
