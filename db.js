@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   variants TEXT,                  -- comma separated e.g. "VXi, ZXi, ZXi+, ZXi AMT"
   expert_note TEXT,               -- admin's own short opinion/highlight about the vehicle
   gallery_images TEXT,            -- comma separated additional photo URLs (image_url is the main/first photo)
+  colors TEXT,                    -- comma separated color names available for this vehicle
   description TEXT,
   is_active INTEGER DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
