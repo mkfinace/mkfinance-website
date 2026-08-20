@@ -329,7 +329,10 @@ function buildCategoryNav() {
 
 function scrollToSection(key) {
   const el = document.getElementById(key);
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  if (el) {
+    el.classList.remove('collapsed');
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function renderSections() {
