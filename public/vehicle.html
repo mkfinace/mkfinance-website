@@ -279,14 +279,6 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <div class="specs-grid" id="keyFeaturesGrid"></div>
 </div>
 
-<div class="card spec-box" style="max-width:600px; margin-top:16px;">
-<div class="spec-line"><span>Brand</span><span id="specBrand2">-</span></div>
-<div class="spec-line"><span>Model</span><span id="specModel2">-</span></div>
-<div class="spec-line"><span>Year</span><span id="specYear2">-</span></div>
-<div class="spec-line"><span>Fuel Type</span><span id="specFuel2">-</span></div>
-<div class="spec-line"><span>Category</span><span id="specCategory2">-</span></div>
-<div class="spec-line"><span>Price</span><span id="specPrice2">-</span></div>
-</div>
 </div>
 </section>
 
@@ -514,12 +506,12 @@ function renderVehicle(v) {
     document.getElementById('expertText').innerHTML = v.expert_note.split('\n\n').map(p => `<p style="margin-bottom:14px;">${p.replace(/\n/g, '<br>')}</p>`).join('');
   }
 
-  document.getElementById('specBrand2').textContent = v.brand || '-';
-  document.getElementById('specModel2').textContent = v.model || '-';
-  document.getElementById('specYear2').textContent = 'New';
-  document.getElementById('specFuel2').textContent = v.fuel_type || '-';
-  document.getElementById('specCategory2').textContent = v.category || '-';
-  document.getElementById('specPrice2').textContent = v.price || '-';
+  setText('specBrand2', v.brand || '-');
+  setText('specModel2', v.model || '-');
+  setText('specYear2', 'New');
+  setText('specFuel2', v.fuel_type || '-');
+  setText('specCategory2', v.category || '-');
+  setText('specPrice2', v.price || '-');
 
   // Detailed Specifications — sidebar tabs if category-prefixed ("Category::Label:Value"), else flat grid
   const rawSpecs = (v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean);
