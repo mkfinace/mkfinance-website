@@ -262,7 +262,8 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
   <div class="vcb-chips" id="vcbChips"></div>
   <div class="vcb-actions">
     <button class="btn secondary small" onclick="clearVariantCompare()">Clear</button>
-    <button class="btn small" onclick="showVariantCompare()">Compare Now →</button>
+    <button class="btn secondary small" onclick="showVariantCompare()">View Variants</button>
+    <button class="btn small" onclick="goToFullCompare()">Compare with Other Cars →</button>
   </div>
 </div>
 <div class="variant-compare-summary" id="variantCompareSummary"></div>
@@ -701,6 +702,15 @@ function toggleVariantCompare(name, checked) {
 function uncheckVariant(name) {
   toggleVariantCompare(name, false);
   renderVariantRows(document.querySelector('input[name="vtrans"]:checked').value);
+}
+
+function goToFullCompare() {
+  const v = window.currentVehicle;
+  if (v) {
+    window.location.href = '/compare.html?ids=' + v.id;
+  } else {
+    window.location.href = '/compare.html';
+  }
 }
 
 function showVariantCompare() {
