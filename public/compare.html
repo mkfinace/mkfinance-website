@@ -70,12 +70,13 @@ button,input,select{font:inherit}
 .toggle-switch .knob{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s}
 .toggle-switch.on .knob{left:18px}
 
-.cat-section{background:#0b1b23;border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:160px}
+.cat-section{background:#0b1b23;border:1px solid var(--line);border-radius:10px;margin-bottom:16px;box-shadow:var(--shadow);scroll-margin-top:160px}
+.cat-header{border-radius:10px 10px 0 0;overflow:hidden}
 .cat-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none}
 .cat-header h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
 .cat-header .chev{color:var(--muted);transition:transform .2s;font-size:14px}
 .cat-section.collapsed .chev{transform:rotate(-90deg)}
-.cat-body{overflow-x:auto}
+.cat-body{overflow-x:auto;border-radius:0 0 10px 10px}
 .cat-section.collapsed .cat-body{display:none}
 
 .compare-table{width:100%;border-collapse:collapse;min-width:600px}
