@@ -249,6 +249,17 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <section class="section" id="specs">
 <div class="container">
 <h2 class="section-title" id="specsTitleText">Full Specifications</h2><p class="section-sub">All the vehicle's details in one place.</p>
+
+<div class="card spec-box" id="keySpecsBox" style="display:none; margin-bottom:16px;">
+<h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keySpecsHeading">Key Specifications</h3>
+<div class="specs-grid" id="keySpecsGrid"></div>
+</div>
+
+<div class="card spec-box" id="keyFeaturesBox" style="display:none; margin-bottom:16px;">
+<h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keyFeaturesHeading">Key Features</h3>
+<div class="specs-grid" id="keyFeaturesGrid"></div>
+</div>
+
 <div class="card spec-box" style="max-width:600px;">
 <div class="spec-line"><span>Brand</span><span id="specBrand2">-</span></div>
 <div class="spec-line"><span>Model</span><span id="specModel2">-</span></div>
@@ -477,6 +488,27 @@ function renderVehicle(v) {
   document.getElementById('specFuel2').textContent = v.fuel_type || '-';
   document.getElementById('specCategory2').textContent = v.category || '-';
   document.getElementById('specPrice2').textContent = v.price || '-';
+
+  // Key Specifications (real data only, admin-entered)
+  const detailedSpecs = (v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (detailedSpecs.length) {
+    document.getElementById('keySpecsBox').style.display = 'block';
+    document.getElementById('keySpecsHeading').textContent = vName + ' Key Specifications';
+    document.getElementById('keySpecsGrid').innerHTML = detailedSpecs.map(x => {
+      const parts = x.split(':');
+      return `<div class="spec-line"><span>${(parts[0]||'').trim()}</span><span>${(parts[1]||'').trim()}</span></div>`;
+    }).join('');
+  }
+
+  // Key Features (real data only, admin-entered)
+  const featuresList = (v.key_features || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (featuresList.length) {
+    document.getElementById('keyFeaturesBox').style.display = 'block';
+    document.getElementById('keyFeaturesHeading').textContent = vName + ' Key Features';
+    document.getElementById('keyFeaturesGrid').innerHTML = featuresList.map(f =>
+      `<div class="spec-line"><span>${f}</span><span style="color:#2ecf7a;">✓</span></div>`
+    ).join('');
+  }
 
   document.getElementById('ctaTitle').textContent = 'Need the best loan for ' + v.brand + ' ' + v.model + '?';
 
