@@ -88,6 +88,7 @@ button,input,select{font:inherit}
   <div class="picker-box">
     <span class="picker-close" onclick="closePicker()">✕</span>
     <h3>Select a vehicle</h3>
+    <p id="pickerGroupNote" style="font-size:12px; color:var(--blue); margin-bottom:10px;"></p>
     <input class="picker-search" id="pickerSearch" placeholder="Search by brand or model..." oninput="renderPickerList()">
     <div id="pickerList"></div>
   </div>
@@ -152,14 +153,22 @@ function openPicker(slotIndex) {
 function closePicker() {
   document.getElementById('pickerModal').classList.remove('open');
 }
+function categoryGroup(category) {
+  return category === 'Car' ? 'Car' : 'Commercial';
+}
+
 function renderPickerList() {
   const q = document.getElementById('pickerSearch').value.trim().toLowerCase();
   const selectedIds = selected.map(v => v.id);
+  const lockedGroup = selected.length ? categoryGroup(selected[0].category) : null;
   const list = allVehicles.filter(v =>
     !selectedIds.includes(v.id) &&
+    (!lockedGroup || categoryGroup(v.category) === lockedGroup) &&
     (v.brand + ' ' + v.model).toLowerCase().includes(q)
   );
   const box = document.getElementById('pickerList');
+  const noteEl = document.getElementById('pickerGroupNote');
+  if (noteEl) noteEl.textContent = lockedGroup ? `Showing ${lockedGroup === 'Car' ? 'cars' : 'commercial vehicles'} only — matching your current comparison.` : '';
   if (!list.length) {
     box.innerHTML = '<p style="color:var(--muted); font-size:13px; padding:14px;">No matching vehicles found.</p>';
     return;
