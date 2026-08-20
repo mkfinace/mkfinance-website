@@ -791,11 +791,36 @@ function removeOtherVehicle(id) {
 
 function goToFullCompare() {
   const v = window.currentVehicle;
-  const ids = [];
-  if (v) ids.push(v.id);
-  otherCompareVehicles.forEach(o => ids.push(o.id));
-  if (ids.length < 2) { alert('Add at least one more vehicle to compare.'); return; }
-  window.location.href = '/compare.html?ids=' + ids.join(',');
+
+  // Case 1: at least one different vehicle added -> full spec comparison page
+  if (otherCompareVehicles.length > 0) {
+    const ids = [];
+    if (v) ids.push(v.id);
+    otherCompareVehicles.forEach(o => ids.push(o.id));
+    window.location.href = '/compare.html?ids=' + ids.join(',');
+    return;
+  }
+
+  // Case 2: only this vehicle's own variants selected -> show a variant-level comparison inline
+  if (selectedVariants.length >= 2) {
+    showVariantOnlyCompare();
+    return;
+  }
+
+  alert('Select at least 2 variants, or add another vehicle to compare.');
+}
+
+function showVariantOnlyCompare() {
+  const list = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name));
+  const box = document.getElementById('variantCompareSummary');
+  if (!box) return;
+  box.innerHTML = `
+    <table class="vc-table">
+      <thead><tr><th>Variant</th><th>Transmission</th><th>Fuel</th><th>Ex-Showroom Price</th></tr></thead>
+      <tbody>${list.map(p => `<tr><td class="vname">${p.name}</td><td>${p.transmission || '-'}</td><td>${p.fuel || '-'}</td><td class="vprice">${p.price || '-'}</td></tr>`).join('')}</tbody>
+    </table>`;
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function clearVariantCompare() {
