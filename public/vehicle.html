@@ -80,8 +80,17 @@ section[id]{scroll-margin-top:190px}
 .variant-filter-bar{display:flex;align-items:center;gap:18px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .vfilter-opt{display:flex;align-items:center;gap:6px;font-size:13px;color:#c3d0d5;cursor:pointer}
 .vfilter-opt input{accent-color:var(--blue)}
-.variant-table-head{display:grid;grid-template-columns:2fr 1fr 1fr;padding:10px 18px;background:#0d2029;font-size:11px;text-transform:uppercase;color:#8299a3;letter-spacing:.4px}
-.variant-row{display:grid;grid-template-columns:2fr 1fr 1fr;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);}
+.variant-table-head{display:grid;grid-template-columns:2fr 1fr 1fr 90px;padding:10px 18px;background:#0d2029;font-size:11px;text-transform:uppercase;color:#8299a3;letter-spacing:.4px}
+.variant-compare-check{display:flex; align-items:center; justify-content:center;}
+.variant-compare-check input{width:18px; height:18px; accent-color:var(--blue); cursor:pointer;}
+.variant-compare-bar{display:none; padding:16px 18px; background:#0d2029; border-top:1px solid var(--line); align-items:center; gap:12px; flex-wrap:wrap;}
+.variant-compare-bar.show{display:flex;}
+.variant-compare-summary{display:none; padding:18px; background:#081820;}
+.variant-compare-summary.show{display:block;}
+.vc-table{width:100%; border-collapse:collapse;}
+.vc-table th,.vc-table td{padding:10px 14px; border-bottom:1px solid var(--line); font-size:13px; text-align:left;}
+.vc-table th{color:var(--muted); font-size:11px; text-transform:uppercase;}
+.variant-row{display:grid;grid-template-columns:2fr 1fr 1fr 90px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);}
 .variant-row:last-child{border-bottom:0;}
 .variant-row .vname{font-size:14px;font-weight:700;color:#fff}
 .variant-row .vmeta{font-size:11px;color:var(--muted);margin-top:2px}
@@ -235,8 +244,14 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
   <label class="vfilter-opt"><input type="radio" name="vtrans" value="Automatic" onchange="filterVariants('Automatic')"> Automatic</label>
   <label class="vfilter-opt"><input type="radio" name="vtrans" value="Manual" onchange="filterVariants('Manual')"> Manual</label>
 </div>
-<div class="variant-table-head" id="variantTableHead" style="display:none;"><span>Variant</span><span>Transmission / Fuel</span><span>Ex-Showroom Price</span></div>
+<div class="variant-table-head" id="variantTableHead" style="display:none;"><span>Variant</span><span>Transmission / Fuel</span><span>Ex-Showroom Price</span><span style="text-align:center;">Compare</span></div>
 <div class="variant-list" id="variantList"></div>
+<div class="variant-compare-bar" id="variantCompareBar">
+  <span style="font-size:13px; color:var(--muted);" id="variantCompareCount">0 variants selected</span>
+  <button class="btn small" onclick="showVariantCompare()">Compare Selected</button>
+  <button class="btn secondary small" onclick="clearVariantCompare()">Clear</button>
+</div>
+<div class="variant-compare-summary" id="variantCompareSummary"></div>
 </div>
 </div>
 </section>
@@ -615,6 +630,8 @@ function doSearch() {
   window.location.href = '/index.html' + (q ? '?search=' + encodeURIComponent(q) : '') + '#vehicles';
 }
 
+let selectedVariants = [];
+
 function renderVariantRows(filter) {
   const list = window.parsedVariants || [];
   const filtered = filter === 'All' ? list : list.filter(p => p.transmission === filter);
@@ -628,9 +645,41 @@ function renderVariantRows(filter) {
       <div><div class="vname">${p.name}</div></div>
       <div class="vtrans">${[p.transmission, p.fuel].filter(Boolean).join(' • ') || '-'}</div>
       <div class="vprice">${p.price || '-'}</div>
+      <div class="variant-compare-check"><input type="checkbox" ${selectedVariants.includes(p.name) ? 'checked' : ''} onchange="toggleVariantCompare('${p.name.replace(/'/g,"\\'")}', this.checked)"></div>
     </div>`).join('');
 }
 function filterVariants(type) { renderVariantRows(type); }
+
+function toggleVariantCompare(name, checked) {
+  if (checked) {
+    if (!selectedVariants.includes(name)) selectedVariants.push(name);
+  } else {
+    selectedVariants = selectedVariants.filter(n => n !== name);
+  }
+  const bar = document.getElementById('variantCompareBar');
+  document.getElementById('variantCompareCount').textContent = selectedVariants.length + ' variant' + (selectedVariants.length !== 1 ? 's' : '') + ' selected';
+  bar.classList.toggle('show', selectedVariants.length > 0);
+  document.getElementById('variantCompareSummary').classList.remove('show');
+}
+
+function showVariantCompare() {
+  if (selectedVariants.length < 2) { alert('Select at least 2 variants to compare.'); return; }
+  const list = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name));
+  const box = document.getElementById('variantCompareSummary');
+  box.innerHTML = `
+    <table class="vc-table">
+      <thead><tr><th>Variant</th><th>Transmission</th><th>Fuel</th><th>Ex-Showroom Price</th></tr></thead>
+      <tbody>${list.map(p => `<tr><td class="vname">${p.name}</td><td>${p.transmission || '-'}</td><td>${p.fuel || '-'}</td><td class="vprice">${p.price || '-'}</td></tr>`).join('')}</tbody>
+    </table>`;
+  box.classList.add('show');
+}
+
+function clearVariantCompare() {
+  selectedVariants = [];
+  document.getElementById('variantCompareBar').classList.remove('show');
+  document.getElementById('variantCompareSummary').classList.remove('show');
+  renderVariantRows(document.querySelector('input[name="vtrans"]:checked').value);
+}
 
 function selectThumb(el, url) {
   document.querySelectorAll('.thumb-row .thumb').forEach(t => t.classList.remove('active'));
