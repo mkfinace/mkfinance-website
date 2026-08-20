@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compare Vehicles | MK Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#159ac4; --blue-dark:#1f56c5; --red:#ef3030;
+  --text:#ffffff; --muted:#8fa3ad; --line:rgba(42,138,173,.20);
+  --shadow:0 18px 45px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Roboto,Arial,sans-serif;background:#06131a;color:var(--text);line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+.container{max-width:1400px;margin:auto;padding:0 18px}
+.topbar{height:68px;border-bottom:1px solid var(--line);background:#07151c;display:flex;align-items:center;position:sticky;top:0;z-index:1000}
+.topbar-inner{display:flex;align-items:center;gap:22px;width:100%}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px;white-space:nowrap}
+.logo span:first-child{color:var(--red)} .logo span:last-child{color:var(--blue)}
+.back-link{margin-left:auto;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer}
+.back-link:hover{color:var(--blue)}
+
+.hero{padding:32px 0 20px}
+.hero h1{font-size:28px;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:14px}
+
+.picker-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:24px 0}
+.picker-slot{background:#0b1b23;border:1px dashed var(--line);border-radius:10px;padding:18px;text-align:center;cursor:pointer;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:border-color .2s}
+.picker-slot:hover{border-color:var(--blue)}
+.picker-slot .plus{font-size:28px;color:var(--blue)}
+.picker-slot .lbl{font-size:12px;color:var(--muted)}
+.filled-slot{background:#0b1b23;border:1px solid var(--line);border-radius:10px;padding:16px;position:relative;text-align:center}
+.filled-slot .remove{position:absolute;top:8px;right:8px;background:rgba(239,48,48,.15);color:var(--red);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1}
+.filled-slot .img{height:80px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin-bottom:8px;overflow:hidden;border-radius:6px;background:rgba(21,154,196,.06)}
+.filled-slot .img img{width:100%;height:100%;object-fit:cover}
+.filled-slot h4{font-size:14px;margin-bottom:2px}
+.filled-slot .price{font-size:13px;color:var(--blue);font-weight:700}
+
+.picker-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:flex-start;justify-content:center;padding:60px 20px}
+.picker-modal.open{display:flex}
+.picker-box{background:#0b1b23;border:1px solid var(--line);border-radius:12px;max-width:600px;width:100%;max-height:75vh;overflow:auto;padding:20px}
+.picker-box h3{margin-bottom:14px}
+.picker-search{width:100%;padding:12px 14px;background:#081820;border:1px solid var(--line);border-radius:8px;color:#fff;margin-bottom:14px}
+.picker-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;cursor:pointer}
+.picker-item:hover{background:#0d2029}
+.picker-item .ic{font-size:1.6rem;width:40px;text-align:center}
+.picker-item .nm{font-size:13px;font-weight:600}
+.picker-item .pr{font-size:12px;color:var(--muted)}
+.picker-close{float:right;cursor:pointer;color:var(--muted);font-size:20px}
+
+.compare-table-wrap{overflow-x:auto;padding-bottom:60px}
+.compare-table{width:100%;border-collapse:collapse;min-width:600px}
+.compare-table th,.compare-table td{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;white-space:nowrap}
+.compare-table th{position:sticky;top:68px;background:#06131a;z-index:5}
+.row-label-col{position:sticky;left:0;background:#06131a;z-index:6;font-weight:600;color:var(--muted);min-width:180px}
+.compare-table th.row-label-col{z-index:7}
+.cat-row td{background:#0d2029;color:var(--blue);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px;position:sticky;left:0}
+.diff-highlight{color:#ffb020;font-weight:700}
+.empty-msg{text-align:center;padding:60px 20px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="/index.html"><span>MK</span> <span>Finance</span></a>
+    <span class="back-link" onclick="window.location.href='/index.html#vehicles'">← Back to Vehicles</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Compare <span style="color:var(--blue)">Vehicles</span></h1>
+    <p>Add up to 6 vehicles and compare full specifications side by side — real data only.</p>
+  </div>
+
+  <div class="picker-row" id="pickerRow"></div>
+
+  <div id="compareTableWrap" class="compare-table-wrap"></div>
+</div>
+
+<div class="picker-modal" id="pickerModal">
+  <div class="picker-box">
+    <span class="picker-close" onclick="closePicker()">✕</span>
+    <h3>Select a vehicle</h3>
+    <input class="picker-search" id="pickerSearch" placeholder="Search by brand or model..." oninput="renderPickerList()">
+    <div id="pickerList"></div>
+  </div>
+</div>
+
+<script>
+const MAX_SLOTS = 6;
+let allVehicles = [];
+let selected = []; // array of vehicle objects, length up to MAX_SLOTS
+let activeSlotIndex = null;
+
+async function init() {
+  try {
+    const res = await fetch('/api/vehicles?_=' + Date.now(), { cache: 'no-store' });
+    allVehicles = await res.json();
+  } catch (e) { allVehicles = []; }
+
+  // Pre-fill from ?ids=1,2,3 query param if present
+  const params = new URLSearchParams(window.location.search);
+  const ids = (params.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
+  ids.forEach(id => {
+    const v = allVehicles.find(x => String(x.id) === id);
+    if (v && selected.length < MAX_SLOTS) selected.push(v);
+  });
+
+  renderSlots();
+  renderCompareTable();
+}
+
+function renderSlots() {
+  const row = document.getElementById('pickerRow');
+  let html = '';
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    const v = selected[i];
+    if (v) {
+      html += `
+        <div class="filled-slot">
+          <button class="remove" onclick="removeSlot(${i})">✕</button>
+          <div class="img">${v.image_url ? `<img src="${v.image_url}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">` : (v.icon || '🚗')}</div>
+          <h4>${v.brand} ${v.model}</h4>
+          <div class="price">${v.price || 'Price on request'}</div>
+        </div>`;
+    } else if (i === selected.length) {
+      html += `
+        <div class="picker-slot" onclick="openPicker(${i})">
+          <div class="plus">+</div>
+          <div class="lbl">Add Vehicle</div>
+        </div>`;
+    } else {
+      html += `<div class="picker-slot" style="opacity:.3; cursor:default; pointer-events:none;"><div class="lbl">Empty</div></div>`;
+    }
+  }
+  row.innerHTML = html;
+}
+
+function openPicker(slotIndex) {
+  activeSlotIndex = slotIndex;
+  document.getElementById('pickerModal').classList.add('open');
+  document.getElementById('pickerSearch').value = '';
+  renderPickerList();
+}
+function closePicker() {
+  document.getElementById('pickerModal').classList.remove('open');
+}
+function renderPickerList() {
+  const q = document.getElementById('pickerSearch').value.trim().toLowerCase();
+  const selectedIds = selected.map(v => v.id);
+  const list = allVehicles.filter(v =>
+    !selectedIds.includes(v.id) &&
+    (v.brand + ' ' + v.model).toLowerCase().includes(q)
+  );
+  const box = document.getElementById('pickerList');
+  if (!list.length) {
+    box.innerHTML = '<p style="color:var(--muted); font-size:13px; padding:14px;">No matching vehicles found.</p>';
+    return;
+  }
+  box.innerHTML = list.map(v => `
+    <div class="picker-item" onclick="selectVehicle(${v.id})">
+      <div class="ic">${v.icon || '🚗'}</div>
+      <div>
+        <div class="nm">${v.brand} ${v.model}</div>
+        <div class="pr">${v.price || 'Price on request'}</div>
+      </div>
+    </div>`).join('');
+}
+function selectVehicle(id) {
+  const v = allVehicles.find(x => x.id === id);
+  if (!v) return;
+  selected[activeSlotIndex] = v;
+  selected = selected.filter(Boolean);
+  closePicker();
+  renderSlots();
+  renderCompareTable();
+  updateUrl();
+}
+function removeSlot(i) {
+  selected.splice(i, 1);
+  renderSlots();
+  renderCompareTable();
+  updateUrl();
+}
+function updateUrl() {
+  const ids = selected.map(v => v.id).join(',');
+  const url = ids ? ('/compare.html?ids=' + ids) : '/compare.html';
+  window.history.replaceState(null, '', url);
+}
+
+function parseSpecs(v) {
+  const raw = [
+    ...(v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean),
+    ...(v.key_features || '').split(',').map(x => x.trim() + ':✓').filter(x => x !== ':✓')
+  ];
+  const map = {}; // "Category|Label" -> value
+  raw.forEach(x => {
+    if (!x.includes('::')) return;
+    const [cat, rest] = x.split('::');
+    const parts = rest.split(':');
+    const label = (parts[0] || '').trim();
+    const value = parts.slice(1).join(':').trim() || '✓';
+    map[cat.trim() + '|' + label] = value;
+  });
+  return map;
+}
+
+function renderCompareTable() {
+  const wrap = document.getElementById('compareTableWrap');
+  if (selected.length < 2) {
+    wrap.innerHTML = `<div class="empty-msg">Add at least 2 vehicles above to see a full specification comparison.</div>`;
+    return;
+  }
+
+  const specMaps = selected.map(parseSpecs);
+  // Collect all Category|Label keys across all selected vehicles, preserving category order of first vehicle then any new ones
+  const orderedKeys = [];
+  const seen = new Set();
+  specMaps.forEach(map => {
+    Object.keys(map).forEach(k => { if (!seen.has(k)) { seen.add(k); orderedKeys.push(k); } });
+  });
+
+  // Group by category
+  const byCategory = {};
+  orderedKeys.forEach(k => {
+    const [cat, label] = k.split('|');
+    byCategory[cat] = byCategory[cat] || [];
+    byCategory[cat].push({ key: k, label });
+  });
+
+  let rowsHtml = '';
+  // Basic info rows first
+  rowsHtml += `<tr class="cat-row"><td class="row-label-col" colspan="${selected.length + 1}">Overview</td></tr>`;
+  rowsHtml += `<tr><td class="row-label-col">Price</td>${selected.map(v => `<td>${v.price || '-'}</td>`).join('')}</tr>`;
+  rowsHtml += `<tr><td class="row-label-col">EMI</td>${selected.map(v => `<td>${v.emi || '-'}</td>`).join('')}</tr>`;
+  rowsHtml += `<tr><td class="row-label-col">Fuel Type</td>${selected.map(v => `<td>${v.fuel_type || '-'}</td>`).join('')}</tr>`;
+  rowsHtml += `<tr><td class="row-label-col">Category</td>${selected.map(v => `<td>${v.category || '-'}</td>`).join('')}</tr>`;
+
+  Object.keys(byCategory).forEach(cat => {
+    rowsHtml += `<tr class="cat-row"><td class="row-label-col" colspan="${selected.length + 1}">${cat}</td></tr>`;
+    byCategory[cat].forEach(({ key, label }) => {
+      const values = specMaps.map(m => m[key] || '—');
+      const allSame = values.every(v => v === values[0]);
+      rowsHtml += `<tr><td class="row-label-col">${label}</td>${values.map(v => `<td class="${!allSame ? 'diff-highlight' : ''}">${v}</td>`).join('')}</tr>`;
+    });
+  });
+
+  const headHtml = `<tr><th class="row-label-col">Specification</th>${selected.map(v => `<th>${v.brand} ${v.model}</th>`).join('')}</tr>`;
+
+  wrap.innerHTML = `
+    <table class="compare-table">
+      <thead>${headHtml}</thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
