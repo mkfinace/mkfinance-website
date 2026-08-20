@@ -209,21 +209,21 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 
 <section class="section alt" id="variants">
 <div class="container">
-<h2 class="section-title">Available Variants</h2><p class="section-sub">Variants available for this vehicle.</p>
+<h2 class="section-title" id="variantsTitleText">Available Variants</h2><p class="section-sub">Variants available for this vehicle.</p>
 <div class="card variant-list" id="variantList"></div>
 </div>
 </section>
 
 <section class="section" id="images" style="display:none;">
 <div class="container">
-<h2 class="section-title">Photo Gallery</h2><p class="section-sub">All photos of this vehicle.</p>
+<h2 class="section-title" id="imagesTitleText">Photo Gallery</h2><p class="section-sub">All photos of this vehicle.</p>
 <div class="gallery-grid" id="galleryGrid"></div>
 </div>
 </section>
 
 <section class="section alt" id="expert" style="display:none;">
 <div class="container">
-<h2 class="section-title">MK Finance Expert Opinion</h2><p class="section-sub">Amara team no opinion aa vehicle vishe.</p>
+<h2 class="section-title" id="expertTitleText">MK Finance Expert Opinion</h2><p class="section-sub">Amara team no opinion aa vehicle vishe.</p>
 <div class="card expert-card">
 <div class="expert-head"><span class="expert-badge">⭐ MK Verified</span></div>
 <p id="expertText"></p>
@@ -233,7 +233,7 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 
 <section class="section" id="specs">
 <div class="container">
-<h2 class="section-title">Full Specifications</h2><p class="section-sub">All the vehicle's details in one place.</p>
+<h2 class="section-title" id="specsTitleText">Full Specifications</h2><p class="section-sub">All the vehicle's details in one place.</p>
 <div class="card spec-box" style="max-width:600px;">
 <div class="spec-line"><span>Brand</span><span id="specBrand2">-</span></div>
 <div class="spec-line"><span>Model</span><span id="specModel2">-</span></div>
@@ -247,7 +247,7 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 
 <section class="section alt" id="colors" style="display:none;">
 <div class="container">
-<h2 class="section-title">Available Colours</h2><p class="section-sub">Colours available for this vehicle.</p>
+<h2 class="section-title" id="colorsTitleText">Available Colours</h2><p class="section-sub">Colours available for this vehicle.</p>
 <div class="card colors" id="colorsList"></div>
 </div>
 </section>
@@ -416,6 +416,13 @@ function renderVehicle(v) {
   `;
 
   document.getElementById('priceTitleText').textContent = v.brand + ' ' + v.model + ' Price & EMI';
+  const vName = v.brand + ' ' + v.model;
+  const setTitleIfExists = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  setTitleIfExists('variantsTitleText', vName + ' Variants');
+  setTitleIfExists('imagesTitleText', vName + ' Images');
+  setTitleIfExists('specsTitleText', vName + ' Specifications');
+  setTitleIfExists('colorsTitleText', vName + ' Colours');
+  setTitleIfExists('expertTitleText', vName + ' Expert Opinion');
   document.getElementById('sidePrice').textContent = v.price || '-';
   document.getElementById('sideFuel').textContent = v.fuel_type || '-';
   document.getElementById('sideYear').textContent = 'New';
