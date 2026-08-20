@@ -94,6 +94,9 @@ section[id]{scroll-margin-top:190px}
 .vcb-chip .vcb-price{color:var(--blue); font-size:11px;}
 .vcb-chip .vcb-x{cursor:pointer; color:var(--muted); font-size:14px; margin-left:4px;}
 .vcb-chip .vcb-x:hover{color:var(--red);}
+.vcb-vs{width:26px; height:26px; border-radius:50%; background:#081820; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:var(--muted); flex-shrink:0;}
+.vcb-add{display:flex; align-items:center; gap:6px; background:transparent; border:1px dashed var(--line); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--blue); cursor:pointer; white-space:nowrap;}
+.vcb-add:hover{border-color:var(--blue);}
 .vcb-actions{display:flex; gap:10px; margin-left:auto;}
 @media(max-width:700px){.variant-compare-bar{padding:12px 14px;} .vcb-actions{width:100%; margin-left:0;} .vcb-actions .btn{flex:1;}}
 .variant-compare-summary{display:none; padding:18px; background:#081820;}
@@ -260,10 +263,19 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <div class="variant-compare-bar" id="variantCompareBar">
   <span class="vcb-label">My Comparison</span>
   <div class="vcb-chips" id="vcbChips"></div>
+  <button class="vcb-add" onclick="openOtherVehiclePicker()">+ Add Car</button>
   <div class="vcb-actions">
     <button class="btn secondary small" onclick="clearVariantCompare()">Clear</button>
-    <button class="btn secondary small" onclick="showVariantCompare()">View Variants</button>
-    <button class="btn small" onclick="goToFullCompare()">Compare with Other Cars →</button>
+    <button class="btn small" onclick="goToFullCompare()">Compare Now →</button>
+  </div>
+</div>
+
+<div class="picker-modal" id="ovPickerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; align-items:flex-start; justify-content:center; padding:60px 20px;">
+  <div style="background:#0b1b23; border:1px solid var(--line); border-radius:12px; max-width:480px; width:100%; max-height:70vh; overflow:auto; padding:20px;">
+    <span style="float:right; cursor:pointer; color:var(--muted); font-size:20px;" onclick="closeOtherVehiclePicker()">✕</span>
+    <h3 style="margin-bottom:14px;">Add another vehicle to compare</h3>
+    <input id="ovPickerSearch" placeholder="Search by brand or model..." oninput="renderOtherVehiclePicker()" style="width:100%; padding:12px 14px; background:#081820; border:1px solid var(--line); border-radius:8px; color:#fff; margin-bottom:14px;">
+    <div id="ovPickerList"></div>
   </div>
 </div>
 <div class="variant-compare-summary" id="variantCompareSummary"></div>
@@ -662,6 +674,8 @@ function doSearch() {
 }
 
 let selectedVariants = [];
+let otherCompareVehicles = []; // [{id, brand, model, price, icon}]
+let allVehiclesCache = null;
 
 function renderVariantRows(filter) {
   const list = window.parsedVariants || [];
@@ -681,22 +695,41 @@ function renderVariantRows(filter) {
 }
 function filterVariants(type) { renderVariantRows(type); }
 
+function renderCompareBar() {
+  const bar = document.getElementById('variantCompareBar');
+  const variantChips = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name)).map(p => ({
+    key: 'v:' + p.name, icon: '🚗', name: p.name, price: p.price || '-',
+    onx: `uncheckVariant('${p.name.replace(/'/g,"\\'")}')`
+  }));
+  const otherChips = otherCompareVehicles.map(o => ({
+    key: 'o:' + o.id, icon: o.icon || '🚗', name: o.brand + ' ' + o.model, price: o.price || '-',
+    onx: `removeOtherVehicle(${o.id})`
+  }));
+  const allChips = [...variantChips, ...otherChips];
+
+  let html = '';
+  allChips.forEach((c, i) => {
+    if (i > 0) html += `<div class="vcb-vs">VS</div>`;
+    html += `
+      <div class="vcb-chip">
+        <span class="vcb-icon">${c.icon}</span>
+        <div class="vcb-info"><span class="vcb-name">${c.name}</span><span class="vcb-price">${c.price}</span></div>
+        <span class="vcb-x" onclick="${c.onx}">✕</span>
+      </div>`;
+  });
+  document.getElementById('vcbChips').innerHTML = html;
+  bar.classList.toggle('show', allChips.length > 0);
+  const summaryEl = document.getElementById('variantCompareSummary');
+  if (summaryEl) summaryEl.classList.remove('show');
+}
+
 function toggleVariantCompare(name, checked) {
   if (checked) {
     if (!selectedVariants.includes(name)) selectedVariants.push(name);
   } else {
     selectedVariants = selectedVariants.filter(n => n !== name);
   }
-  const bar = document.getElementById('variantCompareBar');
-  const list = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name));
-  document.getElementById('vcbChips').innerHTML = list.map(p => `
-    <div class="vcb-chip">
-      <span class="vcb-icon">🚗</span>
-      <div class="vcb-info"><span class="vcb-name">${p.name}</span><span class="vcb-price">${p.price || '-'}</span></div>
-      <span class="vcb-x" onclick="uncheckVariant('${p.name.replace(/'/g,"\\'")}')">✕</span>
-    </div>`).join('');
-  bar.classList.toggle('show', selectedVariants.length > 0);
-  document.getElementById('variantCompareSummary').classList.remove('show');
+  renderCompareBar();
 }
 
 function uncheckVariant(name) {
@@ -704,32 +737,75 @@ function uncheckVariant(name) {
   renderVariantRows(document.querySelector('input[name="vtrans"]:checked').value);
 }
 
-function goToFullCompare() {
-  const v = window.currentVehicle;
-  if (v) {
-    window.location.href = '/compare.html?ids=' + v.id;
-  } else {
-    window.location.href = '/compare.html';
+async function openOtherVehiclePicker() {
+  document.getElementById('ovPickerModal').style.display = 'flex';
+  document.getElementById('ovPickerSearch').value = '';
+  if (!allVehiclesCache) {
+    try {
+      const res = await fetch('/api/vehicles?_=' + Date.now(), { cache: 'no-store' });
+      allVehiclesCache = await res.json();
+    } catch (e) { allVehiclesCache = []; }
   }
+  renderOtherVehiclePicker();
+}
+function closeOtherVehiclePicker() {
+  document.getElementById('ovPickerModal').style.display = 'none';
+}
+function renderOtherVehiclePicker() {
+  const q = document.getElementById('ovPickerSearch').value.trim().toLowerCase();
+  const v = window.currentVehicle;
+  const groupOf = (cat) => cat === 'Car' ? 'Car' : 'Commercial';
+  const myGroup = v ? groupOf(v.category) : null;
+  const excludeIds = [v ? v.id : null, ...otherCompareVehicles.map(o => o.id)];
+  const list = (allVehiclesCache || []).filter(x =>
+    !excludeIds.includes(x.id) &&
+    (!myGroup || groupOf(x.category) === myGroup) &&
+    (x.brand + ' ' + x.model).toLowerCase().includes(q)
+  );
+  const box = document.getElementById('ovPickerList');
+  if (!list.length) {
+    box.innerHTML = '<p style="color:var(--muted); font-size:13px; padding:14px;">No matching vehicles found.</p>';
+    return;
+  }
+  box.innerHTML = list.map(x => `
+    <div class="picker-item" style="display:flex; align-items:center; gap:12px; padding:10px; border-radius:8px; cursor:pointer;" onmouseover="this.style.background='#0d2029'" onmouseout="this.style.background=''" onclick="addOtherVehicle(${x.id})">
+      <div style="font-size:1.6rem; width:40px; text-align:center;">${x.icon || '🚗'}</div>
+      <div>
+        <div style="font-size:13px; font-weight:600;">${x.brand} ${x.model}</div>
+        <div style="font-size:12px; color:var(--muted);">${x.price || 'Price on request'}</div>
+      </div>
+    </div>`).join('');
+}
+function addOtherVehicle(id) {
+  const v = (allVehiclesCache || []).find(x => x.id === id);
+  if (!v) return;
+  if (selectedVariants.length + otherCompareVehicles.length >= 5) { alert('You can compare up to 6 items at once.'); return; }
+  otherCompareVehicles.push(v);
+  closeOtherVehiclePicker();
+  renderCompareBar();
+}
+function removeOtherVehicle(id) {
+  otherCompareVehicles = otherCompareVehicles.filter(o => o.id !== id);
+  renderCompareBar();
 }
 
-function showVariantCompare() {
-  if (selectedVariants.length < 2) { alert('Select at least 2 variants to compare.'); return; }
-  const list = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name));
-  const box = document.getElementById('variantCompareSummary');
-  box.innerHTML = `
-    <table class="vc-table">
-      <thead><tr><th>Variant</th><th>Transmission</th><th>Fuel</th><th>Ex-Showroom Price</th></tr></thead>
-      <tbody>${list.map(p => `<tr><td class="vname">${p.name}</td><td>${p.transmission || '-'}</td><td>${p.fuel || '-'}</td><td class="vprice">${p.price || '-'}</td></tr>`).join('')}</tbody>
-    </table>`;
-  box.classList.add('show');
+function goToFullCompare() {
+  const v = window.currentVehicle;
+  const ids = [];
+  if (v) ids.push(v.id);
+  otherCompareVehicles.forEach(o => ids.push(o.id));
+  if (ids.length < 2) { alert('Add at least one more vehicle to compare.'); return; }
+  window.location.href = '/compare.html?ids=' + ids.join(',');
 }
 
 function clearVariantCompare() {
   selectedVariants = [];
+  otherCompareVehicles = [];
   document.getElementById('variantCompareBar').classList.remove('show');
-  document.getElementById('variantCompareSummary').classList.remove('show');
-  renderVariantRows(document.querySelector('input[name="vtrans"]:checked').value);
+  const summaryEl = document.getElementById('variantCompareSummary');
+  if (summaryEl) summaryEl.classList.remove('show');
+  const checkedRadio = document.querySelector('input[name="vtrans"]:checked');
+  if (checkedRadio) renderVariantRows(checkedRadio.value);
 }
 
 function selectThumb(el, url) {
