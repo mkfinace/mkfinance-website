@@ -110,12 +110,12 @@
         <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th></th></tr></thead>
         <tbody id="inquiriesBody"></tbody>
       </table>
-      <div class="empty-state" id="inquiriesEmpty" style="display:none;">Hajii koi inquiry nathi aavi.</div>
+      <div class="empty-state" id="inquiriesEmpty" style="display:none;">No inquiries yet.</div>
     </div>
 
     <!-- VEHICLES PANEL -->
     <div class="panel" id="panel-vehicles">
-      <div class="card-header"><h2>Vehicle Listings</h2><div style="display:flex; gap:8px;"><button class="btn secondary small" onclick="toggleCsvImport()">📄 Bulk CSV Import</button><button class="btn small" onclick="toggleVehicleForm()">+ Naya Vehicle Add karo</button></div></div>
+      <div class="card-header"><h2>Vehicle Listings</h2><div style="display:flex; gap:8px;"><button class="btn secondary small" onclick="toggleCsvImport()">📄 Bulk CSV Import</button><button class="btn small" onclick="toggleVehicleForm()">+ Add New Vehicle</button></div></div>
       <div id="csvImportBox" style="display:none; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px;">
         <h3 style="margin-bottom:8px;">Bulk Import Vehicles (CSV)</h3>
         <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:12px;">
@@ -149,7 +149,7 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Colors Available (comma sep)</label><input id="v-colors" placeholder="Pearl White, Metallic Grey, Fiery Red"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Specifications (comma sep "Label:Value")</label><textarea id="v-detailed-specs" rows="2" placeholder="Fuel Type:Petrol, Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Features (comma sep names)</label><textarea id="v-key-features" rows="2" placeholder="6 Airbags, ABS, Automatic Climate Control, Rear Parking Camera"></textarea></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (tamaru potanu short opinion — customer ne dekhashe)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (your own short opinion — shown to customers)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
         <div class="full" style="display:flex; gap:10px;">
           <button class="btn small" onclick="saveVehicle()">Save</button>
@@ -160,7 +160,7 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
         <thead><tr><th>Category</th><th>Brand</th><th>Model</th><th>Year</th><th>Price</th><th>Active</th><th></th></tr></thead>
         <tbody id="vehiclesBody"></tbody>
       </table>
-      <div class="empty-state" id="vehiclesEmpty" style="display:none;">Koi vehicle listed nathi.</div>
+      <div class="empty-state" id="vehiclesEmpty" style="display:none;">No vehicles listed.</div>
     </div>
 
     <!-- SETTINGS PANEL -->
@@ -267,7 +267,7 @@ async function updateStatus(id, status) {
 }
 
 async function deleteInquiry(id) {
-  if (!confirm('Aa inquiry delete karvi chhe?')) return;
+  if (!confirm('Delete this inquiry?')) return;
   await fetch(API + '/api/admin/inquiries/' + id, { method: 'DELETE' });
   loadInquiries();
   showToast('Inquiry deleted');
@@ -297,7 +297,7 @@ function parseCsvLine(line) {
 async function importCsv() {
   const raw = document.getElementById('csvInput').value.trim();
   const resultBox = document.getElementById('csvImportResult');
-  if (!raw) { resultBox.textContent = 'CSV data khali chhe.'; return; }
+  if (!raw) { resultBox.textContent = 'CSV data is empty.'; return; }
   const lines = raw.split('\n').filter(l => l.trim());
   const header = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
   const rows = lines.slice(1).map(line => {
@@ -416,7 +416,7 @@ async function saveVehicle() {
 }
 
 async function deleteVehicle(id) {
-  if (!confirm('Aa vehicle delete karvu chhe?')) return;
+  if (!confirm('Delete this vehicle?')) return;
   await fetch(API + '/api/admin/vehicles/' + id, { method: 'DELETE' });
   loadVehicles();
   showToast('Vehicle deleted');
@@ -425,7 +425,7 @@ async function deleteVehicle(id) {
 // ===== SETTINGS =====
 async function changePassword() {
   const newPassword = document.getElementById('newPassword').value;
-  if (!newPassword || newPassword.length < 6) { showToast('Min 6 characters joiye'); return; }
+  if (!newPassword || newPassword.length < 6) { showToast('Minimum 6 characters required'); return; }
   const res = await fetch(API + '/api/admin/change-password', {
     method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ newPassword })
   });
