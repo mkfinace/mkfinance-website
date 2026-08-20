@@ -792,22 +792,25 @@ function removeOtherVehicle(id) {
 function goToFullCompare() {
   const v = window.currentVehicle;
   const ids = [];
+  const variantLabels = []; // aligned by position with ids; empty string if not a variant slot
 
   // Push this vehicle's ID once per selected variant (so 2 variants of the same
   // vehicle still produce 2 comparable columns on the compare page)
   if (v && selectedVariants.length > 0) {
-    selectedVariants.forEach(() => ids.push(v.id));
+    selectedVariants.forEach(name => { ids.push(v.id); variantLabels.push(name); });
   } else if (v && otherCompareVehicles.length > 0) {
     ids.push(v.id);
+    variantLabels.push('');
   }
 
-  otherCompareVehicles.forEach(o => ids.push(o.id));
+  otherCompareVehicles.forEach(o => { ids.push(o.id); variantLabels.push(''); });
 
   if (ids.length < 2) {
     alert('Select at least 2 variants, or add another vehicle to compare.');
     return;
   }
-  window.location.href = '/compare.html?ids=' + ids.join(',');
+  const url = '/compare.html?ids=' + ids.join(',') + '&variants=' + variantLabels.map(v => encodeURIComponent(v)).join(',');
+  window.location.href = url;
 }
 
 function clearVariantCompare() {
