@@ -87,6 +87,18 @@ section[id]{scroll-margin-top:190px}
 .variant-row .vmeta{font-size:11px;color:var(--muted);margin-top:2px}
 .variant-row .vprice{font-size:14px;font-weight:800;color:#fff}
 .variant-row .vtrans{font-size:12px;color:#c3d0d5}
+.specs-tab-layout{display:grid;grid-template-columns:250px 1fr}
+.specs-tab-sidebar{border-right:1px solid var(--line);background:#081820}
+.specs-tab-item{padding:14px 18px;font-size:13px;color:#c3d0d5;cursor:pointer;border-bottom:1px solid var(--line)}
+.specs-tab-item:hover{color:#fff}
+.specs-tab-item.active{background:#0d2029;color:var(--blue);font-weight:700;border-left:3px solid var(--blue)}
+.specs-tab-content{padding:20px 24px}
+.specs-tab-content h3{font-size:16px;color:#fff;margin-bottom:14px}
+.specs-tab-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.specs-tab-row:last-child{border-bottom:0}
+.specs-tab-row span:first-child{color:var(--muted)}
+.specs-tab-row span:last-child{color:#fff;font-weight:600;text-align:right}
+@media(max-width:700px){.specs-tab-layout{grid-template-columns:1fr}.specs-tab-sidebar{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}.specs-tab-item{white-space:nowrap;border-bottom:0;border-right:1px solid var(--line)}.specs-tab-item.active{border-left:0;border-bottom:3px solid var(--blue)}}
 .photo-credit{font-size:10px; color:rgba(255,255,255,0.3); margin-top:8px; text-align:right;}
 .expert-card{padding:22px}
 .expert-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -250,17 +262,24 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <div class="container">
 <h2 class="section-title" id="specsTitleText">Full Specifications</h2><p class="section-sub">All the vehicle's details in one place.</p>
 
-<div class="card spec-box" id="keySpecsBox" style="display:none; margin-bottom:16px;">
+<div class="card" id="specsTabsBox" style="display:none; overflow:hidden;">
+  <div class="specs-tab-layout">
+    <div class="specs-tab-sidebar" id="specsSidebar"></div>
+    <div class="specs-tab-content" id="specsTabContent"></div>
+  </div>
+</div>
+
+<div class="card spec-box" id="keySpecsBox" style="display:none; margin-top:16px;">
 <h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keySpecsHeading">Key Specifications</h3>
 <div class="specs-grid" id="keySpecsGrid"></div>
 </div>
 
-<div class="card spec-box" id="keyFeaturesBox" style="display:none; margin-bottom:16px;">
+<div class="card spec-box" id="keyFeaturesBox" style="display:none; margin-top:16px;">
 <h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keyFeaturesHeading">Key Features</h3>
 <div class="specs-grid" id="keyFeaturesGrid"></div>
 </div>
 
-<div class="card spec-box" style="max-width:600px;">
+<div class="card spec-box" style="max-width:600px; margin-top:16px;">
 <div class="spec-line"><span>Brand</span><span id="specBrand2">-</span></div>
 <div class="spec-line"><span>Model</span><span id="specModel2">-</span></div>
 <div class="spec-line"><span>Year</span><span id="specYear2">-</span></div>
@@ -333,6 +352,19 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 </footer>
 
 <script>
+function showSpecTabContent(cat) {
+  const items = (window.specsByCategory && window.specsByCategory[cat]) || [];
+  document.getElementById('specsTabContent').innerHTML = `
+    <h3>${cat}</h3>
+    ${items.map(it => `<div class="specs-tab-row"><span>${it.label}</span><span style="${it.isFeature ? 'color:#2ecf7a;' : ''}">${it.value}</span></div>`).join('')}
+  `;
+}
+function showSpecTab(cat, el) {
+  document.querySelectorAll('.specs-tab-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  showSpecTabContent(cat);
+}
+
 function slugify(brand, model) {
   return (brand + '-' + model).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
@@ -489,24 +521,45 @@ function renderVehicle(v) {
   document.getElementById('specCategory2').textContent = v.category || '-';
   document.getElementById('specPrice2').textContent = v.price || '-';
 
-  // Key Specifications (real data only, admin-entered)
-  const detailedSpecs = (v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean);
-  if (detailedSpecs.length) {
-    document.getElementById('keySpecsBox').style.display = 'block';
-    document.getElementById('keySpecsHeading').textContent = vName + ' Key Specifications';
-    document.getElementById('keySpecsGrid').innerHTML = detailedSpecs.map(x => {
+  // Detailed Specifications — sidebar tabs if category-prefixed ("Category::Label:Value"), else flat grid
+  const rawSpecs = (v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean);
+  const rawFeatures = (v.key_features || '').split(',').map(x => x.trim()).filter(Boolean);
+  const specsByCategory = {};
+  const flatSpecs = [];
+  rawSpecs.forEach(x => {
+    if (x.includes('::')) {
+      const [cat, rest] = x.split('::');
+      const parts = rest.split(':');
+      specsByCategory[cat] = specsByCategory[cat] || [];
+      specsByCategory[cat].push({ label: (parts[0]||'').trim(), value: (parts[1]||'').trim() });
+    } else {
       const parts = x.split(':');
-      return `<div class="spec-line"><span>${(parts[0]||'').trim()}</span><span>${(parts[1]||'').trim()}</span></div>`;
-    }).join('');
+      flatSpecs.push({ label: (parts[0]||'').trim(), value: (parts[1]||'').trim() });
+    }
+  });
+  rawFeatures.forEach(x => {
+    if (x.includes('::')) {
+      const [cat, name] = x.split('::');
+      specsByCategory[cat] = specsByCategory[cat] || [];
+      specsByCategory[cat].push({ label: name.trim(), value: '✓', isFeature: true });
+    }
+  });
+
+  const categories = Object.keys(specsByCategory);
+  if (categories.length) {
+    document.getElementById('specsTabsBox').style.display = 'block';
+    document.getElementById('specsSidebar').innerHTML = categories.map((cat, i) =>
+      `<div class="specs-tab-item ${i===0?'active':''}" onclick="showSpecTab('${cat.replace(/'/g,"\\'")}', this)">${cat}</div>`
+    ).join('');
+    window.specsByCategory = specsByCategory;
+    showSpecTabContent(categories[0]);
   }
 
-  // Key Features (real data only, admin-entered)
-  const featuresList = (v.key_features || '').split(',').map(x => x.trim()).filter(Boolean);
-  if (featuresList.length) {
-    document.getElementById('keyFeaturesBox').style.display = 'block';
-    document.getElementById('keyFeaturesHeading').textContent = vName + ' Key Features';
-    document.getElementById('keyFeaturesGrid').innerHTML = featuresList.map(f =>
-      `<div class="spec-line"><span>${f}</span><span style="color:#2ecf7a;">✓</span></div>`
+  if (flatSpecs.length) {
+    document.getElementById('keySpecsBox').style.display = 'block';
+    document.getElementById('keySpecsHeading').textContent = vName + ' Additional Specifications';
+    document.getElementById('keySpecsGrid').innerHTML = flatSpecs.map(s =>
+      `<div class="spec-line"><span>${s.label}</span><span>${s.value}</span></div>`
     ).join('');
   }
 
