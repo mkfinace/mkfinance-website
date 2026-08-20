@@ -3,165 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vehicle Details | MK Finance</title>
+<title>Compare Vehicles | MK Finance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --blue:#159ac4;
-  --blue-dark:#1f56c5;
-  --red:#ef3030;
-  --text:#ffffff;
-  --muted:#8fa3ad;
-  --light:#0b1b23;
-  --line:rgba(42,138,173,.20);
-  --white:#ffffff;
-  --green:#159447;
+  --blue:#159ac4; --blue-dark:#1f56c5; --red:#ef3030;
+  --text:#ffffff; --muted:#8fa3ad; --line:rgba(42,138,173,.20);
   --shadow:0 18px 45px rgba(0,0,0,.28);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
+html,body{overflow-x:hidden;max-width:100%}
 body{font-family:Inter,Roboto,Arial,sans-serif;background:#06131a;color:var(--text);line-height:1.5}
 a{text-decoration:none;color:inherit}
 button,input,select{font:inherit}
-.container{max-width:1200px;margin:auto;padding:0 18px}
+.container{max-width:1400px;width:100%;margin:auto;padding:0 18px;box-sizing:border-box}
 .topbar{height:68px;border-bottom:1px solid var(--line);background:#07151c;display:flex;align-items:center;position:sticky;top:0;z-index:1000}
 .topbar-inner{display:flex;align-items:center;gap:22px;width:100%}
 .logo{font-size:24px;font-weight:800;letter-spacing:-1px;white-space:nowrap}
 .logo span:first-child{color:var(--red)} .logo span:last-child{color:var(--blue)}
-.search{flex:1;max-width:420px;border:1px solid rgba(255,255,255,.14);border-radius:7px;height:42px;display:flex;align-items:center;padding:0 13px;color:#9ca3af}
-.search input{border:0;outline:0;width:100%;padding-left:9px;color:#fff;background:transparent}
-.mainnav{border-bottom:1px solid var(--line);background:#081820}
-.mainnav .nav{height:46px;display:flex;align-items:center;gap:26px;overflow:auto;white-space:nowrap}
-.mainnav a{font-size:13px;color:#b5c2c8;cursor:pointer}.mainnav a:hover{color:var(--blue)}
-.top-links{margin-left:auto;display:flex;gap:20px;font-size:13px;color:#a8b7be;align-items:center}
-.city{font-weight:600;color:#fff}
-.top-links a.call{font-weight:700;color:var(--blue)}
-.subnav{background:#07151c;border-bottom:1px solid var(--line);position:sticky;top:114px;z-index:900}
-section[id]{scroll-margin-top:190px}
-.subnav .nav{height:50px;display:flex;align-items:center;gap:25px;overflow:auto;white-space:nowrap}
-.subnav a{font-size:13px;font-weight:600;color:#aebbc1;padding:16px 0;cursor:pointer}
-.subnav a.active{color:var(--blue);border-bottom:3px solid var(--blue)}
-.hero{padding:22px 0 26px;background:linear-gradient(135deg,#06131a 0%,#081b24 45%,#061117 100%);position:relative;overflow:hidden}
-.hero:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 35%,rgba(21,154,196,.08),transparent 34%),linear-gradient(90deg,transparent 0,rgba(239,48,48,.025) 50%,transparent 100%);pointer-events:none}
-.hero-grid{display:grid;grid-template-columns:56% 44%;gap:26px;align-items:center}
-.gallery{height:390px;border:1px solid rgba(42,138,173,.25);border-radius:10px;background:rgba(21,154,196,.045);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.gallery img{width:100%;height:100%;object-fit:cover}
-.gallery-fallback{font-size:110px;filter:drop-shadow(0 12px 15px rgba(0,0,0,.45))}
-.photo-count{position:absolute;bottom:14px;left:14px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:#0b1b23}
-.thumb-row{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
-.thumb-row .thumb{flex:0 0 72px;height:54px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:rgba(21,154,196,.08)}
-.thumb-row .thumb.active{border-color:var(--blue)}
-.thumb-row .thumb img{width:100%;height:100%;object-fit:cover}
-.vehicle-title h1{font-size:31px;line-height:1.15;margin-bottom:8px;color:#fff}
-.rating-row{display:flex;align-items:center;gap:9px;font-size:13px;margin-bottom:14px;color:#a8b7be}
-.tag-chip{font-size:10px;background:rgba(21,154,196,.15);color:var(--blue);padding:4px 9px;border-radius:20px;font-weight:700;border:1px solid rgba(21,154,196,.3)}
-.price{font-size:26px;font-weight:800;color:#fff;margin-bottom:3px}
-.price-note{font-size:11px;color:#879da7;margin-bottom:17px}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap}
-.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:6px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer}
-.btn:hover{background:var(--blue-dark)}
-.btn.outline{background:transparent;color:var(--blue)}
-.offer{margin-top:18px;background:rgba(239,48,48,.055);border:1px solid rgba(239,48,48,.28);border-radius:8px;padding:13px}
-.offer b{color:#ff5a5a;font-size:13px}.offer p{font-size:12px;color:#9aabb2;margin-top:3px}
-.spec-strip{border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden;margin-top:18px}
-.spec{padding:15px 12px;border-right:1px solid var(--line);background:#0a1a22}
-.spec:last-child{border-right:0}.spec-label{font-size:11px;color:#8299a3;margin-bottom:3px}.spec-value{font-size:13px;font-weight:700;color:#fff}
-.section{padding:28px 0;background:#06131a}.section.alt{background:#0a1a22;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
-.section-title{font-size:23px;color:#fff;margin-bottom:5px}.section-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
-.card{background:#0b1b23;border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow)}
-.price-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.side-card{padding:18px}.side-card h3{font-size:16px;margin-bottom:12px;color:#fff}.side-card p{font-size:12px;color:var(--muted);margin-bottom:14px}
-.emi-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
-.emi-row strong{color:#fff}.full{width:100%;margin-top:14px}
-.variant-list{display:flex;flex-direction:column;padding:18px}
-.variant-list .variant-row{width:100%;box-sizing:border-box}
-.variant-chip{background:#0d2029;border:1px solid var(--line);border-radius:7px;padding:12px 16px;font-size:13px;font-weight:700;color:#fff}
-.variant-filter-bar{display:flex;align-items:center;gap:18px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.vfilter-opt{display:flex;align-items:center;gap:6px;font-size:13px;color:#c3d0d5;cursor:pointer}
-.vfilter-opt input{accent-color:var(--blue)}
-.variant-table-head{display:grid;grid-template-columns:2fr 1fr 1fr 90px;padding:10px 18px;background:#0d2029;font-size:11px;text-transform:uppercase;color:#8299a3;letter-spacing:.4px}
-.variant-compare-check{display:flex; align-items:center; justify-content:center;}
-.variant-compare-check input{width:18px; height:18px; accent-color:var(--blue); cursor:pointer;}
-.variant-compare-bar{display:none; position:fixed; left:0; right:0; bottom:0; z-index:800; padding:16px 24px; background:#0b1b23; border-top:1px solid var(--line); box-shadow:0 -8px 24px rgba(0,0,0,.4); align-items:center; gap:16px; flex-wrap:wrap;}
-.variant-compare-bar.show{display:flex;}
-.vcb-label{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px;}
-.vcb-chips{display:flex; gap:10px; flex-wrap:wrap; flex:1;}
-.vcb-chip{display:flex; align-items:center; gap:8px; background:#0d2029; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:13px;}
-.vcb-chip .vcb-icon{font-size:1.2rem;}
-.vcb-chip .vcb-info{display:flex; flex-direction:column; line-height:1.3;}
-.vcb-chip .vcb-name{font-weight:700; color:#fff; font-size:12px;}
-.vcb-chip .vcb-price{color:var(--blue); font-size:11px;}
-.vcb-chip .vcb-x{cursor:pointer; color:var(--muted); font-size:14px; margin-left:4px;}
-.vcb-chip .vcb-x:hover{color:var(--red);}
-.vcb-vs{width:26px; height:26px; border-radius:50%; background:#081820; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:var(--muted); flex-shrink:0;}
-.vcb-add{display:flex; align-items:center; gap:6px; background:transparent; border:1px dashed var(--line); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--blue); cursor:pointer; white-space:nowrap;}
-.vcb-add:hover{border-color:var(--blue);}
-.vcb-actions{display:flex; gap:10px; margin-left:auto;}
-@media(max-width:700px){.variant-compare-bar{padding:12px 14px;} .vcb-actions{width:100%; margin-left:0;} .vcb-actions .btn{flex:1;}}
-.variant-compare-summary{display:none; padding:18px; background:#081820;}
-.variant-compare-summary.show{display:block;}
-.vc-table{width:100%; border-collapse:collapse;}
-.vc-table th,.vc-table td{padding:10px 14px; border-bottom:1px solid var(--line); font-size:13px; text-align:left;}
-.vc-table th{color:var(--muted); font-size:11px; text-transform:uppercase;}
-.variant-row{display:grid;grid-template-columns:2fr 1fr 1fr 90px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);}
-.variant-row:last-child{border-bottom:0;}
-.variant-row .vname{font-size:14px;font-weight:700;color:#fff}
-.variant-row .vmeta{font-size:11px;color:var(--muted);margin-top:2px}
-.variant-row .vprice{font-size:14px;font-weight:800;color:#fff}
-.variant-row .vtrans{font-size:12px;color:#c3d0d5}
-.specs-tab-layout{display:grid;grid-template-columns:250px 1fr}
-.specs-tab-sidebar{border-right:1px solid var(--line);background:#081820}
-.specs-tab-item{padding:14px 18px;font-size:13px;color:#c3d0d5;cursor:pointer;border-bottom:1px solid var(--line)}
-.specs-tab-item:hover{color:#fff}
-.specs-tab-item.active{background:#0d2029;color:var(--blue);font-weight:700;border-left:3px solid var(--blue)}
-.specs-tab-content{padding:20px 24px}
-.specs-tab-content h3{font-size:16px;color:#fff;margin-bottom:14px}
-.specs-tab-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
-.specs-tab-row:last-child{border-bottom:0}
-.specs-tab-row span:first-child{color:var(--muted)}
-.specs-tab-row span:last-child{color:#fff;font-weight:600;text-align:right}
-@media(max-width:700px){.specs-tab-layout{grid-template-columns:1fr}.specs-tab-sidebar{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}.specs-tab-item{white-space:nowrap;border-bottom:0;border-right:1px solid var(--line)}.specs-tab-item.active{border-left:0;border-bottom:3px solid var(--blue)}}
-.photo-credit{font-size:10px; color:rgba(255,255,255,0.3); margin-top:8px; text-align:right;}
-.expert-card{padding:22px}
-.expert-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.expert-badge{background:var(--green);color:#fff;padding:5px 10px;border-radius:5px;font-weight:800;font-size:12px}
-.expert-card p{font-size:13px;color:#c3d0d5;line-height:1.8}
-.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.gallery-tile{height:160px;background:#0b1b23;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
-.gallery-tile img{width:100%;height:100%;object-fit:cover}
-.specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.spec-box{padding:18px}.spec-box h3{font-size:16px;margin-bottom:12px;color:#fff}
-.spec-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
-.spec-line:last-child{border-bottom:0}.spec-line span:first-child{color:var(--muted)}.spec-line span:last-child{font-weight:700;color:#fff}
-.colors{display:flex;gap:16px;flex-wrap:wrap;padding:18px}
-.color-item{width:130px;text-align:center}
-.color-dot{height:80px;border-radius:8px;border:1px solid rgba(255,255,255,.18);box-shadow:var(--shadow);background:linear-gradient(135deg,#1a3a4a,#0d2029);display:flex;align-items:center;justify-content:center;font-size:22px}
-.color-item p{font-size:12px;font-weight:600;margin-top:8px;color:#dbe4e8}
-.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.compare-card{padding:15px;cursor:pointer}
-.compare-img{height:110px;border-radius:7px;background:#081820;display:flex;align-items:center;justify-content:center;font-size:50px;margin-bottom:10px;overflow:hidden}
-.compare-img img{width:100%;height:100%;object-fit:cover}
-.compare-card h3{font-size:14px;color:#fff}.compare-card p{font-size:12px;color:var(--muted);margin:4px 0 10px}
-.compare-price{font-weight:800;font-size:13px;color:var(--blue)}
-.faq-item{padding:15px 0;border-bottom:1px solid var(--line)}
-.faq-item:last-child{border-bottom:0}
-.faq-q{font-size:13px;font-weight:700;color:#fff}.faq-a{font-size:12px;color:var(--muted);margin-top:5px}
-.coming-soon{padding:32px 20px;text-align:center;color:var(--muted);font-size:13px}
-.cta{background:linear-gradient(135deg,rgba(21,154,196,.13),rgba(239,48,48,.055));border:1px solid rgba(42,138,173,.25);border-radius:10px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.cta h2{font-size:21px;color:#fff}.cta p{font-size:12px;color:var(--muted);margin-top:3px}
-footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;border-top:1px solid var(--line)}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px}
-.footer-logo{font-size:24px;font-weight:800;color:#fff}.footer-logo span{color:var(--blue)}
-.footer-grid h4{font-size:12px;color:#fff;margin-bottom:12px}
-.footer-grid a{display:block;font-size:12px;color:#9ca3af;margin:7px 0;cursor:pointer}
-.footer-desc{font-size:12px;color:#9ca3af;max-width:300px;margin-top:8px}
-.copyright{border-top:1px solid #374151;margin-top:28px;padding-top:17px;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-#loadingState,#notFoundState{text-align:center;padding:100px 20px;color:var(--muted)}
-#notFoundState{display:none}
-#content{display:none}
-@media(max-width:900px){.top-links{display:none}.hero-grid,.price-layout,.specs-grid{grid-template-columns:1fr}.spec-strip{grid-template-columns:repeat(2,1fr)}.gallery{height:320px}.footer-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.topbar{height:auto;padding:10px 0}.vehicle-title h1{font-size:25px}.cta{flex-direction:column;align-items:flex-start}.footer-grid{grid-template-columns:1fr}.copyright{flex-direction:column;gap:6px}}
+.back-link{margin-left:auto;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer}
+.back-link:hover{color:var(--blue)}
+
+.hero{padding:28px 0 16px}
+.hero h1{font-size:26px;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:13px}
+
+.picker-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px 0 24px}
+.picker-slot{background:#0b1b23;border:1px dashed var(--line);border-radius:10px;padding:16px;text-align:center;cursor:pointer;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color .2s}
+.picker-slot:hover{border-color:var(--blue)}
+.picker-slot .plus{font-size:26px;color:var(--blue)}
+.picker-slot .lbl{font-size:11px;color:var(--muted)}
+.filled-slot{background:#0b1b23;border:1px solid var(--line);border-radius:10px;padding:14px;position:relative;text-align:center}
+.filled-slot .remove{position:absolute;top:8px;right:8px;background:rgba(239,48,48,.15);color:var(--red);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1}
+.filled-slot .img{height:70px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;margin-bottom:6px;overflow:hidden;border-radius:6px;background:rgba(21,154,196,.06)}
+.filled-slot .img img{width:100%;height:100%;object-fit:cover}
+.filled-slot h4{font-size:13px;margin-bottom:2px}
+.filled-slot .price{font-size:12px;color:var(--blue);font-weight:700}
+
+.picker-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:flex-start;justify-content:center;padding:60px 20px}
+.picker-modal.open{display:flex}
+.picker-box{background:#0b1b23;border:1px solid var(--line);border-radius:12px;max-width:600px;width:100%;max-height:75vh;overflow:auto;padding:20px}
+.picker-box h3{margin-bottom:14px}
+.picker-search{width:100%;padding:12px 14px;background:#081820;border:1px solid var(--line);border-radius:8px;color:#fff;margin-bottom:14px}
+.picker-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;cursor:pointer}
+.picker-item:hover{background:#0d2029}
+.picker-item .ic{font-size:1.6rem;width:40px;text-align:center}
+.picker-item .nm{font-size:13px;font-weight:600}
+.picker-item .pr{font-size:12px;color:var(--muted)}
+.picker-close{float:right;cursor:pointer;color:var(--muted);font-size:20px}
+
+/* Sticky controls bar: category nav + search + toggles */
+.controls-bar{position:sticky;top:68px;z-index:900;background:#07151c;border-bottom:1px solid var(--line);padding:0;margin-bottom:20px}
+.cat-nav{display:flex;gap:22px;overflow-x:auto;padding:0 18px;max-width:1400px;margin:auto;scrollbar-width:none}
+.cat-nav::-webkit-scrollbar{display:none}
+.cat-nav-item{padding:14px 2px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent}
+.cat-nav-item:hover{color:#fff}
+.cat-nav-item.active{color:var(--red);border-bottom-color:var(--red)}
+.controls-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 18px;max-width:1400px;margin:auto;border-top:1px solid var(--line)}
+.search-box{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:#0b1b23;border:1px solid var(--line);border-radius:20px;padding:8px 16px;}
+.search-box input{flex:1;background:transparent;border:0;outline:0;color:#fff;font-size:13px}
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle-switch{width:36px;height:20px;background:#0d2029;border:1px solid var(--line);border-radius:20px;position:relative;transition:background .2s}
+.toggle-switch.on{background:var(--blue)}
+.toggle-switch .knob{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s}
+.toggle-switch.on .knob{left:18px}
+
+.cat-section{background:#0b1b23;border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:160px}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none}
+.cat-header h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.cat-header .chev{color:var(--muted);transition:transform .2s;font-size:14px}
+.cat-section.collapsed .chev{transform:rotate(-90deg)}
+.cat-body{overflow-x:auto}
+.cat-section.collapsed .cat-body{display:none}
+
+.compare-table{width:100%;border-collapse:collapse;min-width:600px}
+.compare-table th,.compare-table td{padding:12px 20px;border-top:1px solid var(--line);font-size:13px;text-align:left;white-space:nowrap}
+.compare-table th{background:#0d2029;font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.row-label-col{position:sticky;left:0;background:#0b1b23;z-index:3;font-weight:600;color:#dbe7ec;min-width:190px}
+.compare-table th.row-label-col{z-index:4;background:#0d2029}
+.diff-highlight td{color:#fff;font-weight:700}
+.diff-highlight .row-label-col{border-left:3px solid var(--blue)}
+.val-yes{color:#2ecf7a;font-weight:700}
+.val-no{color:var(--red);font-weight:700}
+.empty-msg{text-align:center;padding:60px 20px;color:var(--muted)}
+.no-results{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+@media(max-width:700px){
+  .row-label-col{min-width:130px;font-size:12px}
+  .compare-table th,.compare-table td{padding:10px 14px}
+  .controls-row{flex-direction:column;align-items:stretch}
+}
 </style>
 </head>
 <body>
@@ -169,677 +101,317 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
 <header class="topbar">
   <div class="container topbar-inner">
     <a class="logo" href="/index.html"><span>MK</span> <span>Finance</span></a>
-    <div class="search">⌕ <input id="searchBox" placeholder="Search cars, brands or models" onkeydown="if(event.key==='Enter') doSearch()"></div>
-    <div class="top-links">
-      <span class="city">📍 Valsad, Gujarat</span>
-      <a class="call" href="tel:9824742356">📞 98247 42356</a>
-    </div>
+    <span class="back-link" onclick="window.location.href='/index.html#vehicles'">← Back to Vehicles</span>
   </div>
 </header>
 
-<nav class="mainnav">
-  <div class="container nav">
-    <a onclick="window.location.href='/index.html#vehicles'">New Cars</a>
-    <a onclick="window.location.href='/index.html#loans'">Car Loans</a>
-    <a onclick="window.location.href='/index.html#insurance'">Insurance</a>
-    <a onclick="scrollToSec('reviews', document.querySelector('.subnav a'))">Reviews</a>
-    <a onclick="window.location.href='/compare.html'">Compare Cars</a>
+<div class="container">
+  <div class="hero">
+    <h1>Compare <span style="color:var(--blue)">Vehicles</span></h1>
+    <p>Add up to 6 vehicles and compare full specifications side by side — real data only.</p>
   </div>
-</nav>
 
-<nav class="subnav">
-  <div class="container nav" id="subnavLinks"></div>
-</nav>
-
-<div class="container" id="loadingState">Loading vehicle details...</div>
-<div class="container" id="notFoundState">
-  <h2>Vehicle Not Found</h2>
-  <p style="margin-top:8px;">This vehicle is no longer available.</p>
-  <a href="/index.html" class="btn" style="display:inline-block; margin-top:20px;">Home par pacha javo</a>
+  <div class="picker-row" id="pickerRow"></div>
 </div>
 
-<main id="content">
-<section class="hero" id="overview">
-  <div class="container">
-    <div class="hero-grid">
-      <div>
-        <div class="gallery" id="heroGallery">
-          <div class="gallery-fallback" id="galleryFallback">🚗</div>
-          <div class="photo-count" id="photoCount" style="display:none;">📷 1 Photo</div>
-        </div>
-        <div class="thumb-row" id="thumbRow" style="display:none;"></div>
-        <div class="photo-credit" id="photoCredit" style="display:none;">Photo: Wikimedia Commons (CC BY-SA)</div>
-      </div>
-      <div class="vehicle-title">
-        <h1 id="vTitle">-</h1>
-        <div class="rating-row"><span class="tag-chip">Brand New</span><span class="tag-chip" id="fuelChip"></span></div>
-        <div class="price" id="vPrice">-</div>
-        <div class="price-note">*Ex-showroom price estimate — loan/EMI available through MK Finance</div>
-        <div class="btn-row">
-          <button class="btn" onclick="getQuote()">Get Finance Quote</button>
-          <a href="https://wa.me/919824742356" target="_blank" class="btn outline">💬 Ask on WhatsApp</a>
-        </div>
-        <div class="offer"><b>Special Finance Offer</b><p>Get a personalised EMI and loan quote from MK Finance within 24-48 hours.</p></div>
-      </div>
+<div class="controls-bar" id="controlsBar" style="display:none;">
+  <div class="cat-nav" id="catNav"></div>
+  <div class="controls-row">
+    <div class="search-box">
+      <span>🔍</span>
+      <input id="searchInput" placeholder="Search a feature or spec e.g. Sunroof" oninput="onSearchInput()">
     </div>
-    <div class="spec-strip" id="specStrip"></div>
-  </div>
-</section>
-
-<section class="section" id="price">
-<div class="container">
-<h2 class="section-title" id="priceTitleText">Price & EMI</h2><p class="section-sub">Estimated on-road price ane EMI details.</p>
-<div class="price-layout">
-<div class="card side-card">
-<h3>Vehicle Price</h3>
-<div class="emi-row"><span>Ex-showroom Price</span><strong id="sidePrice">-</strong></div>
-<div class="emi-row"><span>Fuel Type</span><strong id="sideFuel">-</strong></div>
-<div class="emi-row"><span>Model Year</span><strong id="sideYear">-</strong></div>
-<div class="emi-row"><span>Category</span><strong id="sideCategory">-</strong></div>
-<p style="margin-top:14px;">Contact us for the exact on-road price (including RTO + Insurance) — we'll get you the best deal.</p>
-</div>
-<div class="card side-card">
-<h3>EMI Estimate</h3><p>Approximate monthly payment.</p>
-<div class="emi-row"><span>Starting EMI</span><strong id="sideEmi">-</strong></div>
-<div class="emi-row"><span>Loan Tenure</span><strong>Upto 84 Months</strong></div>
-<div class="emi-row"><span>Processing</span><strong>24-48 Hours</strong></div>
-<button class="btn full" onclick="getQuote()">Get Personalised EMI</button>
-</div>
-</div>
-</div>
-</section>
-
-<section class="section alt" id="variants">
-<div class="container">
-<h2 class="section-title" id="variantsTitleText">Available Variants</h2><p class="section-sub">Variants available for this vehicle.</p>
-<div class="card" style="overflow:hidden;">
-<div class="variant-filter-bar" id="variantFilterBar" style="display:none;">
-  <label class="vfilter-opt"><input type="radio" name="vtrans" value="All" checked onchange="filterVariants('All')"> All</label>
-  <label class="vfilter-opt"><input type="radio" name="vtrans" value="Automatic" onchange="filterVariants('Automatic')"> Automatic</label>
-  <label class="vfilter-opt"><input type="radio" name="vtrans" value="Manual" onchange="filterVariants('Manual')"> Manual</label>
-</div>
-<div class="variant-table-head" id="variantTableHead" style="display:none;"><span>Variant</span><span>Transmission / Fuel</span><span>Ex-Showroom Price</span><span style="text-align:center;">Compare</span></div>
-<div class="variant-list" id="variantList"></div>
-<div class="variant-compare-bar" id="variantCompareBar">
-  <span class="vcb-label">My Comparison</span>
-  <div class="vcb-chips" id="vcbChips"></div>
-  <button class="vcb-add" onclick="openOtherVehiclePicker()">+ Add Car</button>
-  <div class="vcb-actions">
-    <button class="btn secondary small" onclick="clearVariantCompare()">Clear</button>
-    <button class="btn small" onclick="goToFullCompare()">Compare Now →</button>
+    <div class="toggle-wrap" onclick="toggleHideCommon()">
+      <div class="toggle-switch" id="hideCommonSwitch"><div class="knob"></div></div>
+      <span>Hide Common Features</span>
+    </div>
+    <div class="toggle-wrap" onclick="toggleHighlight()">
+      <div class="toggle-switch on" id="highlightSwitch"><div class="knob"></div></div>
+      <span>Highlight Differences</span>
+    </div>
   </div>
 </div>
 
-<div class="picker-modal" id="ovPickerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; align-items:flex-start; justify-content:center; padding:60px 20px;">
-  <div style="background:#0b1b23; border:1px solid var(--line); border-radius:12px; max-width:480px; width:100%; max-height:70vh; overflow:auto; padding:20px;">
-    <span style="float:right; cursor:pointer; color:var(--muted); font-size:20px;" onclick="closeOtherVehiclePicker()">✕</span>
-    <h3 style="margin-bottom:14px;">Add another vehicle to compare</h3>
-    <input id="ovPickerSearch" placeholder="Search by brand or model..." oninput="renderOtherVehiclePicker()" style="width:100%; padding:12px 14px; background:#081820; border:1px solid var(--line); border-radius:8px; color:#fff; margin-bottom:14px;">
-    <div id="ovPickerList"></div>
+<div class="container">
+  <div id="compareSections"></div>
+</div>
+
+<div class="picker-modal" id="pickerModal">
+  <div class="picker-box">
+    <span class="picker-close" onclick="closePicker()">✕</span>
+    <h3>Select a vehicle</h3>
+    <p id="pickerGroupNote" style="font-size:12px; color:var(--blue); margin-bottom:10px;"></p>
+    <input class="picker-search" id="pickerSearch" placeholder="Search by brand or model..." oninput="renderPickerList()">
+    <div id="pickerList"></div>
   </div>
 </div>
-<div class="variant-compare-summary" id="variantCompareSummary"></div>
-</div>
-</div>
-</section>
-
-<section class="section" id="images" style="display:none;">
-<div class="container">
-<h2 class="section-title" id="imagesTitleText">Photo Gallery</h2><p class="section-sub">All photos of this vehicle.</p>
-<div class="gallery-grid" id="galleryGrid"></div>
-</div>
-</section>
-
-<section class="section alt" id="expert" style="display:none;">
-<div class="container">
-<h2 class="section-title" id="expertTitleText">MK Finance Expert Opinion</h2><p class="section-sub">Our team's opinion on this vehicle.</p>
-<div class="card expert-card">
-<div class="expert-head"><span class="expert-badge">⭐ MK Verified</span></div>
-<p id="expertText"></p>
-</div>
-</div>
-</section>
-
-<section class="section" id="specs">
-<div class="container">
-<h2 class="section-title" id="specsTitleText">Full Specifications</h2><p class="section-sub">All the vehicle's details in one place.</p>
-
-<div class="card" id="specsTabsBox" style="display:none; overflow:hidden;">
-  <div class="specs-tab-layout">
-    <div class="specs-tab-sidebar" id="specsSidebar"></div>
-    <div class="specs-tab-content" id="specsTabContent"></div>
-  </div>
-</div>
-
-<div class="card spec-box" id="keySpecsBox" style="display:none; margin-top:16px;">
-<h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keySpecsHeading">Key Specifications</h3>
-<div class="specs-grid" id="keySpecsGrid"></div>
-</div>
-
-<div class="card spec-box" id="keyFeaturesBox" style="display:none; margin-top:16px;">
-<h3 style="font-size:16px; margin-bottom:12px; color:#fff;" id="keyFeaturesHeading">Key Features</h3>
-<div class="specs-grid" id="keyFeaturesGrid"></div>
-</div>
-
-</div>
-</section>
-
-<section class="section alt" id="colors" style="display:none;">
-<div class="container">
-<h2 class="section-title" id="colorsTitleText">Available Colours</h2><p class="section-sub">Colours available for this vehicle.</p>
-<div class="card colors" id="colorsList"></div>
-</div>
-</section>
-
-<section class="section" id="compare" style="display:none;">
-<div class="container">
-<h2 class="section-title">Compare More Options</h2><p class="section-sub">Explore other vehicles available from MK Finance.</p>
-<div class="compare" id="compareList"></div>
-</div>
-</section>
-
-<section class="section alt" id="reviews">
-<div class="container">
-<h2 class="section-title">Customer Reviews</h2><p class="section-sub">Real customers na experiences.</p>
-<div class="card coming-soon">⭐ We're collecting reviews — we'll reach out on WhatsApp for your review after vehicle delivery.</div>
-</div>
-</section>
-
-<section class="section" id="vfaq" style="display:none;">
-<div class="container">
-<h2 class="section-title" id="vfaqTitle">FAQs</h2><p class="section-sub">Quick answers about this vehicle.</p>
-<div class="card faq" id="vfaqList" style="padding:0 20px;"></div>
-</div>
-</section>
-
-<section class="section alt" id="faq">
-<div class="container">
-<h2 class="section-title">Loan & Finance FAQs</h2><p class="section-sub">Common questions about the loan and purchase process.</p>
-<div class="card" style="padding:0 20px;">
-<div class="faq-item"><div class="faq-q">What documents are needed for a loan?</div><div class="faq-a">Aadhar card, PAN card, income proof (salary slip/ITR), address proof, and bank statement — the MK Finance team will give you the exact list based on your profile.</div></div>
-<div class="faq-item"><div class="faq-q">How long does loan approval take?</div><div class="faq-a">With the right documents, approval is usually granted within 24-48 hours.</div></div>
-<div class="faq-item"><div class="faq-q">How much down payment is required?</div><div class="faq-a">This depends on the vehicle's ex-showroom price and your eligibility — contact us for the exact amount.</div></div>
-<div class="faq-item"><div class="faq-q">Can I also get insurance through MK Finance?</div><div class="faq-a">Yes, MK Finance provides insurance alongside your vehicle loan.</div></div>
-</div>
-</div>
-</section>
-
-<section class="section alt">
-<div class="container">
-<div class="cta">
-  <div><h2 id="ctaTitle">Need the best loan for this vehicle?</h2><p>Get vehicle finance, insurance and on-road assistance from MK Finance.</p></div>
-  <button class="btn" onclick="getQuote()">Get Finance Quote</button>
-</div>
-</div>
-</section>
-</main>
-
-<footer>
-<div class="container">
-<div class="footer-grid">
-<div><div class="footer-logo"><span>MK</span> Finance</div><p class="footer-desc">Your financial partner — for vehicle loans, commercial vehicle finance and vehicle insurance.</p></div>
-<div><h4>Finance</h4><a href="/index.html#loans">Car Loan</a><a href="/index.html#loans">Commercial Vehicle Loan</a><a href="/index.html#services">EMI Calculator</a><a href="/index.html#insurance">Insurance</a></div>
-<div><h4>Quick Links</h4><a onclick="document.getElementById('price').scrollIntoView({behavior:'smooth'})">Price</a><a onclick="document.getElementById('variants').scrollIntoView({behavior:'smooth'})">Variants</a><a onclick="document.getElementById('specs').scrollIntoView({behavior:'smooth'})">Specs</a><a href="/index.html">Home</a></div>
-</div>
-<div class="copyright"><span>© 2026 MK Finance. All Rights Reserved.</span><span>Call: 9824742356</span></div>
-</div>
-</footer>
 
 <script>
-function showSpecTabContent(cat) {
-  const items = (window.specsByCategory && window.specsByCategory[cat]) || [];
-  document.getElementById('specsTabContent').innerHTML = `
-    <h3>${cat}</h3>
-    ${items.map(it => `<div class="specs-tab-row"><span>${it.label}</span><span style="${it.isFeature ? 'color:#2ecf7a;' : ''}">${it.value}</span></div>`).join('')}
-  `;
-}
-function showSpecTab(cat, el) {
-  document.querySelectorAll('.specs-tab-item').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  showSpecTabContent(cat);
-}
+const MAX_SLOTS = 6;
+let allVehicles = [];
+let selected = [];
+let activeSlotIndex = null;
+let hideCommon = false;
+let highlightDiff = true;
+let searchQuery = '';
+let sectionsData = []; // [{ key, title, rows: [{label, values:[...]}] }]
+let observer = null;
 
-function slugify(brand, model) {
-  return (brand + '-' + model).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-function slugify2(text) {
-  return String(text).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-// Safe DOM helpers — never crash the page if an element is missing (e.g. mismatched HTML/JS versions)
-function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
-function setHtml(id, val) { const el = document.getElementById(id); if (el) el.innerHTML = val; }
-function setShow(id, show) { const el = document.getElementById(id); if (el) el.style.display = show ? 'block' : 'none'; }
-function setShowFlex(id, show) { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; }
+async function init() {
+  try {
+    const res = await fetch('/api/vehicles?_=' + Date.now(), { cache: 'no-store' });
+    allVehicles = await res.json();
+  } catch (e) { allVehicles = []; }
 
-async function loadVehicle() {
-  // Support /brand/model (pretty URL, e.g. /maruti/swift) and vehicle.html?id=1 (legacy)
-  const pathMatch = window.location.pathname.match(/^\/([a-z0-9-]+)\/([a-z0-9-]+)$/i);
-  const slug = pathMatch ? (pathMatch[1] + '-' + pathMatch[2]) : null;
   const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-
-  if (!slug && !id) { showNotFound(); return; }
-  try {
-    const url = (slug ? '/api/vehicles/by-slug/' + slug : '/api/vehicles/' + id) + '?_=' + Date.now();
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) { console.error('Vehicle fetch failed with status', res.status); showNotFound(); return; }
-    const v = await res.json();
-    try {
-      renderVehicle(v);
-    } catch (renderErr) {
-      // Data loaded fine but a page element was missing/mismatched — show whatever rendered
-      // instead of a false "Not Found", and log the real cause for debugging.
-      console.error('renderVehicle partial failure (showing page anyway):', renderErr);
-      setShow('loadingState', false);
-      setShow('content', true);
-    }
-    // Normalize legacy ?id= links to the pretty URL without reloading
-    if (!slug && window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', '/' + slugify2(v.brand) + '/' + slugify2(v.model));
-    }
-  } catch (e) { console.error('Vehicle page error:', e); showNotFound(); }
-}
-
-function showNotFound() {
-  document.getElementById('loadingState').style.display = 'none';
-  document.getElementById('notFoundState').style.display = 'block';
-}
-
-function renderVehicle(v) {
-  document.title = v.brand + ' ' + v.model + ' | MK Finance';
-  window.currentVehicle = v;
-
-  document.getElementById('vTitle').textContent = v.brand + ' ' + v.model;
-  document.getElementById('vPrice').textContent = v.price ? (v.price + '*') : 'Price on request';
-  document.getElementById('fuelChip').textContent = v.fuel_type || '';
-
-  const subnav = document.getElementById('subnavLinks');
-  subnav.innerHTML = `
-    <a class="active" onclick="scrollToSec('overview',this)">${v.brand} ${v.model}</a>
-    <a onclick="scrollToSec('price',this)">Price & EMI</a>
-    <a onclick="scrollToSec('variants',this)">Variants</a>
-    ${(v.gallery_images || '').trim() ? `<a onclick="scrollToSec('images',this)">Images</a>` : ''}
-    ${(v.expert_note || '').trim() ? `<a onclick="scrollToSec('expert',this)">Expert Opinion</a>` : ''}
-    <a onclick="scrollToSec('specs',this)">Specs</a>
-    ${(v.colors || '').trim() ? `<a onclick="scrollToSec('colors',this)">Colours</a>` : ''}
-    <a onclick="scrollToSec('compare',this)">Compare</a>
-    <a onclick="scrollToSec('reviews',this)">Reviews</a>
-    <a onclick="scrollToSec('vfaq',this)">FAQs</a>
-  `;
-
-  const allImages = [v.image_url, ...((v.gallery_images || '').split(',').map(x => x.trim()).filter(Boolean))].filter(Boolean);
-  const galleryBox = document.getElementById('heroGallery');
-  const fallback = document.getElementById('galleryFallback');
-  function showMain(url) {
-    if (url) {
-      galleryBox.innerHTML = `<img src="${url}" alt="${v.brand} ${v.model}" onerror="this.parentElement.innerHTML='<div class=&quot;gallery-fallback&quot;>${v.icon || '🚗'}</div>'">`;
-    } else {
-      galleryBox.innerHTML = `<div class="gallery-fallback">${v.icon || '🚗'}</div>`;
-    }
-  }
-  if (allImages.length) {
-    showMain(allImages[0]);
-    setShow('photoCount', true);
-    setText('photoCount', '📷 ' + allImages.length + ' Photo' + (allImages.length > 1 ? 's' : ''));
-    if (allImages.some(u => u.includes('wikimedia.org'))) {
-      setShow('photoCredit', true);
-    }
-  } else {
-    fallback.textContent = v.icon || '🚗';
-  }
-  window.showMainImg = showMain;
-
-  if (allImages.length > 1) {
-    const thumbRow = document.getElementById('thumbRow');
-    thumbRow.style.display = 'flex';
-    thumbRow.innerHTML = allImages.map((url, i) => `
-      <div class="thumb ${i === 0 ? 'active' : ''}" onclick="selectThumb(this,'${url}')"><img src="${url}" onerror="this.parentElement.style.display='none'"></div>`).join('');
-
-    document.getElementById('images').style.display = 'block';
-    document.getElementById('galleryGrid').innerHTML = allImages.map(url => `
-      <div class="gallery-tile"><img src="${url}" onerror="this.parentElement.style.display='none'"></div>`).join('');
-  }
-
-  document.getElementById('specStrip').innerHTML = `
-    <div class="spec"><div class="spec-label">Brand</div><div class="spec-value">${v.brand || '-'}</div></div>
-    <div class="spec"><div class="spec-label">Model Year</div><div class="spec-value">New</div></div>
-    <div class="spec"><div class="spec-label">Fuel Type</div><div class="spec-value">${v.fuel_type || '-'}</div></div>
-    <div class="spec"><div class="spec-label">Category</div><div class="spec-value">${v.category || '-'}</div></div>
-  `;
-
-  document.getElementById('priceTitleText').textContent = v.brand + ' ' + v.model + ' Price & EMI';
-  const vName = v.brand + ' ' + v.model;
-  const setTitleIfExists = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-  setTitleIfExists('variantsTitleText', vName + ' Variants');
-  setTitleIfExists('imagesTitleText', vName + ' Images');
-  setTitleIfExists('specsTitleText', vName + ' Specifications');
-  setTitleIfExists('colorsTitleText', vName + ' Colours');
-  setTitleIfExists('expertTitleText', vName + ' Expert Opinion');
-  document.getElementById('sidePrice').textContent = v.price || '-';
-  document.getElementById('sideFuel').textContent = v.fuel_type || '-';
-  document.getElementById('sideYear').textContent = 'New';
-  document.getElementById('sideCategory').textContent = v.category || '-';
-  document.getElementById('sideEmi').textContent = v.emi || '-';
-
-  const variantList = (v.variants || '').split(',').map(x => x.trim()).filter(Boolean);
-  const variantBox = document.getElementById('variantList');
-  window.parsedVariants = variantList.map(x => {
-    const parts = x.split(':');
-    return {
-      name: (parts[0] || '').trim(),
-      price: (parts[1] || '').trim(),
-      transmission: (parts[2] || '').trim(),
-      fuel: (parts[3] || '').trim()
-    };
-  });
-  const hasTransData = window.parsedVariants.some(p => p.transmission);
-  if (variantList.length) {
-    variantBox.style.padding = '0';
-    document.getElementById('variantTableHead').style.display = hasTransData ? 'grid' : 'none';
-    document.getElementById('variantFilterBar').style.display = hasTransData ? 'flex' : 'none';
-    renderVariantRows('All');
-  } else {
-    variantBox.style.padding = '18px';
-    variantBox.innerHTML = `<p style="color:var(--muted); font-size:13px;">Variant list is being updated — contact us for the latest options.</p>`;
-  }
-
-  if (v.expert_note && v.expert_note.trim()) {
-    document.getElementById('expert').style.display = 'block';
-    document.getElementById('expertText').innerHTML = v.expert_note.split('\n\n').map(p => `<p style="margin-bottom:14px;">${p.replace(/\n/g, '<br>')}</p>`).join('');
-  }
-
-  setText('specBrand2', v.brand || '-');
-  setText('specModel2', v.model || '-');
-  setText('specYear2', 'New');
-  setText('specFuel2', v.fuel_type || '-');
-  setText('specCategory2', v.category || '-');
-  setText('specPrice2', v.price || '-');
-
-  // Detailed Specifications — sidebar tabs if category-prefixed ("Category::Label:Value"), else flat grid
-  const rawSpecs = (v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean);
-  const rawFeatures = (v.key_features || '').split(',').map(x => x.trim()).filter(Boolean);
-  const specsByCategory = {};
-  const flatSpecs = [];
-  rawSpecs.forEach(x => {
-    if (x.includes('::')) {
-      const [cat, rest] = x.split('::');
-      const parts = rest.split(':');
-      specsByCategory[cat] = specsByCategory[cat] || [];
-      specsByCategory[cat].push({ label: (parts[0]||'').trim(), value: (parts[1]||'').trim() });
-    } else {
-      const parts = x.split(':');
-      flatSpecs.push({ label: (parts[0]||'').trim(), value: (parts[1]||'').trim() });
-    }
-  });
-  rawFeatures.forEach(x => {
-    if (x.includes('::')) {
-      const [cat, name] = x.split('::');
-      specsByCategory[cat] = specsByCategory[cat] || [];
-      specsByCategory[cat].push({ label: name.trim(), value: '✓', isFeature: true });
-    }
+  const ids = (params.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
+  ids.forEach(id => {
+    const v = allVehicles.find(x => String(x.id) === id);
+    if (v && selected.length < MAX_SLOTS) selected.push(v);
   });
 
-  const categories = Object.keys(specsByCategory);
-  if (categories.length) {
-    document.getElementById('specsTabsBox').style.display = 'block';
-    document.getElementById('specsSidebar').innerHTML = categories.map((cat, i) =>
-      `<div class="specs-tab-item ${i===0?'active':''}" onclick="showSpecTab('${cat.replace(/'/g,"\\'")}', this)">${cat}</div>`
-    ).join('');
-    window.specsByCategory = specsByCategory;
-    showSpecTabContent(categories[0]);
-  }
-
-  if (flatSpecs.length) {
-    document.getElementById('keySpecsBox').style.display = 'block';
-    document.getElementById('keySpecsHeading').textContent = vName + ' Additional Specifications';
-    document.getElementById('keySpecsGrid').innerHTML = flatSpecs.map(s =>
-      `<div class="spec-line"><span>${s.label}</span><span>${s.value}</span></div>`
-    ).join('');
-  }
-
-  document.getElementById('ctaTitle').textContent = 'Need the best loan for ' + v.brand + ' ' + v.model + '?';
-
-  // Vehicle-specific FAQ (built from this vehicle's real data — no fabricated numbers)
-  const vfaqItems = [];
-  if (v.price) vfaqItems.push({ q: `What is the price of ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is priced at ${v.price}${v.price.includes('-') || v.price.includes('–') ? '' : ' onwards'} (ex-showroom estimate).` });
-  if (v.emi) vfaqItems.push({ q: `What is the EMI for ${v.brand} ${v.model}?`, a: `${v.brand} ${v.model} EMI ${v.emi.toLowerCase().includes('starting') ? 'is ' + v.emi.toLowerCase() : 'starts at ' + v.emi}. Contact MK Finance for a personalised quote based on your down payment and tenure.` });
-  if (v.category) vfaqItems.push({ q: `What type of vehicle is the ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is a ${v.category.toLowerCase()}${v.fuel_type ? ', available in ' + v.fuel_type : ''}.` });
-  const variantCount = (v.variants || '').split(',').filter(Boolean).length;
-  if (variantCount) vfaqItems.push({ q: `How many variants does the ${v.brand} ${v.model} have?`, a: `The ${v.brand} ${v.model} is available in ${variantCount} variant${variantCount > 1 ? 's' : ''}${v.variants ? ': ' + v.variants.split(',').map(x => x.split(':')[0].trim()).join(', ') : ''}.` });
-  if (v.colors && v.colors.trim()) {
-    const colorCount = v.colors.split(',').filter(Boolean).length;
-    vfaqItems.push({ q: `What colours are available for ${v.brand} ${v.model}?`, a: `The ${v.brand} ${v.model} is available in ${colorCount} colour${colorCount > 1 ? 's' : ''}: ${v.colors}.` });
-  }
-  vfaqItems.push({ q: `Can I get a loan for ${v.brand} ${v.model} through MK Finance?`, a: `Yes, MK Finance offers vehicle loans and insurance for the ${v.brand} ${v.model}. Contact us for a personalised EMI quote.` });
-
-  if (vfaqItems.length) {
-    document.getElementById('vfaq').style.display = 'block';
-    document.getElementById('vfaqTitle').textContent = v.brand + ' ' + v.model + ' FAQs';
-    document.getElementById('vfaqList').innerHTML = vfaqItems.map(item => `
-      <div class="faq-item"><div class="faq-q">${item.q}</div><div class="faq-a">${item.a}</div></div>`).join('');
-  }
-
-  // Colours
-  const colorList = (v.colors || '').split(',').map(x => x.trim()).filter(Boolean);
-  if (colorList.length) {
-    document.getElementById('colors').style.display = 'block';
-    document.getElementById('colorsList').innerHTML = colorList.map(c => `
-      <div class="color-item"><div class="color-dot">🎨</div><p>${c}</p></div>`).join('');
-  }
-
-  // Compare with other real MK Finance vehicles
-  loadCompareVehicles(v.id, v.category, v.price);
-
-  document.getElementById('loadingState').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
+  renderSlots();
+  buildAndRenderCompare();
 }
 
-function extractPriceValue(priceStr) {
-  // Extracts a representative numeric value (in Lakhs) from strings like "₹6.49 L - ₹8.99 L" or "₹14.74 L"
-  if (!priceStr) return null;
-  const nums = (priceStr.match(/[\d.]+/g) || []).map(Number).filter(n => !isNaN(n));
-  if (!nums.length) return null;
-  return nums.reduce((a, b) => a + b, 0) / nums.length; // average of found numbers (handles ranges)
-}
-
-async function loadCompareVehicles(currentId, category, currentPrice) {
-  try {
-    const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category) + '&_=' + Date.now(), { cache: 'no-store' });
-    const all = await res.json();
-    const currentVal = extractPriceValue(currentPrice);
-    let others = all.filter(x => x.id != currentId);
-    if (currentVal !== null) {
-      others = others
-        .map(o => ({ o, diff: Math.abs((extractPriceValue(o.price) ?? Infinity) - currentVal) }))
-        .sort((a, b) => a.diff - b.diff)
-        .map(x => x.o);
-    }
-    others = others.slice(0, 3);
-    if (!others.length) return;
-    document.getElementById('compare').style.display = 'block';
-    document.getElementById('compareList').innerHTML = others.map(o => `
-      <div class="card compare-card">
-        <div class="compare-img" onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')" style="cursor:pointer;">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
-        <h3 onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')" style="cursor:pointer;">${o.brand} ${o.model}</h3>
-        <p>${o.fuel_type || ''}</p>
-        <div class="compare-price">${o.price || 'Price on request'}</div>
-        <button class="btn outline" style="width:100%; margin-top:10px; padding:8px; font-size:12px;" onclick="window.location.href='/compare.html?ids=${currentId},${o.id}'">⇄ Compare Specs</button>
-      </div>`).join('');
-  } catch (e) {}
-}
-
-function doSearch() {
-  const q = document.getElementById('searchBox').value.trim();
-  window.location.href = '/index.html' + (q ? '?search=' + encodeURIComponent(q) : '') + '#vehicles';
-}
-
-let selectedVariants = [];
-let otherCompareVehicles = []; // [{id, brand, model, price, icon}]
-let allVehiclesCache = null;
-
-function renderVariantRows(filter) {
-  const list = window.parsedVariants || [];
-  const filtered = filter === 'All' ? list : list.filter(p => p.transmission === filter);
-  const box = document.getElementById('variantList');
-  if (!filtered.length) {
-    box.innerHTML = `<p style="color:var(--muted); font-size:13px; padding:18px;">No ${filter.toLowerCase()} variants listed.</p>`;
-    return;
-  }
-  box.innerHTML = filtered.map(p => `
-    <div class="variant-row">
-      <div><div class="vname">${p.name}</div></div>
-      <div class="vtrans">${[p.transmission, p.fuel].filter(Boolean).join(' • ') || '-'}</div>
-      <div class="vprice">${p.price || '-'}</div>
-      <div class="variant-compare-check"><input type="checkbox" ${selectedVariants.includes(p.name) ? 'checked' : ''} onchange="toggleVariantCompare('${p.name.replace(/'/g,"\\'")}', this.checked)"></div>
-    </div>`).join('');
-}
-function filterVariants(type) { renderVariantRows(type); }
-
-function renderCompareBar() {
-  const bar = document.getElementById('variantCompareBar');
-  const variantChips = (window.parsedVariants || []).filter(p => selectedVariants.includes(p.name)).map(p => ({
-    key: 'v:' + p.name, icon: '🚗', name: p.name, price: p.price || '-',
-    onx: `uncheckVariant('${p.name.replace(/'/g,"\\'")}')`
-  }));
-  const otherChips = otherCompareVehicles.map(o => ({
-    key: 'o:' + o.id, icon: o.icon || '🚗', name: o.brand + ' ' + o.model, price: o.price || '-',
-    onx: `removeOtherVehicle(${o.id})`
-  }));
-  const allChips = [...variantChips, ...otherChips];
-
+function renderSlots() {
+  const row = document.getElementById('pickerRow');
   let html = '';
-  allChips.forEach((c, i) => {
-    if (i > 0) html += `<div class="vcb-vs">VS</div>`;
-    html += `
-      <div class="vcb-chip">
-        <span class="vcb-icon">${c.icon}</span>
-        <div class="vcb-info"><span class="vcb-name">${c.name}</span><span class="vcb-price">${c.price}</span></div>
-        <span class="vcb-x" onclick="${c.onx}">✕</span>
-      </div>`;
-  });
-  document.getElementById('vcbChips').innerHTML = html;
-  bar.classList.toggle('show', allChips.length > 0);
-  const summaryEl = document.getElementById('variantCompareSummary');
-  if (summaryEl) summaryEl.classList.remove('show');
-}
-
-function toggleVariantCompare(name, checked) {
-  if (checked) {
-    if (!selectedVariants.includes(name)) selectedVariants.push(name);
-  } else {
-    selectedVariants = selectedVariants.filter(n => n !== name);
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    const v = selected[i];
+    if (v) {
+      html += `
+        <div class="filled-slot">
+          <button class="remove" onclick="removeSlot(${i})">✕</button>
+          <div class="img">${v.image_url ? `<img src="${v.image_url}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">` : (v.icon || '🚗')}</div>
+          <h4>${v.brand} ${v.model}</h4>
+          <div class="price">${v.price || 'Price on request'}</div>
+        </div>`;
+    } else if (i === selected.length) {
+      html += `
+        <div class="picker-slot" onclick="openPicker(${i})">
+          <div class="plus">+</div>
+          <div class="lbl">Add Vehicle</div>
+        </div>`;
+    } else {
+      html += `<div class="picker-slot" style="opacity:.3; cursor:default; pointer-events:none;"><div class="lbl">Empty</div></div>`;
+    }
   }
-  renderCompareBar();
+  row.innerHTML = html;
 }
 
-function uncheckVariant(name) {
-  toggleVariantCompare(name, false);
-  renderVariantRows(document.querySelector('input[name="vtrans"]:checked').value);
+function openPicker(slotIndex) {
+  activeSlotIndex = slotIndex;
+  document.getElementById('pickerModal').classList.add('open');
+  document.getElementById('pickerSearch').value = '';
+  renderPickerList();
 }
+function closePicker() { document.getElementById('pickerModal').classList.remove('open'); }
+function categoryGroup(category) { return category === 'Car' ? 'Car' : 'Commercial'; }
 
-async function openOtherVehiclePicker() {
-  document.getElementById('ovPickerModal').style.display = 'flex';
-  document.getElementById('ovPickerSearch').value = '';
-  if (!allVehiclesCache) {
-    try {
-      const res = await fetch('/api/vehicles?_=' + Date.now(), { cache: 'no-store' });
-      allVehiclesCache = await res.json();
-    } catch (e) { allVehiclesCache = []; }
-  }
-  renderOtherVehiclePicker();
-}
-function closeOtherVehiclePicker() {
-  document.getElementById('ovPickerModal').style.display = 'none';
-}
-function renderOtherVehiclePicker() {
-  const q = document.getElementById('ovPickerSearch').value.trim().toLowerCase();
-  const v = window.currentVehicle;
-  const groupOf = (cat) => cat === 'Car' ? 'Car' : 'Commercial';
-  const myGroup = v ? groupOf(v.category) : null;
-  const excludeIds = [v ? v.id : null, ...otherCompareVehicles.map(o => o.id)];
-  const list = (allVehiclesCache || []).filter(x =>
-    !excludeIds.includes(x.id) &&
-    (!myGroup || groupOf(x.category) === myGroup) &&
-    (x.brand + ' ' + x.model).toLowerCase().includes(q)
+function renderPickerList() {
+  const q = document.getElementById('pickerSearch').value.trim().toLowerCase();
+  const selectedIds = selected.map(v => v.id);
+  const lockedGroup = selected.length ? categoryGroup(selected[0].category) : null;
+  const list = allVehicles.filter(v =>
+    !selectedIds.includes(v.id) &&
+    (!lockedGroup || categoryGroup(v.category) === lockedGroup) &&
+    (v.brand + ' ' + v.model).toLowerCase().includes(q)
   );
-  const box = document.getElementById('ovPickerList');
+  const box = document.getElementById('pickerList');
+  const noteEl = document.getElementById('pickerGroupNote');
+  if (noteEl) noteEl.textContent = lockedGroup ? `Showing ${lockedGroup === 'Car' ? 'cars' : 'commercial vehicles'} only — matching your current comparison.` : '';
   if (!list.length) {
     box.innerHTML = '<p style="color:var(--muted); font-size:13px; padding:14px;">No matching vehicles found.</p>';
     return;
   }
-  box.innerHTML = list.map(x => `
-    <div class="picker-item" style="display:flex; align-items:center; gap:12px; padding:10px; border-radius:8px; cursor:pointer;" onmouseover="this.style.background='#0d2029'" onmouseout="this.style.background=''" onclick="addOtherVehicle(${x.id})">
-      <div style="font-size:1.6rem; width:40px; text-align:center;">${x.icon || '🚗'}</div>
+  box.innerHTML = list.map(v => `
+    <div class="picker-item" onclick="selectVehicle(${v.id})">
+      <div class="ic">${v.icon || '🚗'}</div>
       <div>
-        <div style="font-size:13px; font-weight:600;">${x.brand} ${x.model}</div>
-        <div style="font-size:12px; color:var(--muted);">${x.price || 'Price on request'}</div>
+        <div class="nm">${v.brand} ${v.model}</div>
+        <div class="pr">${v.price || 'Price on request'}</div>
       </div>
     </div>`).join('');
 }
-function addOtherVehicle(id) {
-  const v = (allVehiclesCache || []).find(x => x.id === id);
+function selectVehicle(id) {
+  const v = allVehicles.find(x => x.id === id);
   if (!v) return;
-  if (selectedVariants.length + otherCompareVehicles.length >= 5) { alert('You can compare up to 6 items at once.'); return; }
-  otherCompareVehicles.push(v);
-  closeOtherVehiclePicker();
-  renderCompareBar();
+  selected[activeSlotIndex] = v;
+  selected = selected.filter(Boolean);
+  closePicker();
+  renderSlots();
+  buildAndRenderCompare();
+  updateUrl();
 }
-function removeOtherVehicle(id) {
-  otherCompareVehicles = otherCompareVehicles.filter(o => o.id !== id);
-  renderCompareBar();
+function removeSlot(i) {
+  selected.splice(i, 1);
+  renderSlots();
+  buildAndRenderCompare();
+  updateUrl();
+}
+function updateUrl() {
+  const ids = selected.map(v => v.id).join(',');
+  const url = ids ? ('/compare.html?ids=' + ids) : '/compare.html';
+  window.history.replaceState(null, '', url);
 }
 
-function goToFullCompare() {
-  const v = window.currentVehicle;
-  const ids = [];
+function parseSpecs(v) {
+  const raw = [
+    ...(v.detailed_specs || '').split(',').map(x => x.trim()).filter(Boolean),
+    ...(v.key_features || '').split(',').map(x => x.trim() + ':✓').filter(x => x !== ':✓')
+  ];
+  const map = {};
+  raw.forEach(x => {
+    if (!x.includes('::')) return;
+    const [cat, rest] = x.split('::');
+    const parts = rest.split(':');
+    const label = (parts[0] || '').trim();
+    const value = parts.slice(1).join(':').trim() || '✓';
+    map[cat.trim() + '|' + label] = value;
+  });
+  return map;
+}
 
-  // Push this vehicle's ID once per selected variant (so 2 variants of the same
-  // vehicle still produce 2 comparable columns on the compare page)
-  if (v && selectedVariants.length > 0) {
-    selectedVariants.forEach(() => ids.push(v.id));
-  } else if (v && otherCompareVehicles.length > 0) {
-    ids.push(v.id);
-  }
+function formatVal(v) {
+  if (v === '✓') return '<span class="val-yes">✓</span>';
+  if (v === '✕' || v === 'No' || v === 'no') return '<span class="val-no">✕</span>';
+  return v;
+}
 
-  otherCompareVehicles.forEach(o => ids.push(o.id));
-
-  if (ids.length < 2) {
-    alert('Select at least 2 variants, or add another vehicle to compare.');
+function buildAndRenderCompare() {
+  const wrap = document.getElementById('compareSections');
+  const controlsBar = document.getElementById('controlsBar');
+  if (selected.length < 2) {
+    controlsBar.style.display = 'none';
+    wrap.innerHTML = `<div class="empty-msg">Add at least 2 vehicles above to see a full specification comparison.</div>`;
     return;
   }
-  window.location.href = '/compare.html?ids=' + ids.join(',');
+  controlsBar.style.display = 'block';
+
+  const specMaps = selected.map(parseSpecs);
+  const orderedKeys = [];
+  const seen = new Set();
+  specMaps.forEach(map => {
+    Object.keys(map).forEach(k => { if (!seen.has(k)) { seen.add(k); orderedKeys.push(k); } });
+  });
+  const byCategory = {};
+  orderedKeys.forEach(k => {
+    const [cat, label] = k.split('|');
+    byCategory[cat] = byCategory[cat] || [];
+    byCategory[cat].push({ label, values: specMaps.map(m => m[k] || '—') });
+  });
+
+  sectionsData = [
+    {
+      key: 'overview', title: 'Basic Information',
+      rows: [
+        { label: 'Price', values: selected.map(v => v.price || '-') },
+        { label: 'EMI', values: selected.map(v => v.emi || '-') },
+        { label: 'Fuel Type', values: selected.map(v => v.fuel_type || '-') },
+        { label: 'Category', values: selected.map(v => v.category || '-') }
+      ]
+    },
+    ...Object.keys(byCategory).map(cat => ({ key: slugifyKey(cat), title: cat, rows: byCategory[cat] }))
+  ];
+
+  buildCategoryNav();
+  renderSections();
+  setupScrollSpy();
 }
 
-function clearVariantCompare() {
-  selectedVariants = [];
-  otherCompareVehicles = [];
-  document.getElementById('variantCompareBar').classList.remove('show');
-  const summaryEl = document.getElementById('variantCompareSummary');
-  if (summaryEl) summaryEl.classList.remove('show');
-  const checkedRadio = document.querySelector('input[name="vtrans"]:checked');
-  if (checkedRadio) renderVariantRows(checkedRadio.value);
+function slugifyKey(s) { return 'sec-' + s.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+
+function buildCategoryNav() {
+  document.getElementById('catNav').innerHTML = sectionsData.map((s, i) => `
+    <div class="cat-nav-item ${i === 0 ? 'active' : ''}" data-target="${s.key}" onclick="scrollToSection('${s.key}')">${s.title}</div>
+  `).join('');
 }
 
-function selectThumb(el, url) {
-  document.querySelectorAll('.thumb-row .thumb').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  if (window.showMainImg) window.showMainImg(url);
+function scrollToSection(key) {
+  const el = document.getElementById(key);
+  if (el) {
+    el.classList.remove('collapsed');
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
-function scrollToSec(id, el) {
-  document.querySelectorAll('.subnav a').forEach(a => a.classList.remove('active'));
-  el.classList.add('active');
-  const target = document.getElementById(id);
-  if (target) target.scrollIntoView({behavior:'smooth'});
+function renderSections() {
+  const wrap = document.getElementById('compareSections');
+  const q = searchQuery.trim().toLowerCase();
+
+  const html = sectionsData.map(sec => {
+    let rows = sec.rows;
+    if (hideCommon) {
+      rows = rows.filter(r => !r.values.every(v => v === r.values[0]));
+    }
+    if (q) {
+      rows = rows.filter(r => r.label.toLowerCase().includes(q) || sec.title.toLowerCase().includes(q));
+    }
+    if (!rows.length) return '';
+
+    const rowsHtml = rows.map(r => {
+      const allSame = r.values.every(v => v === r.values[0]);
+      const rowClass = (highlightDiff && !allSame) ? 'diff-highlight' : '';
+      return `<tr class="${rowClass}"><td class="row-label-col">${r.label}</td>${r.values.map(v => `<td>${formatVal(v)}</td>`).join('')}</tr>`;
+    }).join('');
+
+    const headHtml = `<tr><th class="row-label-col">Specification</th>${selected.map(v => `<th>${v.brand} ${v.model}</th>`).join('')}</tr>`;
+
+    return `
+      <div class="cat-section" id="${sec.key}">
+        <div class="cat-header" onclick="toggleSection('${sec.key}')">
+          <h3>${sec.title}</h3>
+          <span class="chev">▾</span>
+        </div>
+        <div class="cat-body">
+          <table class="compare-table">
+            <thead>${headHtml}</thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  wrap.innerHTML = html || `<div class="no-results">No matching specifications found.</div>`;
 }
 
-function getQuote() {
-  const v = window.currentVehicle;
-  const q = v ? ('?vehicle=' + encodeURIComponent(v.brand + ' ' + v.model)) : '';
-  window.location.href = '/index.html' + q + '#contact';
+function toggleSection(key) {
+  const el = document.getElementById(key);
+  if (el) el.classList.toggle('collapsed');
 }
 
-loadVehicle();
+function onSearchInput() {
+  searchQuery = document.getElementById('searchInput').value;
+  renderSections();
+}
+
+function toggleHideCommon() {
+  hideCommon = !hideCommon;
+  document.getElementById('hideCommonSwitch').classList.toggle('on', hideCommon);
+  renderSections();
+}
+function toggleHighlight() {
+  highlightDiff = !highlightDiff;
+  document.getElementById('highlightSwitch').classList.toggle('on', highlightDiff);
+  renderSections();
+}
+
+function setupScrollSpy() {
+  if (observer) observer.disconnect();
+  const navItems = [...document.querySelectorAll('.cat-nav-item')];
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const key = entry.target.id;
+        navItems.forEach(n => n.classList.toggle('active', n.dataset.target === key));
+      }
+    });
+  }, { rootMargin: '-180px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.cat-section').forEach(sec => observer.observe(sec));
+}
+
+init();
 </script>
 </body>
 </html>
