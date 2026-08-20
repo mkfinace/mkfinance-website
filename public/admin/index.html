@@ -100,8 +100,33 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchPanel('inquiries', this)">📩 Inquiries</button>
       <button class="tab-btn" onclick="switchPanel('vehicles', this)">🚗 Vehicles</button>
+      <button class="tab-btn" id="dealersTabBtn" style="display:none;" onclick="switchPanel('dealers', this)">🧑‍💼 Dealers</button>
       <button class="tab-btn" onclick="switchPanel('settings', this)">⚙️ Settings</button>
     </div>
+
+    <!-- DEALERS PANEL (super-admin only) -->
+    <div class="panel" id="panel-dealers">
+      <div class="card-header"><h2>Brand Dealer Accounts</h2><button class="btn small" onclick="toggleDealerForm()">+ Add Dealer</button></div>
+      <div id="dealerFormBox" style="display:none; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:12px;">New Dealer Account</h3>
+        <div class="form-grid">
+          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Username</label><input id="d-username" placeholder="e.g. maruti_dealer"></div>
+          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Password</label><input id="d-password" type="text" placeholder="Set a password"></div>
+          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn small" onclick="saveDealer()">Create Dealer</button>
+          <button class="btn secondary small" onclick="toggleDealerForm()">Cancel</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Username</th><th>Brand</th><th></th></tr></thead>
+        <tbody id="dealersBody"></tbody>
+      </table>
+      <div class="empty-state" id="dealersEmpty" style="display:none;">No dealer accounts yet.</div>
+      <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-top:14px;">A dealer account only sees and manages vehicles and leads for their own Brand. Give the dealer their username + password to log in at <code>/admin</code>.</p>
+    </div>
+
 
     <!-- INQUIRIES PANEL -->
     <div class="panel active" id="panel-inquiries">
@@ -143,8 +168,10 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">EMI Text (homepage par batavva mate)</label><input id="v-emi" placeholder="EMI ₹13,200/mo"></div>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
         <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL — Main Photo (optional)</label><input id="v-image" placeholder="https://..."></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL — Main Photo (optional)</label><input id="v-image" placeholder="https://..." oninput="document.getElementById('v-image-preview').src=this.value; document.getElementById('v-image-preview').style.display=this.value?'block':'none';"></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Or Upload Photo From Your Device</label><input type="file" id="v-image-file" accept="image/*" onchange="handleImageUpload(this,'v-image')"><img id="v-image-preview" style="display:none; max-width:180px; max-height:120px; margin-top:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.15);"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">More Photos (extra URLs, comma sep — gallery mate)</label><textarea id="v-gallery" rows="2" placeholder="https://photo2.jpg, https://photo3.jpg"></textarea></div>
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Or Upload More Photos From Your Device (multiple)</label><input type="file" id="v-gallery-file" accept="image/*" multiple onchange="handleGalleryUpload(this)"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Variants (comma sep — "Name:Price" ke "Name:Price:Transmission:Fuel")</label><input id="v-variants" placeholder="LXi:₹6.49 L:Manual:Petrol, VXi AMT:₹7.79 L:Automatic:Petrol"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Colors Available (comma sep)</label><input id="v-colors" placeholder="Pearl White, Metallic Grey, Fiery Red"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Specifications (comma sep "Label:Value")</label><textarea id="v-detailed-specs" rows="2" placeholder="Fuel Type:Petrol, Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"></textarea></div>
@@ -194,8 +221,11 @@ async function checkSession() {
   if (data.loggedIn) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('whoami').textContent = '👤 ' + data.username;
+    document.getElementById('whoami').textContent = '👤 ' + data.username + (data.role === 'dealer' ? ' (' + data.brand + ' Dealer)' : '');
+    const isSuperAdmin = data.role !== 'dealer';
+    document.getElementById('dealersTabBtn').style.display = isSuperAdmin ? 'inline-block' : 'none';
     loadInquiries(); loadVehicles();
+    if (isSuperAdmin) loadDealers();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
@@ -228,6 +258,55 @@ function switchPanel(name, btn) {
   btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ===== DEALERS (super-admin only) =====
+async function loadDealers() {
+  try {
+    const res = await fetch(API + '/api/admin/dealers');
+    if (!res.ok) return; // dealer-role users get 403 here, that's expected
+    const rows = await res.json();
+    const body = document.getElementById('dealersBody');
+    body.innerHTML = '';
+    rows.forEach(d => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${d.username}</td><td>${d.brand || '-'}</td><td><button class="btn secondary small" onclick="deleteDealer(${d.id})">Delete</button></td>`;
+      body.appendChild(tr);
+    });
+    document.getElementById('dealersEmpty').style.display = rows.length ? 'none' : 'block';
+  } catch (e) {}
+}
+function toggleDealerForm() {
+  const box = document.getElementById('dealerFormBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+async function saveDealer() {
+  const username = document.getElementById('d-username').value.trim();
+  const password = document.getElementById('d-password').value;
+  const brand = document.getElementById('d-brand').value.trim().toUpperCase();
+  if (!username || !password || !brand) { showToast('Fill in all fields'); return; }
+  try {
+    const res = await fetch(API + '/api/admin/dealers', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password, brand })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Dealer account created');
+      document.getElementById('d-username').value = '';
+      document.getElementById('d-password').value = '';
+      document.getElementById('d-brand').value = '';
+      toggleDealerForm();
+      loadDealers();
+    } else {
+      showToast(data.error || 'Could not create dealer');
+    }
+  } catch (e) { showToast('Server error'); }
+}
+async function deleteDealer(id) {
+  if (!confirm('Delete this dealer account?')) return;
+  await fetch(API + '/api/admin/dealers/' + id, { method: 'DELETE' });
+  loadDealers();
 }
 
 // ===== INQUIRIES =====
@@ -326,6 +405,41 @@ async function importCsv() {
   resultBox.innerHTML = `✅ ${success} vehicles imported. ${failed ? `❌ ${failed} failed.` : ''}`;
   document.getElementById('csvInput').value = '';
   loadVehicles();
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleImageUpload(input, targetFieldId) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast('Image too large — please use a photo under 3MB'); input.value = ''; return; }
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    document.getElementById(targetFieldId).value = dataUrl;
+    const preview = document.getElementById(targetFieldId + '-preview');
+    if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+  } catch (e) { showToast('Could not read image file'); }
+}
+
+async function handleGalleryUpload(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  const oversized = files.find(f => f.size > 3 * 1024 * 1024);
+  if (oversized) { showToast('One or more images too large — please use photos under 3MB each'); input.value = ''; return; }
+  try {
+    const dataUrls = await Promise.all(files.map(fileToDataUrl));
+    const existing = document.getElementById('v-gallery').value.trim();
+    const combined = (existing ? existing + ',' : '') + dataUrls.join(',');
+    document.getElementById('v-gallery').value = combined;
+    showToast(dataUrls.length + ' photo(s) added to gallery');
+  } catch (e) { showToast('Could not read image files'); }
 }
 
 function toggleVehicleForm() {
