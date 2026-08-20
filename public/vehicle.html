@@ -601,17 +601,33 @@ function renderVehicle(v) {
   }
 
   // Compare with other real MK Finance vehicles
-  loadCompareVehicles(v.id, v.category);
+  loadCompareVehicles(v.id, v.category, v.price);
 
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 }
 
-async function loadCompareVehicles(currentId, category) {
+function extractPriceValue(priceStr) {
+  // Extracts a representative numeric value (in Lakhs) from strings like "₹6.49 L - ₹8.99 L" or "₹14.74 L"
+  if (!priceStr) return null;
+  const nums = (priceStr.match(/[\d.]+/g) || []).map(Number).filter(n => !isNaN(n));
+  if (!nums.length) return null;
+  return nums.reduce((a, b) => a + b, 0) / nums.length; // average of found numbers (handles ranges)
+}
+
+async function loadCompareVehicles(currentId, category, currentPrice) {
   try {
     const res = await fetch('/api/vehicles?category=' + encodeURIComponent(category) + '&_=' + Date.now(), { cache: 'no-store' });
     const all = await res.json();
-    const others = all.filter(x => x.id != currentId).slice(0, 3);
+    const currentVal = extractPriceValue(currentPrice);
+    let others = all.filter(x => x.id != currentId);
+    if (currentVal !== null) {
+      others = others
+        .map(o => ({ o, diff: Math.abs((extractPriceValue(o.price) ?? Infinity) - currentVal) }))
+        .sort((a, b) => a.diff - b.diff)
+        .map(x => x.o);
+    }
+    others = others.slice(0, 3);
     if (!others.length) return;
     document.getElementById('compare').style.display = 'block';
     document.getElementById('compareList').innerHTML = others.map(o => `
