@@ -165,13 +165,35 @@ async function init() {
 
   const params = new URLSearchParams(window.location.search);
   const ids = (params.get('ids') || '').split(',').map(s => s.trim()).filter(Boolean);
-  ids.forEach(id => {
-    const v = allVehicles.find(x => String(x.id) === id);
-    if (v && selected.length < MAX_SLOTS) selected.push(v);
+  const variantLabels = (params.get('variants') || '').split(',').map(s => decodeURIComponent(s || ''));
+
+  ids.forEach((id, i) => {
+    const base = allVehicles.find(x => String(x.id) === id);
+    if (!base || selected.length >= MAX_SLOTS) return;
+    const label = variantLabels[i] || '';
+    if (!label) { selected.push(base); return; }
+
+    // Build a variant-specific display copy: override price/transmission/fuel from the
+    // matching entry in base.variants ("Name:Price:Transmission:Fuel"), keep real specs.
+    const variantEntry = (base.variants || '').split(',').map(x => x.trim()).find(x => x.split(':')[0].trim() === label);
+    const copy = Object.assign({}, base);
+    copy._variantLabel = label;
+    if (variantEntry) {
+      const parts = variantEntry.split(':');
+      if (parts[1]) copy.price = parts[1].trim();
+      const trans = parts[2] ? parts[2].trim() : '';
+      const fuel = parts[3] ? parts[3].trim() : '';
+      if (trans || fuel) copy.fuel_type = [fuel, trans].filter(Boolean).join(' | ');
+    }
+    selected.push(copy);
   });
 
   renderSlots();
   buildAndRenderCompare();
+}
+
+function displayName(v) {
+  return v.brand + ' ' + v.model + (v._variantLabel ? ' (' + v._variantLabel + ')' : '');
 }
 
 function renderSlots() {
@@ -184,7 +206,7 @@ function renderSlots() {
         <div class="filled-slot">
           <button class="remove" onclick="removeSlot(${i})">✕</button>
           <div class="img">${v.image_url ? `<img src="${v.image_url}" onerror="this.parentElement.textContent='${v.icon || '🚗'}'">` : (v.icon || '🚗')}</div>
-          <h4>${v.brand} ${v.model}</h4>
+          <h4>${displayName(v)}</h4>
           <div class="price">${v.price || 'Price on request'}</div>
         </div>`;
     } else if (i === selected.length) {
@@ -356,7 +378,7 @@ function renderSections() {
       return `<tr class="${rowClass}"><td class="row-label-col">${r.label}</td>${r.values.map(v => `<td>${formatVal(v)}</td>`).join('')}</tr>`;
     }).join('');
 
-    const headHtml = `<tr><th class="row-label-col">Specification</th>${selected.map(v => `<th>${v.brand} ${v.model}</th>`).join('')}</tr>`;
+    const headHtml = `<tr><th class="row-label-col">Specification</th>${selected.map(v => `<th>${displayName(v)}</th>`).join('')}</tr>`;
 
     return `
       <div class="cat-section" id="${sec.key}">
