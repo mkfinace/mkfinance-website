@@ -160,7 +160,7 @@ footer{background:#07131a;color:#d1d5db;padding:38px 0 20px;margin-top:10px;bord
     <a onclick="window.location.href='/index.html#loans'">Car Loans</a>
     <a onclick="window.location.href='/index.html#insurance'">Insurance</a>
     <a onclick="scrollToSec('reviews', document.querySelector('.subnav a'))">Reviews</a>
-    <a onclick="scrollToSec('compare', document.querySelector('.subnav a'))">Compare Cars</a>
+    <a onclick="window.location.href='/compare.html'">Compare Cars</a>
   </div>
 </nav>
 
@@ -600,11 +600,12 @@ async function loadCompareVehicles(currentId, category) {
     if (!others.length) return;
     document.getElementById('compare').style.display = 'block';
     document.getElementById('compareList').innerHTML = others.map(o => `
-      <div class="card compare-card" onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')">
-        <div class="compare-img">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
-        <h3>${o.brand} ${o.model}</h3>
+      <div class="card compare-card">
+        <div class="compare-img" onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')" style="cursor:pointer;">${o.image_url ? `<img src="${o.image_url}" onerror="this.parentElement.textContent='${o.icon || '🚗'}'">` : (o.icon || '🚗')}</div>
+        <h3 onclick="window.location.href='/' + slugify2('${o.brand}') + '/' + slugify2('${o.model}')" style="cursor:pointer;">${o.brand} ${o.model}</h3>
         <p>${o.fuel_type || ''}</p>
         <div class="compare-price">${o.price || 'Price on request'}</div>
+        <button class="btn outline" style="width:100%; margin-top:10px; padding:8px; font-size:12px;" onclick="window.location.href='/compare.html?ids=${currentId},${o.id}'">⇄ Compare Specs</button>
       </div>`).join('');
   } catch (e) {}
 }
