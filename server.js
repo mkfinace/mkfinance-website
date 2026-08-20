@@ -11,8 +11,8 @@ app.disable('etag'); // prevent 304 Not Modified responses that break fetch() re
 app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '15mb' })); // higher limit to allow base64 image uploads
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'mkfinance-secret-change-this',
@@ -26,6 +26,11 @@ function requireAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   return res.status(401).json({ error: 'Unauthorized. Please login.' });
 }
+// Only the main admin (not a brand-scoped dealer) may manage dealer accounts
+function requireSuperAdmin(req, res, next) {
+  if (req.session && req.session.isAdmin && req.session.role !== 'dealer') return next();
+  return res.status(403).json({ error: 'Only the main admin can do this.' });
+}
 
 // =========================================================
 // PUBLIC API
@@ -33,13 +38,13 @@ function requireAuth(req, res, next) {
 
 // Submit contact/inquiry form (from index.html)
 app.post('/api/inquiry', (req, res) => {
-  const { name, mobile, service, vehicle_type, message } = req.body;
+  const { name, mobile, service, vehicle_type, message, brand } = req.body;
   if (!name || !mobile) {
     return res.status(400).json({ error: 'Name and Mobile number required.' });
   }
-  const stmt = db.prepare(`INSERT INTO inquiries (name, mobile, service, vehicle_type, message)
-    VALUES (?, ?, ?, ?, ?)`);
-  const result = stmt.run(name, mobile, service || '', vehicle_type || '', message || '');
+  const stmt = db.prepare(`INSERT INTO inquiries (name, mobile, service, vehicle_type, brand, message)
+    VALUES (?, ?, ?, ?, ?, ?)`);
+  const result = stmt.run(name, mobile, service || '', vehicle_type || '', brand || '', message || '');
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
@@ -86,7 +91,9 @@ app.post('/api/admin/login', (req, res) => {
   }
   req.session.isAdmin = true;
   req.session.username = username;
-  res.json({ success: true });
+  req.session.role = user.role || 'admin';
+  req.session.brand = user.brand || null;
+  res.json({ success: true, role: req.session.role, brand: req.session.brand });
 });
 
 app.post('/api/admin/logout', (req, res) => {
@@ -94,7 +101,12 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 app.get('/api/admin/me', (req, res) => {
-  res.json({ loggedIn: !!(req.session && req.session.isAdmin), username: req.session ? req.session.username : null });
+  res.json({
+    loggedIn: !!(req.session && req.session.isAdmin),
+    username: req.session ? req.session.username : null,
+    role: req.session ? req.session.role : null,
+    brand: req.session ? req.session.brand : null
+  });
 });
 
 app.post('/api/admin/change-password', requireAuth, (req, res) => {
@@ -108,21 +120,63 @@ app.post('/api/admin/change-password', requireAuth, (req, res) => {
 });
 
 // =========================================================
+// ADMIN: DEALER ACCOUNTS (super admin only)
+// =========================================================
+
+app.get('/api/admin/dealers', requireSuperAdmin, (req, res) => {
+  const rows = db.prepare("SELECT id, username, role, brand FROM admin_users WHERE role = 'dealer' ORDER BY id DESC").all();
+  res.json(rows);
+});
+
+app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
+  const { username, password, brand } = req.body;
+  if (!username || !password || !brand) {
+    return res.status(400).json({ error: 'Username, password and brand are required.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  }
+  const existing = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(username);
+  if (existing) return res.status(400).json({ error: 'Username already taken.' });
+  const hash = bcrypt.hashSync(password, 10);
+  const result = db.prepare("INSERT INTO admin_users (username, password_hash, role, brand) VALUES (?, ?, 'dealer', ?)").run(username, hash, brand);
+  res.json({ success: true, id: result.lastInsertRowid });
+});
+
+app.delete('/api/admin/dealers/:id', requireSuperAdmin, (req, res) => {
+  db.prepare("DELETE FROM admin_users WHERE id = ? AND role = 'dealer'").run(req.params.id);
+  res.json({ success: true });
+});
+
+// =========================================================
 // ADMIN: INQUIRIES
 // =========================================================
 
 app.get('/api/admin/inquiries', requireAuth, (req, res) => {
-  const rows = db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all();
+  let rows;
+  if (req.session.role === 'dealer') {
+    rows = db.prepare('SELECT * FROM inquiries WHERE brand = ? ORDER BY created_at DESC').all(req.session.brand);
+  } else {
+    rows = db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all();
+  }
   res.json(rows);
 });
 
 app.put('/api/admin/inquiries/:id/status', requireAuth, (req, res) => {
   const { status } = req.body;
+  if (req.session.role === 'dealer') {
+    const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
+    if (!row || row.brand !== req.session.brand) return res.status(403).json({ error: 'Not your lead.' });
+  }
   db.prepare('UPDATE inquiries SET status = ? WHERE id = ?').run(status, req.params.id);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
+  if (req.session.role === 'dealer') {
+    const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
+    if (!row || row.brand !== req.session.brand) return res.status(403).json({ error: 'Not your lead.' });
+  }
   db.prepare('DELETE FROM inquiries WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
@@ -132,12 +186,18 @@ app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
 // =========================================================
 
 app.get('/api/admin/vehicles', requireAuth, (req, res) => {
-  const rows = db.prepare('SELECT * FROM vehicles ORDER BY created_at DESC').all();
+  let rows;
+  if (req.session.role === 'dealer') {
+    rows = db.prepare('SELECT * FROM vehicles WHERE brand = ? ORDER BY created_at DESC').all(req.session.brand);
+  } else {
+    rows = db.prepare('SELECT * FROM vehicles ORDER BY created_at DESC').all();
+  }
   res.json(rows);
 });
 
 app.post('/api/admin/vehicles', requireAuth, (req, res) => {
-  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description } = req.body;
+  let { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description } = req.body;
+  if (req.session.role === 'dealer') brand = req.session.brand; // dealers can only add vehicles under their own brand
   if (!category || !brand || !model) {
     return res.status(400).json({ error: 'Category, Brand, Model required.' });
   }
@@ -148,13 +208,22 @@ app.post('/api/admin/vehicles', requireAuth, (req, res) => {
 });
 
 app.put('/api/admin/vehicles/:id', requireAuth, (req, res) => {
-  const { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description, is_active } = req.body;
+  let { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description, is_active } = req.body;
+  if (req.session.role === 'dealer') {
+    const existing = db.prepare('SELECT brand FROM vehicles WHERE id = ?').get(req.params.id);
+    if (!existing || existing.brand !== req.session.brand) return res.status(403).json({ error: 'You can only edit your own brand\'s vehicles.' });
+    brand = req.session.brand;
+  }
   db.prepare(`UPDATE vehicles SET category=?, brand=?, model=?, year=?, price=?, fuel_type=?, image_url=?, icon=?, emi=?, tags=?, variants=?, expert_note=?, gallery_images=?, colors=?, detailed_specs=?, key_features=?, description=?, is_active=?
     WHERE id=?`).run(category, brand, model, year, price, fuel_type, image_url, icon || '🚗', emi, tags, variants || '', expert_note || '', gallery_images || '', colors || '', detailed_specs || '', key_features || '', description, is_active ? 1 : 0, req.params.id);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/vehicles/:id', requireAuth, (req, res) => {
+  if (req.session.role === 'dealer') {
+    const existing = db.prepare('SELECT brand FROM vehicles WHERE id = ?').get(req.params.id);
+    if (!existing || existing.brand !== req.session.brand) return res.status(403).json({ error: 'You can only delete your own brand\'s vehicles.' });
+  }
   db.prepare('DELETE FROM vehicles WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
