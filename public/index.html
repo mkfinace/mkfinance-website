@@ -1166,6 +1166,7 @@
         <div class="form-field">
           <textarea id="f-message" placeholder="Write your message / requirement..."></textarea>
         </div>
+        <input type="hidden" id="f-brand" value="">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
           <button class="submit-btn" id="submitBtn" style="margin-top:0;" onclick="handleSubmit(this)">Submit Inquiry →</button>
           <a href="https://wa.me/919824742356" target="_blank" style="display:block; text-align:center; padding:14px; background:#25d366; color:white; border-radius:6px; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:0.3px;">💬 WhatsApp</a>
@@ -1370,6 +1371,14 @@ function clearHeroSearch() {
     window.addEventListener('DOMContentLoaded', () => {
       const msgBox = document.getElementById('f-message');
       if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + vehicleName;
+      // Extract brand (first word, e.g. "MARUTI" from "MARUTI Swift") so the lead
+      // is correctly routed to that brand's dealer account.
+      const brandBox = document.getElementById('f-brand');
+      const brand = vehicleName.trim().split(' ')[0].toUpperCase();
+      if (brandBox && brand) brandBox.value = brand;
+      // Default the Vehicle Type dropdown to "Car / SUV" since vehicle links come from car listings.
+      const typeSel = document.getElementById('f-vehicle-type');
+      if (typeSel && !typeSel.value) typeSel.value = 'Car / SUV';
     });
   }
   const searchQuery = params.get('search');
@@ -1410,8 +1419,10 @@ function quoteFromModal() {
   if (currentModalVehicle) {
     const sel = document.getElementById('f-vehicle-type');
     const msgBox = document.getElementById('f-message');
+    const brandBox = document.getElementById('f-brand');
     if (sel) sel.value = 'Car / SUV';
     if (msgBox && !msgBox.value) msgBox.value = 'Interested in: ' + currentModalVehicle.brand + ' ' + currentModalVehicle.model;
+    if (brandBox) brandBox.value = (currentModalVehicle.brand || '').toUpperCase();
   }
 }
 
@@ -1477,6 +1488,8 @@ async function handleSubmit(btn) {
   const service = document.getElementById('f-service').value;
   const vehicle_type = document.getElementById('f-vehicle-type').value;
   const message = document.getElementById('f-message').value.trim();
+  const brandBox = document.getElementById('f-brand');
+  const brand = brandBox ? brandBox.value.trim() : '';
   const msgBox = document.getElementById('formMsg');
 
   function showMsg(text, ok) {
@@ -1500,7 +1513,7 @@ async function handleSubmit(btn) {
     const res = await fetch('/api/inquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, mobile, service, vehicle_type, message })
+      body: JSON.stringify({ name, mobile, service, vehicle_type, message, brand })
     });
     const data = await res.json();
     if (res.ok && data.success) {
@@ -1511,6 +1524,7 @@ async function handleSubmit(btn) {
       document.getElementById('f-service').value = '';
       document.getElementById('f-vehicle-type').value = '';
       document.getElementById('f-message').value = '';
+      if (brandBox) brandBox.value = '';
       setTimeout(() => { btn.disabled = false; btn.textContent = originalText; }, 3000);
     } else {
       showMsg(data.error || 'Something went wrong. Please try again.', false);
