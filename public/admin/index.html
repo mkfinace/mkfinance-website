@@ -176,6 +176,23 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Colors Available (comma sep)</label><input id="v-colors" placeholder="Pearl White, Metallic Grey, Fiery Red"></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Specifications (comma sep "Label:Value")</label><textarea id="v-detailed-specs" rows="2" placeholder="Fuel Type:Petrol, Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Features (comma sep names)</label><textarea id="v-key-features" rows="2" placeholder="6 Airbags, ABS, Automatic Climate Control, Rear Parking Camera"></textarea></div>
+
+        <div class="full" style="background:rgba(21,154,196,0.06); border:1px solid rgba(21,154,196,0.2); border-radius:8px; padding:14px; margin-top:6px;">
+          <h4 style="font-size:13px; margin-bottom:10px; color:#159ac4;">💰 On-Road Price Breakdown</h4>
+          <div class="form-grid">
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Ex-Showroom Price (₹)</label><input type="number" id="v-ex-showroom" oninput="calcOnroadPrice()"></div>
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">RTO / Registration (₹)</label><input type="number" id="v-rto" oninput="calcOnroadPrice()"></div>
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Insurance (₹)</label><input type="number" id="v-insurance-charge" oninput="calcOnroadPrice()"></div>
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Extended Warranty (₹)</label><input type="number" id="v-warranty" oninput="calcOnroadPrice()"></div>
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">TCS (₹)</label><input type="number" id="v-tcs" oninput="calcOnroadPrice()"></div>
+            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Handling Charges (₹)</label><input type="number" id="v-handling" oninput="calcOnroadPrice()"></div>
+          </div>
+          <div style="margin-top:10px; font-size:14px; font-weight:700; color:#fff;">On-Road Price: <span id="v-onroad-display" style="color:#159ac4;">₹0</span></div>
+        </div>
+
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Current Offer (optional — shown to customers)</label><input id="v-offer" placeholder="Jem: Festive discount ₹15,000 off + free insurance"></div>
+
+        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Custom Fields (anything not covered above — "Label:Value", comma sep)</label><textarea id="v-custom-fields" rows="2" placeholder="Booking Amount:₹25,000, Delivery Time:15 days"></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (your own short opinion — shown to customers)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
         <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
         <div class="full" style="display:flex; gap:10px;">
@@ -184,7 +201,7 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
         </div>
       </div>
       <table>
-        <thead><tr><th>Category</th><th>Brand</th><th>Model</th><th>Year</th><th>Price</th><th>Active</th><th></th></tr></thead>
+        <thead><tr><th>Category</th><th>Brand</th><th>Model</th><th>Year</th><th>Price</th><th>Active</th><th>Status</th><th></th></tr></thead>
         <tbody id="vehiclesBody"></tbody>
       </table>
       <div class="empty-state" id="vehiclesEmpty" style="display:none;">No vehicles listed.</div>
@@ -592,10 +609,18 @@ function toggleVehicleForm() {
 }
 
 function clearVehicleForm() {
-  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi','v-variants','v-expert','v-gallery','v-colors','v-detailed-specs','v-key-features'].forEach(id => document.getElementById(id).value = '');
+  ['v-id','v-brand','v-model','v-year','v-price','v-fuel','v-image','v-desc','v-emi','v-variants','v-expert','v-gallery','v-colors','v-detailed-specs','v-key-features','v-custom-fields','v-ex-showroom','v-rto','v-insurance-charge','v-warranty','v-tcs','v-handling','v-offer'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('v-category').value = 'Car';
   document.getElementById('v-icon').value = '🚗';
   document.getElementById('v-tags').value = 'NEW,LOAN READY,INSURE';
+  document.getElementById('v-onroad-display').textContent = '₹0';
+}
+
+function calcOnroadPrice() {
+  const num = id => Number(document.getElementById(id).value) || 0;
+  const total = num('v-ex-showroom') + num('v-rto') + num('v-insurance-charge') + num('v-warranty') + num('v-tcs') + num('v-handling');
+  document.getElementById('v-onroad-display').textContent = '₹' + total.toLocaleString('en-IN');
+  return total;
 }
 
 async function loadVehicles() {
@@ -606,15 +631,28 @@ async function loadVehicles() {
   document.getElementById('vehiclesEmpty').style.display = rows.length ? 'none' : 'block';
   rows.forEach(v => {
     const tr = document.createElement('tr');
+    const statusBadge = v.approval_status === 'pending'
+      ? '<span style="background:rgba(255,176,32,0.15); color:#ffb020; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">⏳ Pending Review</span>'
+      : '<span style="background:rgba(46,207,122,0.15); color:#2ecf7a; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">✓ Approved</span>';
+    const approveBtn = (v.approval_status === 'pending' && isSuperAdminUser)
+      ? `<button class="btn small" onclick="approveVehicle(${v.id})">Approve</button>` : '';
     tr.innerHTML = `
       <td>${v.category}</td><td>${v.brand}</td><td>${v.model}</td><td>${v.year||'-'}</td><td>${v.price||'-'}</td>
       <td>${v.is_active ? '✅' : '❌'}</td>
-      <td style="display:flex; gap:6px;">
+      <td>${statusBadge}</td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">
         <button class="btn secondary small" onclick='editVehicle(${JSON.stringify(v)})'>Edit</button>
+        ${approveBtn}
         <button class="del-btn" onclick="deleteVehicle(${v.id})">Delete</button>
       </td>`;
     body.appendChild(tr);
   });
+}
+
+async function approveVehicle(id) {
+  const res = await fetch(API + '/api/admin/vehicles/' + id + '/approve', { method: 'PUT' });
+  if (res.ok) { showToast('Listing approved — now live on the site'); loadVehicles(); }
+  else showToast('Could not approve listing');
 }
 
 function editVehicle(v) {
@@ -637,10 +675,20 @@ function editVehicle(v) {
   document.getElementById('v-colors').value = v.colors || '';
   document.getElementById('v-detailed-specs').value = v.detailed_specs || '';
   document.getElementById('v-key-features').value = v.key_features || '';
+  document.getElementById('v-custom-fields').value = v.custom_fields || '';
+  document.getElementById('v-ex-showroom').value = v.ex_showroom_price || '';
+  document.getElementById('v-rto').value = v.rto_charges || '';
+  document.getElementById('v-insurance-charge').value = v.insurance_charges || '';
+  document.getElementById('v-warranty').value = v.extended_warranty || '';
+  document.getElementById('v-tcs').value = v.tcs_charges || '';
+  document.getElementById('v-handling').value = v.handling_charges || '';
+  document.getElementById('v-offer').value = v.offer_text || '';
+  calcOnroadPrice();
 }
 
 async function saveVehicle() {
   const id = document.getElementById('v-id').value;
+  const onroadTotal = calcOnroadPrice();
   const payload = {
     category: document.getElementById('v-category').value,
     brand: document.getElementById('v-brand').value.trim(),
@@ -659,6 +707,15 @@ async function saveVehicle() {
     colors: document.getElementById('v-colors').value.trim(),
     detailed_specs: document.getElementById('v-detailed-specs').value.trim(),
     key_features: document.getElementById('v-key-features').value.trim(),
+    custom_fields: document.getElementById('v-custom-fields').value.trim(),
+    ex_showroom_price: document.getElementById('v-ex-showroom').value.trim(),
+    rto_charges: document.getElementById('v-rto').value.trim(),
+    insurance_charges: document.getElementById('v-insurance-charge').value.trim(),
+    extended_warranty: document.getElementById('v-warranty').value.trim(),
+    tcs_charges: document.getElementById('v-tcs').value.trim(),
+    handling_charges: document.getElementById('v-handling').value.trim(),
+    onroad_price: onroadTotal ? ('₹' + onroadTotal.toLocaleString('en-IN')) : '',
+    offer_text: document.getElementById('v-offer').value.trim(),
     is_active: 1
   };
   if (!payload.brand || !payload.model) { showToast('Brand ane Model bharo'); return; }
@@ -669,7 +726,7 @@ async function saveVehicle() {
   }
   toggleVehicleForm();
   loadVehicles();
-  showToast('Vehicle saved');
+  showToast(isSuperAdminUser ? 'Vehicle saved' : 'Listing submitted for admin approval');
 }
 
 async function deleteVehicle(id) {
