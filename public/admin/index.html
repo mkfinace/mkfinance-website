@@ -147,6 +147,16 @@
       </table>
       <div class="empty-state" id="dealersEmpty" style="display:none;">No dealer accounts yet.</div>
       <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-top:14px;">A dealer account only sees and manages vehicles and leads for their own Brand. Give the dealer their username + password to log in at <code>/admin</code>.</p>
+
+      <div style="margin-top:32px; padding-top:24px; border-top:1px solid var(--border);">
+        <div class="card-header"><h2>Quotation Custom Fields</h2></div>
+        <table>
+          <thead><tr><th>Field Name</th><th>Created By</th><th></th></tr></thead>
+          <tbody id="fieldTemplatesBody"></tbody>
+        </table>
+        <div class="empty-state" id="fieldTemplatesEmpty" style="display:none;">No custom fields created yet.</div>
+        <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-top:14px;">These are the reusable quotation fields dealers have created (like "Extended Warranty"). Delete one here to remove it from every dealer's field picker.</p>
+      </div>
     </div>
 
 
@@ -354,7 +364,32 @@ async function loadDealers() {
       body.appendChild(tr);
     });
     document.getElementById('dealersEmpty').style.display = rows.length ? 'none' : 'block';
+    loadFieldTemplatesTable();
   } catch (e) {}
+}
+
+async function loadFieldTemplatesTable() {
+  try {
+    const res = await fetch(API + '/api/admin/quotation-fields');
+    if (!res.ok) return;
+    const rows = await res.json();
+    fieldTemplatesCache = rows;
+    const body = document.getElementById('fieldTemplatesBody');
+    body.innerHTML = '';
+    rows.forEach(f => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${f.label}</td><td>${f.created_by || '-'}</td><td><button class="del-btn" onclick="deleteFieldTemplate(${f.id})">Delete</button></td>`;
+      body.appendChild(tr);
+    });
+    document.getElementById('fieldTemplatesEmpty').style.display = rows.length ? 'none' : 'block';
+  } catch (e) {}
+}
+
+async function deleteFieldTemplate(id) {
+  if (!confirm('Delete this custom field for everyone?')) return;
+  await fetch(API + '/api/admin/quotation-fields/' + id, { method: 'DELETE' });
+  loadFieldTemplatesTable();
+  showToast('Field deleted');
 }
 
 async function toggleDealerActive(id) {
@@ -529,6 +564,14 @@ async function addLeadNote(id) {
 // ===== QUOTATION =====
 let currentQuotationInquiryId = null;
 let quotationCustomFields = []; // [{label, value}]
+let fieldTemplatesCache = [];
+
+async function loadFieldTemplates() {
+  try {
+    const res = await fetch(API + '/api/admin/quotation-fields');
+    if (res.ok) fieldTemplatesCache = await res.json();
+  } catch (e) {}
+}
 
 function openQuotation(id) {
   currentQuotationInquiryId = id;
@@ -542,7 +585,7 @@ function openQuotation(id) {
   document.getElementById('q-other').value = q ? q.otherCharges : '';
   document.getElementById('q-notes').value = q ? q.notes : '';
   quotationCustomFields = (q && q.customFields) ? q.customFields.slice() : [];
-  renderQuotationFields();
+  loadFieldTemplates().then(renderQuotationFields);
   recalcQuotation();
   document.getElementById('quotationModal').style.display = 'flex';
 }
@@ -554,17 +597,66 @@ function closeQuotation() {
 function renderQuotationFields() {
   const box = document.getElementById('q-custom-fields-list');
   box.innerHTML = quotationCustomFields.map((f, i) => `
-    <div style="display:flex; gap:8px; margin-top:8px;">
-      <input type="text" placeholder="Field name (e.g. Extended Warranty)" value="${f.label.replace(/"/g,'&quot;')}" oninput="quotationCustomFields[${i}].label=this.value">
+    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+      <span style="flex:1; font-size:13px; color:#fff; font-weight:600;">${f.label}</span>
       <input type="number" placeholder="Amount (₹)" value="${f.value}" style="max-width:140px;" oninput="quotationCustomFields[${i}].value=Number(this.value)||0; recalcQuotation();">
       <button type="button" class="btn secondary small" onclick="removeQuotationField(${i})">✕</button>
     </div>
   `).join('');
 }
+
 function addQuotationField() {
-  quotationCustomFields.push({ label: '', value: 0 });
+  // Show a small inline picker: existing reusable fields + option to create a new one
+  const notYetUsed = fieldTemplatesCache.filter(t => !quotationCustomFields.some(f => f.label === t.label));
+  const box = document.getElementById('q-custom-fields-list');
+  const pickerId = 'field-picker-' + Date.now();
+  const picker = document.createElement('div');
+  picker.id = pickerId;
+  picker.style.cssText = 'margin-top:8px; background:#081820; border:1px solid var(--border); border-radius:6px; padding:10px;';
+  picker.innerHTML = `
+    ${notYetUsed.length ? `
+      <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:6px;">Choose an existing field:</div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        ${notYetUsed.map(t => `<button type="button" class="btn secondary small" onclick="pickExistingField('${pickerId}', '${t.label.replace(/'/g,"\\'")}')">${t.label}</button>`).join('')}
+      </div>` : ''}
+    <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:6px;">Or create a new field:</div>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="${pickerId}-name" placeholder="New field name (e.g. Extended Warranty)">
+      <button type="button" class="btn small" onclick="createNewField('${pickerId}')">Create</button>
+      <button type="button" class="btn secondary small" onclick="document.getElementById('${pickerId}').remove()">Cancel</button>
+    </div>
+  `;
+  box.appendChild(picker);
+}
+
+function pickExistingField(pickerId, label) {
+  quotationCustomFields.push({ label, value: 0 });
+  document.getElementById(pickerId).remove();
   renderQuotationFields();
 }
+
+function createNewField(pickerId) {
+  const name = document.getElementById(pickerId + '-name').value.trim();
+  if (!name) { showToast('Field name required'); return; }
+  const password = prompt('Enter your password to create this new field: "' + name + '"');
+  if (!password) return;
+  fetch(API + '/api/admin/quotation-fields', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ label: name, password })
+  }).then(res => res.json().then(data => ({ ok: res.ok, data }))).then(({ ok, data }) => {
+    if (ok && data.success) {
+      fieldTemplatesCache.push({ id: data.id, label: name });
+      quotationCustomFields.push({ label: name, value: 0 });
+      const el = document.getElementById(pickerId);
+      if (el) el.remove();
+      renderQuotationFields();
+      showToast('Field created — now permanently available for all quotations');
+    } else {
+      showToast(data.error || 'Could not create field');
+    }
+  }).catch(() => showToast('Server error'));
+}
+
 function removeQuotationField(i) {
   quotationCustomFields.splice(i, 1);
   renderQuotationFields();
