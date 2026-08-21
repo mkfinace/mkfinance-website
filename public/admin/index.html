@@ -142,7 +142,7 @@
         </div>
       </div>
       <table>
-        <thead><tr><th>Username</th><th>Brand</th><th></th></tr></thead>
+        <thead><tr><th>Username</th><th>Brand</th><th>Status</th><th></th></tr></thead>
         <tbody id="dealersBody"></tbody>
       </table>
       <div class="empty-state" id="dealersEmpty" style="display:none;">No dealer accounts yet.</div>
@@ -333,11 +333,34 @@ async function loadDealers() {
     body.innerHTML = '';
     rows.forEach(d => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.username}</td><td>${d.brand || '-'}</td><td><button class="btn secondary small" onclick="deleteDealer(${d.id})">Delete</button></td>`;
+      const statusBadge = d.is_active
+        ? '<span style="background:rgba(46,207,122,0.15); color:#2ecf7a; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">✓ Active</span>'
+        : '<span style="background:rgba(239,48,48,0.15); color:#ef3030; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">⛔ Deactivated</span>';
+      tr.innerHTML = `
+        <td>${d.username}</td>
+        <td>${d.brand || '-'}</td>
+        <td>${statusBadge}</td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn secondary small" onclick="toggleDealerActive(${d.id})">${d.is_active ? 'Deactivate' : 'Activate'}</button>
+          <button class="del-btn" onclick="deleteDealer(${d.id})">Delete</button>
+        </td>`;
       body.appendChild(tr);
     });
     document.getElementById('dealersEmpty').style.display = rows.length ? 'none' : 'block';
   } catch (e) {}
+}
+
+async function toggleDealerActive(id) {
+  try {
+    const res = await fetch(API + '/api/admin/dealers/' + id + '/toggle-active', { method: 'PUT' });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast(data.is_active ? 'Dealer activated' : 'Dealer deactivated — they can no longer log in');
+      loadDealers();
+    } else {
+      showToast('Could not update dealer status');
+    }
+  } catch (e) { showToast('Server error'); }
 }
 async function assignDealer(inquiryId, dealerId) {
   try {
