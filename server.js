@@ -270,7 +270,11 @@ app.get('/admin', (req, res) => {
 // Dealer login/panel — same panel, but its own dedicated link to give to brand dealers.
 // The panel auto-detects the logged-in account's role and shows the right view either way.
 app.get('/dealer', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+  let html = fs.readFileSync(path.join(__dirname, 'public', 'admin', 'index.html'), 'utf8');
+  html = html
+    .replace('Admin Panel Login', 'Dealer Login')
+    .replace('<title>MK Finance - Admin Panel</title>', '<title>MK Finance - Dealer Login</title>');
+  res.send(html);
 });
 
 // Pretty vehicle URL: /maruti/swift -> serves the vehicle detail page with real meta tags injected (SEO)
