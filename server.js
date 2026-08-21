@@ -28,8 +28,12 @@ function requireAuth(req, res, next) {
 }
 // Only the main admin (not a brand-scoped dealer) may manage dealer accounts
 function requireSuperAdmin(req, res, next) {
-  if (req.session && req.session.isAdmin && req.session.role !== 'dealer') return next();
+  if (req.session && req.session.isAdmin && req.session.role === 'admin') return next();
   return res.status(403).json({ error: 'Only the main admin can do this.' });
+}
+// Finance-team accounts: full lead visibility (like admin) but no vehicle/dealer management
+function isFinanceOrAdmin(req) {
+  return req.session && req.session.isAdmin && (req.session.role === 'admin' || req.session.role === 'finance');
 }
 
 // =========================================================
@@ -128,23 +132,24 @@ app.post('/api/admin/change-password', requireAuth, (req, res) => {
 // =========================================================
 
 app.get('/api/admin/dealers', requireSuperAdmin, (req, res) => {
-  const rows = db.prepare("SELECT id, username, role, brand, is_active FROM admin_users WHERE role = 'dealer' ORDER BY id DESC").all();
+  const rows = db.prepare("SELECT id, username, role, brand, is_active FROM admin_users WHERE role IN ('dealer', 'finance') ORDER BY id DESC").all();
   res.json(rows);
 });
 
 // Toggle a dealer account active/inactive (deactivated dealers can't log in, existing sessions still work until they log out)
 app.put('/api/admin/dealers/:id/toggle-active', requireSuperAdmin, (req, res) => {
-  const dealer = db.prepare("SELECT is_active FROM admin_users WHERE id = ? AND role = 'dealer'").get(req.params.id);
-  if (!dealer) return res.status(404).json({ error: 'Dealer not found.' });
+  const dealer = db.prepare("SELECT is_active FROM admin_users WHERE id = ? AND role IN ('dealer', 'finance')").get(req.params.id);
+  if (!dealer) return res.status(404).json({ error: 'Account not found.' });
   const newStatus = dealer.is_active ? 0 : 1;
   db.prepare('UPDATE admin_users SET is_active = ? WHERE id = ?').run(newStatus, req.params.id);
   res.json({ success: true, is_active: newStatus });
 });
 
 app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
-  const { username, password, brand } = req.body;
-  if (!username || !password || !brand) {
-    return res.status(400).json({ error: 'Username, password and brand are required.' });
+  const { username, password, brand, role } = req.body;
+  const accountRole = role === 'finance' ? 'finance' : 'dealer';
+  if (!username || !password || (accountRole === 'dealer' && !brand)) {
+    return res.status(400).json({ error: accountRole === 'dealer' ? 'Username, password and brand are required.' : 'Username and password are required.' });
   }
   if (password.length < 6) {
     return res.status(400).json({ error: 'Password must be at least 6 characters.' });
@@ -152,12 +157,12 @@ app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
   const existing = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(username);
   if (existing) return res.status(400).json({ error: 'Username already taken.' });
   const hash = bcrypt.hashSync(password, 10);
-  const result = db.prepare("INSERT INTO admin_users (username, password_hash, role, brand) VALUES (?, ?, 'dealer', ?)").run(username, hash, brand);
+  const result = db.prepare('INSERT INTO admin_users (username, password_hash, role, brand) VALUES (?, ?, ?, ?)').run(username, hash, accountRole, accountRole === 'dealer' ? brand : null);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.delete('/api/admin/dealers/:id', requireSuperAdmin, (req, res) => {
-  db.prepare("DELETE FROM admin_users WHERE id = ? AND role = 'dealer'").run(req.params.id);
+  db.prepare("DELETE FROM admin_users WHERE id = ? AND role IN ('dealer', 'finance')").run(req.params.id);
   res.json({ success: true });
 });
 
@@ -259,6 +264,28 @@ app.post('/api/admin/inquiries/:id/notes', requireAuth, (req, res) => {
   res.json({ success: true, notes: existing });
 });
 
+// Finalize a deal — loan amount, down payment, EMI, tenure, documentation/finance charges, any other charges
+app.put('/api/admin/inquiries/:id/deal-closure', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
+  if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
+  const { loanAmount, downPayment, emiAmount, tenureMonths, docCharges, financeCharges, customFields, notes } = req.body;
+  const dealClosure = JSON.stringify({
+    loanAmount: loanAmount || 0,
+    downPayment: downPayment || 0,
+    emiAmount: emiAmount || 0,
+    tenureMonths: tenureMonths || 0,
+    docCharges: docCharges || 0,
+    financeCharges: financeCharges || 0,
+    customFields: Array.isArray(customFields) ? customFields.filter(f => f && f.label) : [],
+    notes: notes || '',
+    closedBy: req.session.username || '',
+    closedAt: new Date().toISOString()
+  });
+  db.prepare('UPDATE inquiries SET deal_closure = ? WHERE id = ?').run(dealClosure, req.params.id);
+  res.json({ success: true });
+});
+
 app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
   if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
   db.prepare('DELETE FROM inquiries WHERE id = ?').run(req.params.id);
@@ -279,7 +306,13 @@ app.get('/api/admin/vehicles', requireAuth, (req, res) => {
   res.json(rows);
 });
 
-app.post('/api/admin/vehicles', requireAuth, (req, res) => {
+// Finance-team accounts manage deal closures only — they can't touch vehicle listings
+function blockFinance(req, res, next) {
+  if (req.session.role === 'finance') return res.status(403).json({ error: 'Finance accounts cannot manage vehicles.' });
+  next();
+}
+
+app.post('/api/admin/vehicles', requireAuth, blockFinance, (req, res) => {
   let {
     category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants,
     expert_note, gallery_images, colors, detailed_specs, key_features, custom_fields,
@@ -304,7 +337,7 @@ app.post('/api/admin/vehicles', requireAuth, (req, res) => {
   res.json({ success: true, id: result.lastInsertRowid, approval_status: approvalStatus });
 });
 
-app.put('/api/admin/vehicles/:id', requireAuth, (req, res) => {
+app.put('/api/admin/vehicles/:id', requireAuth, blockFinance, (req, res) => {
   let {
     category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants,
     expert_note, gallery_images, colors, detailed_specs, key_features, custom_fields,
@@ -337,7 +370,7 @@ app.put('/api/admin/vehicles/:id/approve', requireSuperAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.delete('/api/admin/vehicles/:id', requireAuth, (req, res) => {
+app.delete('/api/admin/vehicles/:id', requireAuth, blockFinance, (req, res) => {
   if (req.session.role === 'dealer') {
     const existing = db.prepare('SELECT brand FROM vehicles WHERE id = ?').get(req.params.id);
     if (!existing || existing.brand !== req.session.brand) return res.status(403).json({ error: 'You can only delete your own brand\'s vehicles.' });
