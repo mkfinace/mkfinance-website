@@ -262,7 +262,14 @@ app.delete('/api/admin/vehicles/:id', requireAuth, (req, res) => {
 // =========================================================
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Admin login/panel — for the main super-admin (MK Finance owner)
 app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+});
+
+// Dealer login/panel — same panel, but its own dedicated link to give to brand dealers.
+// The panel auto-detects the logged-in account's role and shows the right view either way.
+app.get('/dealer', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });
 
