@@ -132,7 +132,7 @@
     <div class="panel active" id="panel-inquiries">
       <div class="card-header"><h2>Inquiries</h2></div>
       <table>
-        <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th>Quotation</th><th></th></tr></thead>
         <tbody id="inquiriesBody"></tbody>
       </table>
       <div class="empty-state" id="inquiriesEmpty" style="display:none;">No inquiries yet.</div>
@@ -205,6 +205,32 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- QUOTATION MODAL -->
+<div id="quotationModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:3000; align-items:flex-start; justify-content:center; padding:40px 20px; overflow:auto;">
+  <div style="background:var(--card-bg,#0b1b23); border:1px solid var(--border,rgba(255,255,255,0.15)); border-radius:12px; max-width:480px; width:100%; padding:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 id="quotationTitle">Generate Quotation</h3>
+      <span style="cursor:pointer; font-size:20px; color:rgba(255,255,255,0.5);" onclick="closeQuotation()">✕</span>
+    </div>
+    <div class="form-grid">
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Vehicle Price (₹)</label><input type="number" id="q-vehicle-price" oninput="recalcQuotation()"></div>
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Discount (₹)</label><input type="number" id="q-discount" oninput="recalcQuotation()"></div>
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Insurance (₹)</label><input type="number" id="q-insurance" oninput="recalcQuotation()"></div>
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">RTO / Registration (₹)</label><input type="number" id="q-rto" oninput="recalcQuotation()"></div>
+      <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Other Charges (₹)</label><input type="number" id="q-other" oninput="recalcQuotation()"></div>
+      <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Notes (optional)</label><textarea id="q-notes" rows="2"></textarea></div>
+    </div>
+    <div style="background:rgba(21,154,196,0.08); border:1px solid rgba(21,154,196,0.25); border-radius:8px; padding:14px; margin:16px 0; text-align:center;">
+      <div style="font-size:12px; color:rgba(255,255,255,0.5);">Final Payable Price</div>
+      <div id="q-final-price" style="font-size:24px; font-weight:800; color:#159ac4;">₹0</div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn small" onclick="saveQuotation()">Save Quotation</button>
+      <button class="btn secondary small" onclick="printQuotation()">🖨️ Print / Share</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const API = '';
@@ -310,6 +336,7 @@ async function deleteDealer(id) {
 }
 
 // ===== INQUIRIES =====
+let inquiryCache = {};
 async function loadInquiries() {
   const res = await fetch(API + '/api/admin/inquiries');
   const rows = await res.json();
@@ -317,6 +344,8 @@ async function loadInquiries() {
   body.innerHTML = '';
   document.getElementById('inquiriesEmpty').style.display = rows.length ? 'none' : 'block';
   rows.forEach(r => {
+    inquiryCache[r.id] = r;
+    const q = r.quotation ? JSON.parse(r.quotation) : null;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
@@ -332,10 +361,100 @@ async function loadInquiries() {
           <option ${r.status==='Closed'?'selected':''}>Closed</option>
         </select>
       </td>
+      <td>
+        <button class="btn secondary small" onclick="openQuotation(${r.id})">${q ? '✓ Edit' : '+ Create'}</button>
+        ${q ? `<div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">₹${Number(q.finalPrice).toLocaleString('en-IN')}</div>` : ''}
+      </td>
       <td><button class="del-btn" onclick="deleteInquiry(${r.id})">Delete</button></td>
     `;
     body.appendChild(tr);
   });
+}
+
+// ===== QUOTATION =====
+let currentQuotationInquiryId = null;
+function openQuotation(id) {
+  currentQuotationInquiryId = id;
+  const r = inquiryCache[id];
+  const q = r && r.quotation ? JSON.parse(r.quotation) : null;
+  document.getElementById('quotationTitle').textContent = 'Quotation for ' + (r ? r.name : '');
+  document.getElementById('q-vehicle-price').value = q ? q.vehiclePrice : '';
+  document.getElementById('q-discount').value = q ? q.discount : '';
+  document.getElementById('q-insurance').value = q ? q.insurance : '';
+  document.getElementById('q-rto').value = q ? q.rto : '';
+  document.getElementById('q-other').value = q ? q.otherCharges : '';
+  document.getElementById('q-notes').value = q ? q.notes : '';
+  recalcQuotation();
+  document.getElementById('quotationModal').style.display = 'flex';
+}
+function closeQuotation() {
+  document.getElementById('quotationModal').style.display = 'none';
+  currentQuotationInquiryId = null;
+}
+function getQuotationValues() {
+  const num = id => Number(document.getElementById(id).value) || 0;
+  const vehiclePrice = num('q-vehicle-price');
+  const discount = num('q-discount');
+  const insurance = num('q-insurance');
+  const rto = num('q-rto');
+  const otherCharges = num('q-other');
+  const finalPrice = vehiclePrice - discount + insurance + rto + otherCharges;
+  const notes = document.getElementById('q-notes').value.trim();
+  return { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes };
+}
+function recalcQuotation() {
+  const v = getQuotationValues();
+  document.getElementById('q-final-price').textContent = '₹' + v.finalPrice.toLocaleString('en-IN');
+}
+async function saveQuotation() {
+  if (!currentQuotationInquiryId) return;
+  const v = getQuotationValues();
+  try {
+    const res = await fetch(API + '/api/admin/inquiries/' + currentQuotationInquiryId + '/quotation', {
+      method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(v)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Quotation saved');
+      closeQuotation();
+      loadInquiries();
+    } else {
+      showToast(data.error || 'Could not save quotation');
+    }
+  } catch (e) { showToast('Server error'); }
+}
+function printQuotation() {
+  const r = inquiryCache[currentQuotationInquiryId];
+  const v = getQuotationValues();
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <html><head><title>Quotation - ${r ? r.name : ''}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:30px;color:#111;}
+      h1{color:#159ac4;font-size:22px;margin-bottom:2px;}
+      .sub{color:#666;font-size:13px;margin-bottom:20px;}
+      table{width:100%;border-collapse:collapse;margin-top:16px;}
+      td{padding:10px 8px;border-bottom:1px solid #ddd;font-size:14px;}
+      .lbl{color:#555;}
+      .final{font-weight:800;font-size:18px;color:#159ac4;border-top:2px solid #159ac4;}
+      .notes{margin-top:16px;font-size:13px;color:#444;white-space:pre-wrap;}
+    </style></head><body>
+    <h1>MK Finance — Vehicle Quotation</h1>
+    <div class="sub">Customer: ${r ? r.name : ''} | Mobile: ${r ? r.mobile : ''} | Vehicle: ${r ? (r.vehicle_type || '-') : ''}</div>
+    <table>
+      <tr><td class="lbl">Vehicle Price</td><td>₹${v.vehiclePrice.toLocaleString('en-IN')}</td></tr>
+      <tr><td class="lbl">Discount</td><td>- ₹${v.discount.toLocaleString('en-IN')}</td></tr>
+      <tr><td class="lbl">Insurance</td><td>+ ₹${v.insurance.toLocaleString('en-IN')}</td></tr>
+      <tr><td class="lbl">RTO / Registration</td><td>+ ₹${v.rto.toLocaleString('en-IN')}</td></tr>
+      <tr><td class="lbl">Other Charges</td><td>+ ₹${v.otherCharges.toLocaleString('en-IN')}</td></tr>
+      <tr class="final"><td>Final Payable Price</td><td>₹${v.finalPrice.toLocaleString('en-IN')}</td></tr>
+    </table>
+    ${v.notes ? `<div class="notes"><strong>Notes:</strong> ${v.notes}</div>` : ''}
+    <p style="margin-top:30px; font-size:12px; color:#888;">Generated by MK Finance — valid for 7 days. Contact 9824742356 for details.</p>
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
 }
 
 async function updateStatus(id, status) {
