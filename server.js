@@ -89,6 +89,9 @@ app.post('/api/admin/login', (req, res) => {
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
+  if (user.is_active === 0) {
+    return res.status(403).json({ error: 'This account has been deactivated. Contact MK Finance.' });
+  }
   req.session.isAdmin = true;
   req.session.userId = user.id;
   req.session.username = username;
@@ -125,8 +128,17 @@ app.post('/api/admin/change-password', requireAuth, (req, res) => {
 // =========================================================
 
 app.get('/api/admin/dealers', requireSuperAdmin, (req, res) => {
-  const rows = db.prepare("SELECT id, username, role, brand FROM admin_users WHERE role = 'dealer' ORDER BY id DESC").all();
+  const rows = db.prepare("SELECT id, username, role, brand, is_active FROM admin_users WHERE role = 'dealer' ORDER BY id DESC").all();
   res.json(rows);
+});
+
+// Toggle a dealer account active/inactive (deactivated dealers can't log in, existing sessions still work until they log out)
+app.put('/api/admin/dealers/:id/toggle-active', requireSuperAdmin, (req, res) => {
+  const dealer = db.prepare("SELECT is_active FROM admin_users WHERE id = ? AND role = 'dealer'").get(req.params.id);
+  if (!dealer) return res.status(404).json({ error: 'Dealer not found.' });
+  const newStatus = dealer.is_active ? 0 : 1;
+  db.prepare('UPDATE admin_users SET is_active = ? WHERE id = ?').run(newStatus, req.params.id);
+  res.json({ success: true, is_active: newStatus });
 });
 
 app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
