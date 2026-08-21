@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   brand TEXT,                    -- vehicle brand this inquiry relates to (for dealer lead routing); NULL = general inquiry
   message TEXT,
   status TEXT DEFAULT 'New',
+  assigned_dealer_id INTEGER,     -- manually assigned dealer (admin_users.id); overrides brand-based routing when set
   quotation TEXT,                -- JSON: { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes, generatedAt }
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
