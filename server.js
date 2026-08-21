@@ -200,13 +200,14 @@ app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
   const row = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
   if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
-  const { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes } = req.body;
+  const { vehiclePrice, discount, insurance, rto, otherCharges, customFields, finalPrice, notes } = req.body;
   const quotation = JSON.stringify({
     vehiclePrice: vehiclePrice || 0,
     discount: discount || 0,
     insurance: insurance || 0,
     rto: rto || 0,
     otherCharges: otherCharges || 0,
+    customFields: Array.isArray(customFields) ? customFields.filter(f => f && f.label) : [],
     finalPrice: finalPrice || 0,
     notes: notes || '',
     generatedAt: new Date().toISOString(),
