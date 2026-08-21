@@ -132,7 +132,7 @@ app.post('/api/admin/change-password', requireAuth, (req, res) => {
 // =========================================================
 
 app.get('/api/admin/dealers', requireSuperAdmin, (req, res) => {
-  const rows = db.prepare("SELECT id, username, role, brand, is_active FROM admin_users WHERE role IN ('dealer', 'finance') ORDER BY id DESC").all();
+  const rows = db.prepare("SELECT id, username, role, brand, is_active, bank_name, contact_number, email FROM admin_users WHERE role IN ('dealer', 'finance') ORDER BY id DESC").all();
   res.json(rows);
 });
 
@@ -146,7 +146,7 @@ app.put('/api/admin/dealers/:id/toggle-active', requireSuperAdmin, (req, res) =>
 });
 
 app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
-  const { username, password, brand, role } = req.body;
+  const { username, password, brand, role, bankName, contactNumber, email } = req.body;
   const accountRole = role === 'finance' ? 'finance' : 'dealer';
   if (!username || !password || (accountRole === 'dealer' && !brand)) {
     return res.status(400).json({ error: accountRole === 'dealer' ? 'Username, password and brand are required.' : 'Username and password are required.' });
@@ -157,7 +157,9 @@ app.post('/api/admin/dealers', requireSuperAdmin, (req, res) => {
   const existing = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(username);
   if (existing) return res.status(400).json({ error: 'Username already taken.' });
   const hash = bcrypt.hashSync(password, 10);
-  const result = db.prepare('INSERT INTO admin_users (username, password_hash, role, brand) VALUES (?, ?, ?, ?)').run(username, hash, accountRole, accountRole === 'dealer' ? brand : null);
+  const result = db.prepare('INSERT INTO admin_users (username, password_hash, role, brand, bank_name, contact_number, email) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
+    username, hash, accountRole, accountRole === 'dealer' ? brand : null, accountRole === 'finance' ? (bankName || '') : null, contactNumber || '', email || ''
+  );
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
@@ -191,6 +193,13 @@ function dealerCanAccessInquiry(req, inquiryId) {
 app.put('/api/admin/inquiries/:id/assign', requireSuperAdmin, (req, res) => {
   const { dealerId } = req.body;
   db.prepare('UPDATE inquiries SET assigned_dealer_id = ? WHERE id = ?').run(dealerId || null, req.params.id);
+  res.json({ success: true });
+});
+
+// Assign a lead to a specific finance-team member — independent of (and alongside) the dealer assignment
+app.put('/api/admin/inquiries/:id/assign-finance', requireSuperAdmin, (req, res) => {
+  const { financeId } = req.body;
+  db.prepare('UPDATE inquiries SET assigned_finance_id = ? WHERE id = ?').run(financeId || null, req.params.id);
   res.json({ success: true });
 });
 
@@ -269,14 +278,21 @@ app.put('/api/admin/inquiries/:id/deal-closure', requireAuth, (req, res) => {
   const row = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
   if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
-  const { loanAmount, downPayment, emiAmount, tenureMonths, docCharges, financeCharges, customFields, notes } = req.body;
+  const {
+    exShowroom, insurance, rtoTax, tcs, fastag, crtm, extraWarranty, accessories, otherAmount, onRoadPrice,
+    loanAmount, fundingOn, loanSuraksha, totalLoan, interestRate, tenureMonths, tenureUnit, emiAmount,
+    docCharge, serviceCharge, stamping, agreement, valuation, doAmount, downPayment,
+    dealerName, customFields, notes
+  } = req.body;
   const dealClosure = JSON.stringify({
-    loanAmount: loanAmount || 0,
-    downPayment: downPayment || 0,
-    emiAmount: emiAmount || 0,
-    tenureMonths: tenureMonths || 0,
-    docCharges: docCharges || 0,
-    financeCharges: financeCharges || 0,
+    exShowroom: exShowroom || 0, insurance: insurance || 0, rtoTax: rtoTax || 0, tcs: tcs || 0,
+    fastag: fastag || 0, crtm: crtm || 0, extraWarranty: extraWarranty || 0, accessories: accessories || 0,
+    otherAmount: otherAmount || 0, onRoadPrice: onRoadPrice || 0,
+    loanAmount: loanAmount || 0, fundingOn: !!fundingOn, loanSuraksha: loanSuraksha || 0, totalLoan: totalLoan || 0,
+    interestRate: interestRate || 0, tenureMonths: tenureMonths || 0, tenureUnit: tenureUnit || 'months', emiAmount: emiAmount || 0,
+    docCharge: docCharge || 0, serviceCharge: serviceCharge || 0, stamping: stamping || 0, agreement: agreement || 0,
+    valuation: valuation || 0, doAmount: doAmount || 0, downPayment: downPayment || 0,
+    dealerName: dealerName || '',
     customFields: Array.isArray(customFields) ? customFields.filter(f => f && f.label) : [],
     notes: notes || '',
     closedBy: req.session.username || '',
