@@ -68,6 +68,13 @@ CREATE TABLE IF NOT EXISTS admin_users (
   brand TEXT,                    -- required when role='dealer'; the single brand this dealer manages
   is_active INTEGER DEFAULT 1    -- 0 = deactivated dealer login blocked, even with correct password
 );
+
+CREATE TABLE IF NOT EXISTS quotation_field_templates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT UNIQUE NOT NULL,     -- e.g. "Extended Warranty", "Booking Amount" — reused across every future quotation
+  created_by TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 `);
 
 // ===== SEED DEFAULT ADMIN (username: admin / password: mkfinance@123) =====
