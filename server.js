@@ -53,16 +53,16 @@ app.get('/api/vehicles', (req, res) => {
   const { category } = req.query;
   let rows;
   if (category) {
-    rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1 AND category = ? ORDER BY created_at DESC').all(category);
+    rows = db.prepare("SELECT * FROM vehicles WHERE is_active = 1 AND approval_status = 'approved' AND category = ? ORDER BY created_at DESC").all(category);
   } else {
-    rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1 ORDER BY created_at DESC').all();
+    rows = db.prepare("SELECT * FROM vehicles WHERE is_active = 1 AND approval_status = 'approved' ORDER BY created_at DESC").all();
   }
   res.json(rows);
 });
 
 // Public: single vehicle detail (for the detail popup)
 app.get('/api/vehicles/:id', (req, res) => {
-  const row = db.prepare('SELECT * FROM vehicles WHERE id = ? AND is_active = 1').get(req.params.id);
+  const row = db.prepare("SELECT * FROM vehicles WHERE id = ? AND is_active = 1 AND approval_status = 'approved'").get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Not found' });
   res.json(row);
 });
@@ -73,7 +73,7 @@ function slugify(text) {
 
 // Public: lookup vehicle by SEO-friendly slug e.g. "maruti-swift"
 app.get('/api/vehicles/by-slug/:slug', (req, res) => {
-  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const rows = db.prepare("SELECT * FROM vehicles WHERE is_active = 1 AND approval_status = 'approved'").all();
   const match = rows.find(v => slugify(v.brand + '-' + v.model) === req.params.slug);
   if (!match) return res.status(404).json({ error: 'Not found' });
   res.json(match);
@@ -225,26 +225,60 @@ app.get('/api/admin/vehicles', requireAuth, (req, res) => {
 });
 
 app.post('/api/admin/vehicles', requireAuth, (req, res) => {
-  let { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description } = req.body;
+  let {
+    category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants,
+    expert_note, gallery_images, colors, detailed_specs, key_features, custom_fields,
+    ex_showroom_price, rto_charges, insurance_charges, extended_warranty, tcs_charges,
+    handling_charges, onroad_price, offer_text, description
+  } = req.body;
   if (req.session.role === 'dealer') brand = req.session.brand; // dealers can only add vehicles under their own brand
   if (!category || !brand || !model) {
     return res.status(400).json({ error: 'Category, Brand, Model required.' });
   }
-  const stmt = db.prepare(`INSERT INTO vehicles (category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-  const result = stmt.run(category, brand, model, year || '', price || '', fuel_type || '', image_url || '', icon || '🚗', emi || '', tags || 'NEW,LOAN READY,INSURE', variants || '', expert_note || '', gallery_images || '', colors || '', detailed_specs || '', key_features || '', description || '');
-  res.json({ success: true, id: result.lastInsertRowid });
+  // Dealer-submitted listings go live only after admin approval; admin-added listings go live immediately.
+  const approvalStatus = req.session.role === 'dealer' ? 'pending' : 'approved';
+  const stmt = db.prepare(`INSERT INTO vehicles (category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, custom_fields, ex_showroom_price, rto_charges, insurance_charges, extended_warranty, tcs_charges, handling_charges, onroad_price, offer_text, description, approval_status, submitted_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const result = stmt.run(
+    category, brand, model, year || '', price || '', fuel_type || '', image_url || '', icon || '🚗', emi || '',
+    tags || 'NEW,LOAN READY,INSURE', variants || '', expert_note || '', gallery_images || '', colors || '',
+    detailed_specs || '', key_features || '', custom_fields || '', ex_showroom_price || '', rto_charges || '',
+    insurance_charges || '', extended_warranty || '', tcs_charges || '', handling_charges || '', onroad_price || '',
+    offer_text || '', description || '', approvalStatus, req.session.username || ''
+  );
+  res.json({ success: true, id: result.lastInsertRowid, approval_status: approvalStatus });
 });
 
 app.put('/api/admin/vehicles/:id', requireAuth, (req, res) => {
-  let { category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants, expert_note, gallery_images, colors, detailed_specs, key_features, description, is_active } = req.body;
+  let {
+    category, brand, model, year, price, fuel_type, image_url, icon, emi, tags, variants,
+    expert_note, gallery_images, colors, detailed_specs, key_features, custom_fields,
+    ex_showroom_price, rto_charges, insurance_charges, extended_warranty, tcs_charges,
+    handling_charges, onroad_price, offer_text, description, is_active
+  } = req.body;
+  let approvalStatus;
   if (req.session.role === 'dealer') {
     const existing = db.prepare('SELECT brand FROM vehicles WHERE id = ?').get(req.params.id);
     if (!existing || existing.brand !== req.session.brand) return res.status(403).json({ error: 'You can only edit your own brand\'s vehicles.' });
     brand = req.session.brand;
+    approvalStatus = 'pending'; // any dealer edit needs re-approval before it's shown to customers
+  } else {
+    approvalStatus = 'approved';
   }
-  db.prepare(`UPDATE vehicles SET category=?, brand=?, model=?, year=?, price=?, fuel_type=?, image_url=?, icon=?, emi=?, tags=?, variants=?, expert_note=?, gallery_images=?, colors=?, detailed_specs=?, key_features=?, description=?, is_active=?
-    WHERE id=?`).run(category, brand, model, year, price, fuel_type, image_url, icon || '🚗', emi, tags, variants || '', expert_note || '', gallery_images || '', colors || '', detailed_specs || '', key_features || '', description, is_active ? 1 : 0, req.params.id);
+  db.prepare(`UPDATE vehicles SET category=?, brand=?, model=?, year=?, price=?, fuel_type=?, image_url=?, icon=?, emi=?, tags=?, variants=?, expert_note=?, gallery_images=?, colors=?, detailed_specs=?, key_features=?, custom_fields=?, ex_showroom_price=?, rto_charges=?, insurance_charges=?, extended_warranty=?, tcs_charges=?, handling_charges=?, onroad_price=?, offer_text=?, description=?, approval_status=?, is_active=?
+    WHERE id=?`).run(
+    category, brand, model, year, price, fuel_type, image_url, icon || '🚗', emi, tags, variants || '',
+    expert_note || '', gallery_images || '', colors || '', detailed_specs || '', key_features || '',
+    custom_fields || '', ex_showroom_price || '', rto_charges || '', insurance_charges || '', extended_warranty || '',
+    tcs_charges || '', handling_charges || '', onroad_price || '', offer_text || '', description,
+    approvalStatus, is_active ? 1 : 0, req.params.id
+  );
+  res.json({ success: true });
+});
+
+// Super-admin: approve a dealer-submitted listing so it goes live on the public site
+app.put('/api/admin/vehicles/:id/approve', requireSuperAdmin, (req, res) => {
+  db.prepare("UPDATE vehicles SET approval_status = 'approved' WHERE id = ?").run(req.params.id);
   res.json({ success: true });
 });
 
@@ -282,7 +316,7 @@ app.get('/:brand/:model', (req, res, next) => {
   // Only handle simple slug-like segments; let everything else (e.g. real static paths) fall through
   if (!/^[a-z0-9-]+$/i.test(req.params.brand) || !/^[a-z0-9-]+$/i.test(req.params.model)) return next();
 
-  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const rows = db.prepare("SELECT * FROM vehicles WHERE is_active = 1 AND approval_status = 'approved'").all();
   const wanted = req.params.brand + '-' + req.params.model;
   const match = rows.find(v => slugify(v.brand + '-' + v.model) === wanted);
 
@@ -310,7 +344,7 @@ app.get('/:brand/:model', (req, res, next) => {
 
 // SEO: sitemap.xml listing homepage + every active vehicle
 app.get('/sitemap.xml', (req, res) => {
-  const rows = db.prepare('SELECT * FROM vehicles WHERE is_active = 1').all();
+  const rows = db.prepare("SELECT * FROM vehicles WHERE is_active = 1 AND approval_status = 'approved'").all();
   const base = `${req.protocol}://${req.get('host')}`;
   const urls = [
     `<url><loc>${base}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
