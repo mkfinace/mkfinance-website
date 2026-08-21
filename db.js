@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   mobile TEXT NOT NULL,
   service TEXT,
   vehicle_type TEXT,
+  brand TEXT,                    -- vehicle brand this inquiry relates to (for dealer lead routing); NULL = general inquiry
   message TEXT,
   status TEXT DEFAULT 'New',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -48,7 +49,9 @@ CREATE TABLE IF NOT EXISTS vehicles (
 CREATE TABLE IF NOT EXISTS admin_users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL
+  password_hash TEXT NOT NULL,
+  role TEXT DEFAULT 'admin',     -- 'admin' (sees everything) or 'dealer' (scoped to one brand)
+  brand TEXT                     -- required when role='dealer'; the single brand this dealer manages
 );
 `);
 
@@ -56,7 +59,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 const existingAdmin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get('admin');
 if (!existingAdmin) {
   const hash = bcrypt.hashSync('mkfinance@123', 10);
-  db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run('admin', hash);
+  db.prepare("INSERT INTO admin_users (username, password_hash, role, brand) VALUES (?, ?, 'admin', NULL)").run('admin', hash);
   console.log('✅ Default admin created -> username: admin | password: mkfinance@123 (please change after first login)');
 }
 
