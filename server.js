@@ -204,6 +204,19 @@ app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// Add a timestamped follow-up note (call log, meeting log, etc.) to a lead
+app.post('/api/admin/inquiries/:id/notes', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT notes FROM inquiries WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
+  if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'Note text required.' });
+  const existing = row.notes ? JSON.parse(row.notes) : [];
+  existing.push({ text: text.trim(), author: req.session.username || '', timestamp: new Date().toISOString() });
+  db.prepare('UPDATE inquiries SET notes = ? WHERE id = ?').run(JSON.stringify(existing), req.params.id);
+  res.json({ success: true, notes: existing });
+});
+
 app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
   if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
   db.prepare('DELETE FROM inquiries WHERE id = ?').run(req.params.id);
