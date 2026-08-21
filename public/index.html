@@ -1223,8 +1223,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2024 MK Finance. All Rights Reserved. | Powered by Your Financial Partner</p>
-    <span class="footer-badge">🛡️ RBI Registered NBFC Partner</span>
+    <p>© 2026 MK Finance. All Rights Reserved. | Powered by Your Financial Partner</p>
   </div>
 </footer>
 
@@ -1386,6 +1385,18 @@ function clearHeroSearch() {
     window.addEventListener('DOMContentLoaded', () => {
       const searchBox = document.getElementById('heroSearch');
       if (searchBox) { searchBox.value = searchQuery; runHeroSearch(); }
+    });
+  }
+  // Re-scroll to the URL's hash target after page load: the #vehicles section above
+  // #contact loads its car cards asynchronously, which shifts page height and can
+  // throw off the browser's one-time scroll-to-anchor on initial navigation.
+  if (window.location.hash) {
+    const hash = window.location.hash;
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const target = document.querySelector(hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
     });
   }
 })();
