@@ -666,7 +666,7 @@
     <li><a href="#insurance">Insurance</a></li>
     <li><a href="#brands">Brands</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#contact" class="nav-cta">Get Quote</a></li>
+    <li><a href="#" class="nav-cta" onclick="openQuickQuote(event)">Get Quote</a></li>
   </ul>
   <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')">
     <span></span><span></span><span></span>
@@ -1526,5 +1526,73 @@ async function handleSubmit(btn) {
 
 calcEMI();
 </script>
+<div id="quickQuoteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:5000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#0b1b23; border:1px solid rgba(21,154,196,0.25); border-radius:12px; max-width:380px; width:100%; padding:28px; position:relative;">
+    <span onclick="closeQuickQuote()" style="position:absolute; top:14px; right:16px; cursor:pointer; color:rgba(255,255,255,0.5); font-size:20px;">✕</span>
+    <h3 style="color:#fff; font-size:20px; margin-bottom:6px;">Get a Finance Quote</h3>
+    <p style="color:rgba(255,255,255,0.55); font-size:13px; margin-bottom:18px;">Share your details — our team will call you within 24-48 hours.</p>
+    <input id="qq-name" type="text" placeholder="Your Name" style="width:100%; padding:12px 14px; margin-bottom:12px; background:#081820; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:14px; box-sizing:border-box;">
+    <input id="qq-mobile" type="tel" placeholder="Mobile Number" style="width:100%; padding:12px 14px; margin-bottom:16px; background:#081820; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:14px; box-sizing:border-box;">
+    <button id="qq-submit-btn" onclick="submitQuickQuote(this)" style="width:100%; padding:13px; background:#e63030; border:none; border-radius:6px; color:#fff; font-weight:700; font-size:14px; cursor:pointer;">Submit</button>
+    <div id="qq-msg" style="display:none; margin-top:12px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
+  </div>
+</div>
+
+<script>
+function openQuickQuote(e) {
+  if (e) e.preventDefault();
+  document.getElementById('quickQuoteModal').style.display = 'flex';
+}
+function closeQuickQuote() {
+  document.getElementById('quickQuoteModal').style.display = 'none';
+}
+async function submitQuickQuote(btn) {
+  const name = document.getElementById('qq-name').value.trim();
+  const mobile = document.getElementById('qq-mobile').value.trim();
+  const msgBox = document.getElementById('qq-msg');
+
+  function showMsg(text, ok) {
+    msgBox.style.display = 'block';
+    msgBox.textContent = text;
+    msgBox.style.background = ok ? 'rgba(26,110,142,0.15)' : 'rgba(230,48,48,0.15)';
+    msgBox.style.color = ok ? '#2a8aad' : '#e63030';
+    msgBox.style.border = '1px solid ' + (ok ? 'rgba(26,110,142,0.4)' : 'rgba(230,48,48,0.4)');
+  }
+
+  if (!name || !mobile) {
+    showMsg('Please fill in your Name and Mobile Number.', false);
+    return;
+  }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch('/api/inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, mobile, service: 'Finance Quote', vehicle_type: '', message: 'Quick quote request from Get Quote button' })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showMsg('✅ Received! Our team will call you shortly.', true);
+      btn.textContent = '✅ Submitted';
+      document.getElementById('qq-name').value = '';
+      document.getElementById('qq-mobile').value = '';
+      setTimeout(() => { closeQuickQuote(); btn.disabled = false; btn.textContent = originalText; msgBox.style.display = 'none'; }, 1800);
+    } else {
+      showMsg(data.error || 'Something went wrong. Please try again.', false);
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  } catch (err) {
+    showMsg('Network error. Please try again.', false);
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+</script>
+
 </body>
 </html>
