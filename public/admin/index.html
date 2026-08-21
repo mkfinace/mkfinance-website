@@ -132,7 +132,7 @@
     <div class="panel active" id="panel-inquiries">
       <div class="card-header"><h2>Inquiries</h2></div>
       <table>
-        <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th>Quotation</th><th></th></tr></thead>
+        <thead><tr><th>Date</th><th>Name</th><th>Mobile</th><th>Service</th><th>Vehicle</th><th>Message</th><th>Status</th><th id="assignHeaderCell" style="display:none;">Assign to Dealer</th><th>Quotation</th><th></th></tr></thead>
         <tbody id="inquiriesBody"></tbody>
       </table>
       <div class="empty-state" id="inquiriesEmpty" style="display:none;">No inquiries yet.</div>
@@ -248,10 +248,10 @@ async function checkSession() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     document.getElementById('whoami').textContent = '👤 ' + data.username + (data.role === 'dealer' ? ' (' + data.brand + ' Dealer)' : '');
-    const isSuperAdmin = data.role !== 'dealer';
-    document.getElementById('dealersTabBtn').style.display = isSuperAdmin ? 'inline-block' : 'none';
+    isSuperAdminUser = data.role !== 'dealer';
+    document.getElementById('dealersTabBtn').style.display = isSuperAdminUser ? 'inline-block' : 'none';
+    if (isSuperAdminUser) { await loadDealers(); }
     loadInquiries(); loadVehicles();
-    if (isSuperAdmin) loadDealers();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
@@ -292,6 +292,7 @@ async function loadDealers() {
     const res = await fetch(API + '/api/admin/dealers');
     if (!res.ok) return; // dealer-role users get 403 here, that's expected
     const rows = await res.json();
+    dealersListCache = rows;
     const body = document.getElementById('dealersBody');
     body.innerHTML = '';
     rows.forEach(d => {
@@ -301,6 +302,16 @@ async function loadDealers() {
     });
     document.getElementById('dealersEmpty').style.display = rows.length ? 'none' : 'block';
   } catch (e) {}
+}
+async function assignDealer(inquiryId, dealerId) {
+  try {
+    const res = await fetch(API + '/api/admin/inquiries/' + inquiryId + '/assign', {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ dealerId: dealerId ? Number(dealerId) : null })
+    });
+    if (res.ok) { showToast(dealerId ? 'Lead transferred to dealer' : 'Lead unassigned'); loadInquiries(); }
+    else showToast('Could not transfer lead');
+  } catch (e) { showToast('Server error'); }
 }
 function toggleDealerForm() {
   const box = document.getElementById('dealerFormBox');
@@ -337,12 +348,15 @@ async function deleteDealer(id) {
 
 // ===== INQUIRIES =====
 let inquiryCache = {};
+let dealersListCache = [];
+let isSuperAdminUser = false;
 async function loadInquiries() {
   const res = await fetch(API + '/api/admin/inquiries');
   const rows = await res.json();
   const body = document.getElementById('inquiriesBody');
   body.innerHTML = '';
   document.getElementById('inquiriesEmpty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('assignHeaderCell').style.display = isSuperAdminUser ? '' : 'none';
   rows.forEach(r => {
     inquiryCache[r.id] = r;
     const q = r.quotation ? JSON.parse(r.quotation) : null;
@@ -358,7 +372,17 @@ async function loadInquiries() {
         <select class="status-select" onchange="updateStatus(${r.id}, this.value)">
           <option ${r.status==='New'?'selected':''}>New</option>
           <option ${r.status==='Contacted'?'selected':''}>Contacted</option>
+          <option ${r.status==='Quotation Sent'?'selected':''}>Quotation Sent</option>
+          <option ${r.status==='Negotiation'?'selected':''}>Negotiation</option>
+          <option ${r.status==='Documentation'?'selected':''}>Documentation</option>
           <option ${r.status==='Closed'?'selected':''}>Closed</option>
+          <option ${r.status==='Lost'?'selected':''}>Lost</option>
+        </select>
+      </td>
+      <td ${isSuperAdminUser ? '' : 'style="display:none;"'}>
+        <select class="status-select" onchange="assignDealer(${r.id}, this.value)">
+          <option value="">— Unassigned —</option>
+          ${dealersListCache.map(d => `<option value="${d.id}" ${r.assigned_dealer_id === d.id ? 'selected' : ''}>${d.username} (${d.brand})</option>`).join('')}
         </select>
       </td>
       <td>
