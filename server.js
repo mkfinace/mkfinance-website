@@ -196,6 +196,35 @@ app.put('/api/admin/inquiries/:id/status', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ===== QUOTATION FIELD TEMPLATES (reusable custom fields) =====
+
+// Anyone logged in (admin or dealer) can view the list of reusable fields
+app.get('/api/admin/quotation-fields', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM quotation_field_templates ORDER BY label ASC').all();
+  res.json(rows);
+});
+
+// Create a new reusable field — requires the current user's own password as a confirmation step
+app.post('/api/admin/quotation-fields', requireAuth, (req, res) => {
+  const { label, password } = req.body;
+  if (!label || !label.trim()) return res.status(400).json({ error: 'Field name required.' });
+  if (!password) return res.status(400).json({ error: 'Password required to create a new field.' });
+  const user = db.prepare('SELECT password_hash FROM admin_users WHERE id = ?').get(req.session.userId);
+  if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+    return res.status(401).json({ error: 'Incorrect password.' });
+  }
+  const existing = db.prepare('SELECT id FROM quotation_field_templates WHERE label = ?').get(label.trim());
+  if (existing) return res.json({ success: true, id: existing.id }); // already exists, just reuse it
+  const result = db.prepare('INSERT INTO quotation_field_templates (label, created_by) VALUES (?, ?)').run(label.trim(), req.session.username || '');
+  res.json({ success: true, id: result.lastInsertRowid });
+});
+
+// Super-admin only: remove a reusable field template so it stops appearing for everyone
+app.delete('/api/admin/quotation-fields/:id', requireSuperAdmin, (req, res) => {
+  db.prepare('DELETE FROM quotation_field_templates WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
 app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
   const row = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
