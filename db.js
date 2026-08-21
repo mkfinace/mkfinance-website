@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   message TEXT,
   status TEXT DEFAULT 'New',
   assigned_dealer_id INTEGER,     -- manually assigned dealer (admin_users.id); overrides brand-based routing when set
+  assigned_finance_id INTEGER,    -- manually assigned finance-team member (admin_users.id) handling this deal
   quotation TEXT,                -- JSON: { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes, generatedAt }
   deal_closure TEXT,             -- JSON: { loanAmount, downPayment, emiAmount, tenureMonths, docCharges, financeCharges, customFields, closedBy, closedAt }
   notes TEXT,                    -- JSON array of {text, author, timestamp} — dealer's follow-up call/meeting log
@@ -67,7 +68,10 @@ CREATE TABLE IF NOT EXISTS admin_users (
   password_hash TEXT NOT NULL,
   role TEXT DEFAULT 'admin',     -- 'admin' (sees everything) or 'dealer' (scoped to one brand)
   brand TEXT,                    -- required when role='dealer'; the single brand this dealer manages
-  is_active INTEGER DEFAULT 1    -- 0 = deactivated dealer login blocked, even with correct password
+  is_active INTEGER DEFAULT 1,   -- 0 = deactivated dealer login blocked, even with correct password
+  bank_name TEXT,                -- only relevant when role='finance'; the bank/NBFC this finance account represents
+  contact_number TEXT,           -- dealer/finance person's own mobile number (for WhatsApp notifications)
+  email TEXT                     -- dealer/finance person's email
 );
 
 CREATE TABLE IF NOT EXISTS quotation_field_templates (
