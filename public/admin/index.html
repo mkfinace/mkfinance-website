@@ -255,6 +255,13 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
       <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Insurance (₹)</label><input type="number" id="q-insurance" oninput="recalcQuotation()"></div>
       <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">RTO / Registration (₹)</label><input type="number" id="q-rto" oninput="recalcQuotation()"></div>
       <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Other Charges (₹)</label><input type="number" id="q-other" oninput="recalcQuotation()"></div>
+
+      <div class="full">
+        <label style="font-size:11px;color:rgba(255,255,255,0.5)">Custom Fields (jarur hoy tem add karo — jem "Extended Warranty", "Booking Amount")</label>
+        <div id="q-custom-fields-list"></div>
+        <button type="button" class="btn secondary small" style="margin-top:6px;" onclick="addQuotationField()">+ Add Field</button>
+      </div>
+
       <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Notes (optional)</label><textarea id="q-notes" rows="2"></textarea></div>
     </div>
     <div style="background:rgba(21,154,196,0.08); border:1px solid rgba(21,154,196,0.25); border-radius:8px; padding:14px; margin:16px 0; text-align:center;">
@@ -521,6 +528,8 @@ async function addLeadNote(id) {
 
 // ===== QUOTATION =====
 let currentQuotationInquiryId = null;
+let quotationCustomFields = []; // [{label, value}]
+
 function openQuotation(id) {
   currentQuotationInquiryId = id;
   const r = inquiryCache[id];
@@ -532,6 +541,8 @@ function openQuotation(id) {
   document.getElementById('q-rto').value = q ? q.rto : '';
   document.getElementById('q-other').value = q ? q.otherCharges : '';
   document.getElementById('q-notes').value = q ? q.notes : '';
+  quotationCustomFields = (q && q.customFields) ? q.customFields.slice() : [];
+  renderQuotationFields();
   recalcQuotation();
   document.getElementById('quotationModal').style.display = 'flex';
 }
@@ -539,6 +550,27 @@ function closeQuotation() {
   document.getElementById('quotationModal').style.display = 'none';
   currentQuotationInquiryId = null;
 }
+
+function renderQuotationFields() {
+  const box = document.getElementById('q-custom-fields-list');
+  box.innerHTML = quotationCustomFields.map((f, i) => `
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <input type="text" placeholder="Field name (e.g. Extended Warranty)" value="${f.label.replace(/"/g,'&quot;')}" oninput="quotationCustomFields[${i}].label=this.value">
+      <input type="number" placeholder="Amount (₹)" value="${f.value}" style="max-width:140px;" oninput="quotationCustomFields[${i}].value=Number(this.value)||0; recalcQuotation();">
+      <button type="button" class="btn secondary small" onclick="removeQuotationField(${i})">✕</button>
+    </div>
+  `).join('');
+}
+function addQuotationField() {
+  quotationCustomFields.push({ label: '', value: 0 });
+  renderQuotationFields();
+}
+function removeQuotationField(i) {
+  quotationCustomFields.splice(i, 1);
+  renderQuotationFields();
+  recalcQuotation();
+}
+
 function getQuotationValues() {
   const num = id => Number(document.getElementById(id).value) || 0;
   const vehiclePrice = num('q-vehicle-price');
@@ -546,9 +578,11 @@ function getQuotationValues() {
   const insurance = num('q-insurance');
   const rto = num('q-rto');
   const otherCharges = num('q-other');
-  const finalPrice = vehiclePrice - discount + insurance + rto + otherCharges;
+  const customFields = quotationCustomFields.filter(f => f.label.trim());
+  const customTotal = customFields.reduce((sum, f) => sum + (Number(f.value) || 0), 0);
+  const finalPrice = vehiclePrice - discount + insurance + rto + otherCharges + customTotal;
   const notes = document.getElementById('q-notes').value.trim();
-  return { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes };
+  return { vehiclePrice, discount, insurance, rto, otherCharges, customFields, finalPrice, notes };
 }
 function recalcQuotation() {
   const v = getQuotationValues();
@@ -574,6 +608,7 @@ async function saveQuotation() {
 function printQuotation() {
   const r = inquiryCache[currentQuotationInquiryId];
   const v = getQuotationValues();
+  const customRows = v.customFields.map(f => `<tr><td class="lbl">${f.label}</td><td>${f.value < 0 ? '- ' : '+ '}₹${Math.abs(f.value).toLocaleString('en-IN')}</td></tr>`).join('');
   const win = window.open('', '_blank');
   win.document.write(`
     <html><head><title>Quotation - ${r ? r.name : ''}</title>
@@ -595,6 +630,7 @@ function printQuotation() {
       <tr><td class="lbl">Insurance</td><td>+ ₹${v.insurance.toLocaleString('en-IN')}</td></tr>
       <tr><td class="lbl">RTO / Registration</td><td>+ ₹${v.rto.toLocaleString('en-IN')}</td></tr>
       <tr><td class="lbl">Other Charges</td><td>+ ₹${v.otherCharges.toLocaleString('en-IN')}</td></tr>
+      ${customRows}
       <tr class="final"><td>Final Payable Price</td><td>₹${v.finalPrice.toLocaleString('en-IN')}</td></tr>
     </table>
     ${v.notes ? `<div class="notes"><strong>Notes:</strong> ${v.notes}</div>` : ''}
