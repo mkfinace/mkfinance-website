@@ -121,32 +121,39 @@
   <div class="container">
     <div class="tabs">
       <button class="tab-btn active" onclick="switchPanel('inquiries', this)">📩 Inquiries</button>
-      <button class="tab-btn" onclick="switchPanel('vehicles', this)">🚗 Vehicles</button>
+      <button class="tab-btn" id="vehiclesTabBtn" onclick="switchPanel('vehicles', this)">🚗 Vehicles</button>
       <button class="tab-btn" id="dealersTabBtn" style="display:none;" onclick="switchPanel('dealers', this)">🧑‍💼 Dealers</button>
       <button class="tab-btn" onclick="switchPanel('settings', this)">⚙️ Settings</button>
     </div>
 
     <!-- DEALERS PANEL (super-admin only) -->
     <div class="panel" id="panel-dealers">
-      <div class="card-header"><h2>Brand Dealer Accounts</h2><button class="btn small" onclick="toggleDealerForm()">+ Add Dealer</button></div>
+      <div class="card-header"><h2>Team Accounts (Dealers & Finance)</h2><button class="btn small" onclick="toggleDealerForm()">+ Add Account</button></div>
       <div id="dealerFormBox" style="display:none; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px;">
-        <h3 style="margin-bottom:12px;">New Dealer Account</h3>
+        <h3 style="margin-bottom:12px;">New Team Account</h3>
         <div class="form-grid">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Account Type</label>
+            <select id="d-role" onchange="toggleBrandFieldVisibility()">
+              <option value="dealer">Dealer (manages one brand)</option>
+              <option value="finance">Finance (sees all leads, handles deal closure)</option>
+            </select>
+          </div>
           <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Username</label><input id="d-username" placeholder="e.g. maruti_dealer"></div>
           <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Password</label><input id="d-password" type="text" placeholder="Set a password"></div>
-          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
+          <div id="d-brand-wrap"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:14px;">
-          <button class="btn small" onclick="saveDealer()">Create Dealer</button>
+          <button class="btn small" onclick="saveDealer()">Create Account</button>
           <button class="btn secondary small" onclick="toggleDealerForm()">Cancel</button>
         </div>
       </div>
       <table>
-        <thead><tr><th>Username</th><th>Brand</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Username</th><th>Type</th><th>Brand</th><th>Status</th><th></th></tr></thead>
         <tbody id="dealersBody"></tbody>
       </table>
-      <div class="empty-state" id="dealersEmpty" style="display:none;">No dealer accounts yet.</div>
-      <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-top:14px;">A dealer account only sees and manages vehicles and leads for their own Brand. Give the dealer their username + password to log in at <code>/admin</code>.</p>
+      <div class="empty-state" id="dealersEmpty" style="display:none;">No accounts yet.</div>
+      <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-top:14px;">A <b>Dealer</b> account only sees vehicles/leads for their own Brand. A <b>Finance</b> account sees every lead (like admin) and can add loan/deal-closure details, but can't manage vehicles or dealers. Give the account its username + password to log in at <code>/admin</code>.</p>
 
       <div style="margin-top:32px; padding-top:24px; border-top:1px solid var(--border);">
         <div class="card-header"><h2>Quotation Custom Fields</h2></div>
@@ -285,6 +292,36 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
   </div>
 </div>
 
+<!-- DEAL CLOSURE MODAL -->
+<div id="dealClosureModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:3000; align-items:flex-start; justify-content:center; padding:40px 20px; overflow:auto;">
+  <div style="background:var(--card-bg,#0b1b23); border:1px solid var(--border,rgba(255,255,255,0.15)); border-radius:12px; max-width:480px; width:100%; padding:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 id="dealClosureTitle">Deal Closure Details</h3>
+      <span style="cursor:pointer; font-size:20px; color:rgba(255,255,255,0.5);" onclick="closeDealClosure()">✕</span>
+    </div>
+    <div class="form-grid">
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Amount (₹)</label><input type="number" id="dc-loan-amount"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Down Payment (₹)</label><input type="number" id="dc-down-payment"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">EMI Amount (₹/month)</label><input type="number" id="dc-emi-amount"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">No. of EMIs (Tenure in months)</label><input type="number" id="dc-tenure"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Documentation Charges — DC (₹)</label><input type="number" id="dc-doc-charges"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Finance Charges — FC (₹)</label><input type="number" id="dc-finance-charges"></div>
+
+      <div class="full">
+        <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Other Charges (jarur hoy tem add karo)</label>
+        <div id="dc-custom-fields-list"></div>
+        <button type="button" class="btn secondary small" style="margin-top:6px;" onclick="addDealClosureField()">+ Add Field</button>
+      </div>
+
+      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Notes (optional)</label><textarea id="dc-notes" rows="2"></textarea></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn small" onclick="saveDealClosure()">Save Deal Closure</button>
+      <button class="btn secondary small" onclick="closeDealClosure()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = '';
 
@@ -300,11 +337,15 @@ async function checkSession() {
   if (data.loggedIn) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('whoami').textContent = '👤 ' + data.username + (data.role === 'dealer' ? ' (' + data.brand + ' Dealer)' : '');
-    isSuperAdminUser = data.role !== 'dealer';
+    const roleLabel = data.role === 'dealer' ? (' (' + data.brand + ' Dealer)') : (data.role === 'finance' ? ' (Finance)' : '');
+    document.getElementById('whoami').textContent = '👤 ' + data.username + roleLabel;
+    isSuperAdminUser = data.role === 'admin';
+    isFinanceUser = data.role === 'finance';
     document.getElementById('dealersTabBtn').style.display = isSuperAdminUser ? 'inline-block' : 'none';
+    document.getElementById('vehiclesTabBtn').style.display = isFinanceUser ? 'none' : 'inline-block';
     if (isSuperAdminUser) { await loadDealers(); }
-    loadInquiries(); loadVehicles();
+    loadInquiries();
+    if (!isFinanceUser) loadVehicles();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
@@ -355,6 +396,7 @@ async function loadDealers() {
         : '<span style="background:rgba(239,48,48,0.15); color:#ef3030; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">⛔ Deactivated</span>';
       tr.innerHTML = `
         <td>${d.username}</td>
+        <td>${d.role === 'finance' ? '💰 Finance' : '🏪 Dealer'}</td>
         <td>${d.brand || '-'}</td>
         <td>${statusBadge}</td>
         <td style="display:flex; gap:6px;">
@@ -418,26 +460,31 @@ function toggleDealerForm() {
   const box = document.getElementById('dealerFormBox');
   box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
+function toggleBrandFieldVisibility() {
+  const role = document.getElementById('d-role').value;
+  document.getElementById('d-brand-wrap').style.display = role === 'finance' ? 'none' : 'block';
+}
 async function saveDealer() {
+  const role = document.getElementById('d-role').value;
   const username = document.getElementById('d-username').value.trim();
   const password = document.getElementById('d-password').value;
   const brand = document.getElementById('d-brand').value.trim().toUpperCase();
-  if (!username || !password || !brand) { showToast('Fill in all fields'); return; }
+  if (!username || !password || (role === 'dealer' && !brand)) { showToast('Fill in all fields'); return; }
   try {
     const res = await fetch(API + '/api/admin/dealers', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ username, password, brand })
+      body: JSON.stringify({ username, password, brand, role })
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      showToast('Dealer account created');
+      showToast('Account created');
       document.getElementById('d-username').value = '';
       document.getElementById('d-password').value = '';
       document.getElementById('d-brand').value = '';
       toggleDealerForm();
       loadDealers();
     } else {
-      showToast(data.error || 'Could not create dealer');
+      showToast(data.error || 'Could not create account');
     }
   } catch (e) { showToast('Server error'); }
 }
@@ -451,6 +498,7 @@ async function deleteDealer(id) {
 let inquiryCache = {};
 let dealersListCache = [];
 let isSuperAdminUser = false;
+let isFinanceUser = false;
 let expandedLeadIds = new Set();
 
 async function loadInquiries() {
@@ -463,6 +511,7 @@ async function loadInquiries() {
   rows.forEach(r => {
     inquiryCache[r.id] = r;
     const q = r.quotation ? JSON.parse(r.quotation) : null;
+    const dc = r.deal_closure ? JSON.parse(r.deal_closure) : null;
     const notes = r.notes ? JSON.parse(r.notes) : [];
     const isOpen = expandedLeadIds.has(r.id);
     const waNumber = r.mobile.replace(/\D/g, '');
@@ -516,6 +565,15 @@ async function loadInquiries() {
           <h4>Quotation</h4>
           <button class="btn secondary small" onclick="openQuotation(${r.id})">${q ? '✓ Edit Quotation' : '+ Create Quotation'}</button>
           ${q ? `<div style="font-size:13px; color:#159ac4; font-weight:700; margin-top:6px;">Final Price: ₹${Number(q.finalPrice).toLocaleString('en-IN')}</div>` : ''}
+        </div>
+
+        <div class="lead-section">
+          <h4>Deal Closure (Loan / EMI Details)</h4>
+          <button class="btn secondary small" onclick="openDealClosure(${r.id})">${dc ? '✓ Edit Deal Details' : '+ Add Deal Closure'}</button>
+          ${dc ? `<div style="font-size:12px; color:rgba(255,255,255,0.7); margin-top:6px; line-height:1.7;">
+            Loan: ₹${Number(dc.loanAmount).toLocaleString('en-IN')} · DP: ₹${Number(dc.downPayment).toLocaleString('en-IN')} · EMI: ₹${Number(dc.emiAmount).toLocaleString('en-IN')} x ${dc.tenureMonths} months<br>
+            DC: ₹${Number(dc.docCharges).toLocaleString('en-IN')} · FC: ₹${Number(dc.financeCharges).toLocaleString('en-IN')}${(dc.customFields||[]).map(f => ` · ${f.label}: ₹${Number(f.value).toLocaleString('en-IN')}`).join('')}
+          </div>` : ''}
         </div>
 
         <div class="lead-section">
@@ -769,6 +827,126 @@ function printQuotation() {
   `);
   win.document.close();
   win.print();
+}
+
+// ===== DEAL CLOSURE =====
+let currentDealClosureInquiryId = null;
+let dealClosureCustomFields = [];
+
+function openDealClosure(id) {
+  currentDealClosureInquiryId = id;
+  const r = inquiryCache[id];
+  const dc = r && r.deal_closure ? JSON.parse(r.deal_closure) : null;
+  document.getElementById('dealClosureTitle').textContent = 'Deal Closure for ' + (r ? r.name : '');
+  document.getElementById('dc-loan-amount').value = dc ? dc.loanAmount : '';
+  document.getElementById('dc-down-payment').value = dc ? dc.downPayment : '';
+  document.getElementById('dc-emi-amount').value = dc ? dc.emiAmount : '';
+  document.getElementById('dc-tenure').value = dc ? dc.tenureMonths : '';
+  document.getElementById('dc-doc-charges').value = dc ? dc.docCharges : '';
+  document.getElementById('dc-finance-charges').value = dc ? dc.financeCharges : '';
+  document.getElementById('dc-notes').value = dc ? dc.notes : '';
+  dealClosureCustomFields = (dc && dc.customFields) ? dc.customFields.slice() : [];
+  loadFieldTemplates().then(renderDealClosureFields);
+  document.getElementById('dealClosureModal').style.display = 'flex';
+}
+function closeDealClosure() {
+  document.getElementById('dealClosureModal').style.display = 'none';
+  currentDealClosureInquiryId = null;
+}
+
+function renderDealClosureFields() {
+  const box = document.getElementById('dc-custom-fields-list');
+  box.innerHTML = dealClosureCustomFields.map((f, i) => `
+    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+      <span style="flex:1; font-size:13px; color:#fff; font-weight:600;">${f.label}</span>
+      <input type="number" placeholder="Amount (₹)" value="${f.value}" style="max-width:140px;" oninput="dealClosureCustomFields[${i}].value=Number(this.value)||0;">
+      <button type="button" class="btn secondary small" onclick="removeDealClosureField(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addDealClosureField() {
+  const notYetUsed = fieldTemplatesCache.filter(t => !dealClosureCustomFields.some(f => f.label === t.label));
+  const box = document.getElementById('dc-custom-fields-list');
+  const pickerId = 'dc-field-picker-' + Date.now();
+  const picker = document.createElement('div');
+  picker.id = pickerId;
+  picker.style.cssText = 'margin-top:8px; background:#081820; border:1px solid var(--border); border-radius:6px; padding:10px;';
+  picker.innerHTML = `
+    ${notYetUsed.length ? `
+      <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:6px;">Choose an existing field:</div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        ${notYetUsed.map(t => `<button type="button" class="btn secondary small" onclick="pickExistingDealField('${pickerId}', '${t.label.replace(/'/g,"\\'")}')">${t.label}</button>`).join('')}
+      </div>` : ''}
+    <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:6px;">Or create a new field:</div>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="${pickerId}-name" placeholder="New field name">
+      <button type="button" class="btn small" onclick="createNewDealField('${pickerId}')">Create</button>
+      <button type="button" class="btn secondary small" onclick="document.getElementById('${pickerId}').remove()">Cancel</button>
+    </div>
+  `;
+  box.appendChild(picker);
+}
+
+function pickExistingDealField(pickerId, label) {
+  dealClosureCustomFields.push({ label, value: 0 });
+  document.getElementById(pickerId).remove();
+  renderDealClosureFields();
+}
+
+function createNewDealField(pickerId) {
+  const name = document.getElementById(pickerId + '-name').value.trim();
+  if (!name) { showToast('Field name required'); return; }
+  const password = prompt('Enter your password to create this new field: "' + name + '"');
+  if (!password) return;
+  fetch(API + '/api/admin/quotation-fields', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ label: name, password })
+  }).then(res => res.json().then(data => ({ ok: res.ok, data }))).then(({ ok, data }) => {
+    if (ok && data.success) {
+      fieldTemplatesCache.push({ id: data.id, label: name });
+      dealClosureCustomFields.push({ label: name, value: 0 });
+      const el = document.getElementById(pickerId);
+      if (el) el.remove();
+      renderDealClosureFields();
+      showToast('Field created — now permanently available everywhere');
+    } else {
+      showToast(data.error || 'Could not create field');
+    }
+  }).catch(() => showToast('Server error'));
+}
+
+function removeDealClosureField(i) {
+  dealClosureCustomFields.splice(i, 1);
+  renderDealClosureFields();
+}
+
+async function saveDealClosure() {
+  if (!currentDealClosureInquiryId) return;
+  const num = id => Number(document.getElementById(id).value) || 0;
+  const payload = {
+    loanAmount: num('dc-loan-amount'),
+    downPayment: num('dc-down-payment'),
+    emiAmount: num('dc-emi-amount'),
+    tenureMonths: num('dc-tenure'),
+    docCharges: num('dc-doc-charges'),
+    financeCharges: num('dc-finance-charges'),
+    customFields: dealClosureCustomFields.filter(f => f.label.trim()),
+    notes: document.getElementById('dc-notes').value.trim()
+  };
+  try {
+    const res = await fetch(API + '/api/admin/inquiries/' + currentDealClosureInquiryId + '/deal-closure', {
+      method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Deal closure details saved');
+      closeDealClosure();
+      loadInquiries();
+    } else {
+      showToast(data.error || 'Could not save deal closure');
+    }
+  } catch (e) { showToast('Server error'); }
 }
 
 async function updateStatus(id, status) {
