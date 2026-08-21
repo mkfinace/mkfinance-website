@@ -132,9 +132,9 @@
       <div id="dealerFormBox" style="display:none; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px;">
         <h3 style="margin-bottom:12px;">New Dealer Account</h3>
         <div class="form-grid">
-          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Username</label><input id="d-username" placeholder="e.g. maruti_dealer"></div>
-          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Password</label><input id="d-password" type="text" placeholder="Set a password"></div>
-          <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Username</label><input id="d-username" placeholder="e.g. maruti_dealer"></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Password</label><input id="d-password" type="text" placeholder="Set a password"></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:14px;">
           <button class="btn small" onclick="saveDealer()">Create Dealer</button>
@@ -176,44 +176,44 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
       </div>
       <div class="form-grid" id="vehicleForm" style="display:none;">
         <input type="hidden" id="v-id">
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Category</label>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Category</label>
           <select id="v-category"><option>Car</option><option>Truck</option><option>Tempo</option><option>Pickup</option><option>Tractor</option><option>Bus</option></select>
         </div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Brand</label><input id="v-brand" placeholder="e.g. Maruti Suzuki"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Model</label><input id="v-model" placeholder="e.g. Swift VXI"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Year</label><input id="v-year" placeholder="2024"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Price</label><input id="v-price" placeholder="₹6.5 L"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Fuel Type</label><input id="v-fuel" placeholder="Petrol / Diesel"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">EMI Text (homepage par batavva mate)</label><input id="v-emi" placeholder="EMI ₹13,200/mo"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
-        <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Image URL — Main Photo (optional)</label><input id="v-image" placeholder="https://..." oninput="document.getElementById('v-image-preview').src=this.value; document.getElementById('v-image-preview').style.display=this.value?'block':'none';"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Or Upload Photo From Your Device</label><input type="file" id="v-image-file" accept="image/*" onchange="handleImageUpload(this,'v-image')"><img id="v-image-preview" style="display:none; max-width:180px; max-height:120px; margin-top:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.15);"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">More Photos (extra URLs, comma sep — gallery mate)</label><textarea id="v-gallery" rows="2" placeholder="https://photo2.jpg, https://photo3.jpg"></textarea></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Or Upload More Photos From Your Device (multiple)</label><input type="file" id="v-gallery-file" accept="image/*" multiple onchange="handleGalleryUpload(this)"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Variants (comma sep — "Name:Price" ke "Name:Price:Transmission:Fuel")</label><input id="v-variants" placeholder="LXi:₹6.49 L:Manual:Petrol, VXi AMT:₹7.79 L:Automatic:Petrol"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Colors Available (comma sep)</label><input id="v-colors" placeholder="Pearl White, Metallic Grey, Fiery Red"></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Specifications (comma sep "Label:Value")</label><textarea id="v-detailed-specs" rows="2" placeholder="Fuel Type:Petrol, Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"></textarea></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Key Features (comma sep names)</label><textarea id="v-key-features" rows="2" placeholder="6 Airbags, ABS, Automatic Climate Control, Rear Parking Camera"></textarea></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Brand</label><input id="v-brand" placeholder="e.g. Maruti Suzuki"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Model</label><input id="v-model" placeholder="e.g. Swift VXI"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Year</label><input id="v-year" placeholder="2024"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Price</label><input id="v-price" placeholder="₹6.5 L"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Fuel Type</label><input id="v-fuel" placeholder="Petrol / Diesel"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">EMI Text (homepage par batavva mate)</label><input id="v-emi" placeholder="EMI ₹13,200/mo"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Icon Emoji</label><input id="v-icon" placeholder="🚗" value="🚗"></div>
+        <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Tags (comma sep)</label><input id="v-tags" placeholder="NEW,LOAN READY,INSURE" value="NEW,LOAN READY,INSURE"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Image URL — Main Photo (optional)</label><input id="v-image" placeholder="https://..." oninput="document.getElementById('v-image-preview').src=this.value; document.getElementById('v-image-preview').style.display=this.value?'block':'none';"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Or Upload Photo From Your Device</label><input type="file" id="v-image-file" accept="image/*" onchange="handleImageUpload(this,'v-image')"><img id="v-image-preview" style="display:none; max-width:180px; max-height:120px; margin-top:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.15);"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">More Photos (extra URLs, comma sep — gallery mate)</label><textarea id="v-gallery" rows="2" placeholder="https://photo2.jpg, https://photo3.jpg"></textarea></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Or Upload More Photos From Your Device (multiple)</label><input type="file" id="v-gallery-file" accept="image/*" multiple onchange="handleGalleryUpload(this)"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Variants (comma sep — "Name:Price" ke "Name:Price:Transmission:Fuel")</label><input id="v-variants" placeholder="LXi:₹6.49 L:Manual:Petrol, VXi AMT:₹7.79 L:Automatic:Petrol"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Colors Available (comma sep)</label><input id="v-colors" placeholder="Pearl White, Metallic Grey, Fiery Red"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Key Specifications (comma sep "Label:Value")</label><textarea id="v-detailed-specs" rows="2" placeholder="Fuel Type:Petrol, Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"></textarea></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Key Features (comma sep names)</label><textarea id="v-key-features" rows="2" placeholder="6 Airbags, ABS, Automatic Climate Control, Rear Parking Camera"></textarea></div>
 
         <div class="full" style="background:rgba(21,154,196,0.06); border:1px solid rgba(21,154,196,0.2); border-radius:8px; padding:14px; margin-top:6px;">
           <h4 style="font-size:13px; margin-bottom:10px; color:#159ac4;">💰 On-Road Price Breakdown</h4>
           <div class="form-grid">
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Ex-Showroom Price (₹)</label><input type="number" id="v-ex-showroom" oninput="calcOnroadPrice()"></div>
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">RTO / Registration (₹)</label><input type="number" id="v-rto" oninput="calcOnroadPrice()"></div>
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Insurance (₹)</label><input type="number" id="v-insurance-charge" oninput="calcOnroadPrice()"></div>
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Extended Warranty (₹)</label><input type="number" id="v-warranty" oninput="calcOnroadPrice()"></div>
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">TCS (₹)</label><input type="number" id="v-tcs" oninput="calcOnroadPrice()"></div>
-            <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Handling Charges (₹)</label><input type="number" id="v-handling" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Ex-Showroom Price (₹)</label><input type="number" id="v-ex-showroom" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">RTO / Registration (₹)</label><input type="number" id="v-rto" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Insurance (₹)</label><input type="number" id="v-insurance-charge" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Extended Warranty (₹)</label><input type="number" id="v-warranty" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">TCS (₹)</label><input type="number" id="v-tcs" oninput="calcOnroadPrice()"></div>
+            <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Handling Charges (₹)</label><input type="number" id="v-handling" oninput="calcOnroadPrice()"></div>
           </div>
           <div style="margin-top:10px; font-size:14px; font-weight:700; color:#fff;">On-Road Price: <span id="v-onroad-display" style="color:#159ac4;">₹0</span></div>
         </div>
 
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Current Offer (optional — shown to customers)</label><input id="v-offer" placeholder="Jem: Festive discount ₹15,000 off + free insurance"></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Current Offer (optional — shown to customers)</label><input id="v-offer" placeholder="Jem: Festive discount ₹15,000 off + free insurance"></div>
 
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Custom Fields (anything not covered above — "Label:Value", comma sep)</label><textarea id="v-custom-fields" rows="2" placeholder="Booking Amount:₹25,000, Delivery Time:15 days"></textarea></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Expert Note (your own short opinion — shown to customers)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
-        <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Description</label><textarea id="v-desc" rows="2"></textarea></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Custom Fields (anything not covered above — "Label:Value", comma sep)</label><textarea id="v-custom-fields" rows="2" placeholder="Booking Amount:₹25,000, Delivery Time:15 days"></textarea></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Expert Note (your own short opinion — shown to customers)</label><textarea id="v-expert" rows="2" placeholder="Jem: Family mate best choice, mileage sarso, resale value sari..."></textarea></div>
+        <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Description</label><textarea id="v-desc" rows="2"></textarea></div>
         <div class="full" style="display:flex; gap:10px;">
           <button class="btn small" onclick="saveVehicle()">Save</button>
           <button class="btn secondary small" onclick="toggleVehicleForm()">Cancel</button>
@@ -231,7 +231,7 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
       <div class="card-header"><h2>Change Password</h2></div>
       <div class="form-grid" style="max-width:400px;">
         <div class="full">
-          <label style="font-size:11px;color:rgba(255,255,255,0.5)">New Password</label>
+          <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">New Password</label>
           <input type="password" id="newPassword" placeholder="Naya password (min 6 characters)">
         </div>
         <div class="full"><button class="btn small" onclick="changePassword()">Update Password</button></div>
@@ -250,19 +250,19 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
       <span style="cursor:pointer; font-size:20px; color:rgba(255,255,255,0.5);" onclick="closeQuotation()">✕</span>
     </div>
     <div class="form-grid">
-      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Vehicle Price (₹)</label><input type="number" id="q-vehicle-price" oninput="recalcQuotation()"></div>
-      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Discount (₹)</label><input type="number" id="q-discount" oninput="recalcQuotation()"></div>
-      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">Insurance (₹)</label><input type="number" id="q-insurance" oninput="recalcQuotation()"></div>
-      <div><label style="font-size:11px;color:rgba(255,255,255,0.5)">RTO / Registration (₹)</label><input type="number" id="q-rto" oninput="recalcQuotation()"></div>
-      <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Other Charges (₹)</label><input type="number" id="q-other" oninput="recalcQuotation()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Vehicle Price (₹)</label><input type="number" id="q-vehicle-price" oninput="recalcQuotation()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Discount (₹)</label><input type="number" id="q-discount" oninput="recalcQuotation()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Insurance (₹)</label><input type="number" id="q-insurance" oninput="recalcQuotation()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">RTO / Registration (₹)</label><input type="number" id="q-rto" oninput="recalcQuotation()"></div>
+      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Other Charges (₹)</label><input type="number" id="q-other" oninput="recalcQuotation()"></div>
 
       <div class="full">
-        <label style="font-size:11px;color:rgba(255,255,255,0.5)">Custom Fields (jarur hoy tem add karo — jem "Extended Warranty", "Booking Amount")</label>
+        <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Custom Fields (jarur hoy tem add karo — jem "Extended Warranty", "Booking Amount")</label>
         <div id="q-custom-fields-list"></div>
         <button type="button" class="btn secondary small" style="margin-top:6px;" onclick="addQuotationField()">+ Add Field</button>
       </div>
 
-      <div class="full"><label style="font-size:11px;color:rgba(255,255,255,0.5)">Notes (optional)</label><textarea id="q-notes" rows="2"></textarea></div>
+      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Notes (optional)</label><textarea id="q-notes" rows="2"></textarea></div>
     </div>
     <div style="background:rgba(21,154,196,0.08); border:1px solid rgba(21,154,196,0.25); border-radius:8px; padding:14px; margin:16px 0; text-align:center;">
       <div style="font-size:12px; color:rgba(255,255,255,0.5);">Final Payable Price</div>
@@ -608,33 +608,71 @@ async function saveQuotation() {
 function printQuotation() {
   const r = inquiryCache[currentQuotationInquiryId];
   const v = getQuotationValues();
-  const customRows = v.customFields.map(f => `<tr><td class="lbl">${f.label}</td><td>${f.value < 0 ? '- ' : '+ '}₹${Math.abs(f.value).toLocaleString('en-IN')}</td></tr>`).join('');
+  const today = new Date();
+  const validTill = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const customRows = v.customFields.map(f => `<tr><td class="lbl">${f.label}</td><td class="amt ${f.value < 0 ? 'neg' : ''}">${f.value < 0 ? '− ' : '+ '}₹${Math.abs(f.value).toLocaleString('en-IN')}</td></tr>`).join('');
   const win = window.open('', '_blank');
   win.document.write(`
     <html><head><title>Quotation - ${r ? r.name : ''}</title>
     <style>
-      body{font-family:Arial,sans-serif;padding:30px;color:#111;}
-      h1{color:#159ac4;font-size:22px;margin-bottom:2px;}
-      .sub{color:#666;font-size:13px;margin-bottom:20px;}
-      table{width:100%;border-collapse:collapse;margin-top:16px;}
-      td{padding:10px 8px;border-bottom:1px solid #ddd;font-size:14px;}
-      .lbl{color:#555;}
-      .final{font-weight:800;font-size:18px;color:#159ac4;border-top:2px solid #159ac4;}
-      .notes{margin-top:16px;font-size:13px;color:#444;white-space:pre-wrap;}
+      @page { margin: 18mm; }
+      * { box-sizing: border-box; }
+      body{font-family:'Segoe UI',Arial,sans-serif;padding:0;margin:0;color:#1a2530;background:#fff;}
+      .sheet{max-width:720px;margin:0 auto;padding:36px;}
+      .top{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #159ac4;padding-bottom:18px;margin-bottom:24px;}
+      .brand{display:flex;align-items:center;gap:12px;}
+      .brand img{height:44px;}
+      .brand h1{font-size:20px;color:#1a2530;font-weight:800;margin:0;}
+      .brand p{font-size:11px;color:#5c7080;margin:2px 0 0;}
+      .doc-tag{text-align:right;}
+      .doc-tag h2{font-size:15px;color:#159ac4;margin:0;text-transform:uppercase;letter-spacing:1px;}
+      .doc-tag p{font-size:11px;color:#5c7080;margin:2px 0 0;}
+      .cust-box{background:#f4f8fa;border-radius:8px;padding:14px 18px;margin-bottom:22px;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;}
+      .cust-box div{font-size:13px;}
+      .cust-box span{display:block;font-size:10px;color:#5c7080;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+      table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+      td{padding:11px 4px;border-bottom:1px solid #e5eaee;font-size:13.5px;}
+      .lbl{color:#3d4c59;}
+      .amt{text-align:right;font-weight:600;color:#1a2530;}
+      .amt.neg{color:#159ac4;}
+      .final td{border-top:2px solid #159ac4;border-bottom:none;font-weight:800;font-size:17px;color:#159ac4;padding-top:16px;}
+      .notes{background:#f4f8fa;border-radius:8px;padding:12px 16px;font-size:12.5px;color:#3d4c59;white-space:pre-wrap;margin-bottom:20px;}
+      .foot{border-top:1px solid #e5eaee;padding-top:14px;font-size:11px;color:#5c7080;display:flex;justify-content:space-between;}
+      @media print { body{padding:0;} .sheet{padding:0;} }
     </style></head><body>
-    <h1>MK Finance — Vehicle Quotation</h1>
-    <div class="sub">Customer: ${r ? r.name : ''} | Mobile: ${r ? r.mobile : ''} | Vehicle: ${r ? (r.vehicle_type || '-') : ''}</div>
-    <table>
-      <tr><td class="lbl">Vehicle Price</td><td>₹${v.vehiclePrice.toLocaleString('en-IN')}</td></tr>
-      <tr><td class="lbl">Discount</td><td>- ₹${v.discount.toLocaleString('en-IN')}</td></tr>
-      <tr><td class="lbl">Insurance</td><td>+ ₹${v.insurance.toLocaleString('en-IN')}</td></tr>
-      <tr><td class="lbl">RTO / Registration</td><td>+ ₹${v.rto.toLocaleString('en-IN')}</td></tr>
-      <tr><td class="lbl">Other Charges</td><td>+ ₹${v.otherCharges.toLocaleString('en-IN')}</td></tr>
-      ${customRows}
-      <tr class="final"><td>Final Payable Price</td><td>₹${v.finalPrice.toLocaleString('en-IN')}</td></tr>
-    </table>
-    ${v.notes ? `<div class="notes"><strong>Notes:</strong> ${v.notes}</div>` : ''}
-    <p style="margin-top:30px; font-size:12px; color:#888;">Generated by MK Finance — valid for 7 days. Contact 9824742356 for details.</p>
+    <div class="sheet">
+      <div class="top">
+        <div class="brand">
+          <img src="/MK_FINANCE_LOGO_cropped.png" onerror="this.style.display='none'">
+          <div><h1>MK Finance</h1><p>Vehicle Finance &amp; Insurance — Dharampur, Valsad, Gujarat</p></div>
+        </div>
+        <div class="doc-tag"><h2>Quotation</h2><p>${today.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</p></div>
+      </div>
+
+      <div class="cust-box">
+        <div><span>Customer Name</span>${r ? r.name : '-'}</div>
+        <div><span>Mobile</span>${r ? r.mobile : '-'}</div>
+        <div><span>Vehicle Interest</span>${r ? (r.vehicle_type || '-') : '-'}</div>
+        <div><span>Valid Till</span>${validTill.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</div>
+      </div>
+
+      <table>
+        <tr><td class="lbl">Vehicle Price</td><td class="amt">₹${v.vehiclePrice.toLocaleString('en-IN')}</td></tr>
+        <tr><td class="lbl">Discount</td><td class="amt neg">− ₹${v.discount.toLocaleString('en-IN')}</td></tr>
+        <tr><td class="lbl">Insurance</td><td class="amt">+ ₹${v.insurance.toLocaleString('en-IN')}</td></tr>
+        <tr><td class="lbl">RTO / Registration</td><td class="amt">+ ₹${v.rto.toLocaleString('en-IN')}</td></tr>
+        <tr><td class="lbl">Other Charges</td><td class="amt">+ ₹${v.otherCharges.toLocaleString('en-IN')}</td></tr>
+        ${customRows}
+        <tr class="final"><td>Final Payable Price</td><td class="amt" style="color:#159ac4;">₹${v.finalPrice.toLocaleString('en-IN')}</td></tr>
+      </table>
+
+      ${v.notes ? `<div class="notes"><strong>Notes:</strong> ${v.notes}</div>` : ''}
+
+      <div class="foot">
+        <span>Generated by MK Finance — valid for 7 days from date above.</span>
+        <span>📞 98247 42356 · mkfinance.guj@gmail.com</span>
+      </div>
+    </div>
     </body></html>
   `);
   win.document.close();
