@@ -172,6 +172,28 @@ app.put('/api/admin/inquiries/:id/status', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
+  if (req.session.role === 'dealer' && row.brand !== req.session.brand) {
+    return res.status(403).json({ error: 'Not your lead.' });
+  }
+  const { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes } = req.body;
+  const quotation = JSON.stringify({
+    vehiclePrice: vehiclePrice || 0,
+    discount: discount || 0,
+    insurance: insurance || 0,
+    rto: rto || 0,
+    otherCharges: otherCharges || 0,
+    finalPrice: finalPrice || 0,
+    notes: notes || '',
+    generatedAt: new Date().toISOString(),
+    generatedBy: req.session.username || ''
+  });
+  db.prepare('UPDATE inquiries SET quotation = ? WHERE id = ?').run(quotation, req.params.id);
+  res.json({ success: true });
+});
+
 app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
   if (req.session.role === 'dealer') {
     const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
