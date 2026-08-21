@@ -43,7 +43,18 @@ CREATE TABLE IF NOT EXISTS vehicles (
   colors TEXT,                    -- comma separated color names available for this vehicle
   detailed_specs TEXT,            -- comma separated "Label:Value" pairs e.g. "Engine Displacement:1197 cc, Max Power:80bhp@5700rpm"
   key_features TEXT,              -- comma separated feature names e.g. "6 Airbags, ABS, Automatic Climate Control"
+  custom_fields TEXT,             -- comma separated "Label:Value" pairs for anything not covered elsewhere
+  ex_showroom_price TEXT,         -- on-road price breakdown
+  rto_charges TEXT,
+  insurance_charges TEXT,
+  extended_warranty TEXT,
+  tcs_charges TEXT,
+  handling_charges TEXT,
+  onroad_price TEXT,              -- computed total shown to customers
+  offer_text TEXT,                -- current running offer, e.g. "Festive discount ₹15,000 off"
   description TEXT,
+  approval_status TEXT DEFAULT 'approved', -- 'pending' (dealer-submitted, awaiting admin review) or 'approved'
+  submitted_by TEXT,              -- username of the dealer who submitted this listing (blank for admin-added)
   is_active INTEGER DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
