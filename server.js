@@ -90,6 +90,7 @@ app.post('/api/admin/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
   req.session.isAdmin = true;
+  req.session.userId = user.id;
   req.session.username = username;
   req.session.role = user.role || 'admin';
   req.session.brand = user.brand || null;
@@ -155,29 +156,38 @@ app.delete('/api/admin/dealers/:id', requireSuperAdmin, (req, res) => {
 app.get('/api/admin/inquiries', requireAuth, (req, res) => {
   let rows;
   if (req.session.role === 'dealer') {
-    rows = db.prepare('SELECT * FROM inquiries WHERE brand = ? ORDER BY created_at DESC').all(req.session.brand);
+    rows = db.prepare('SELECT * FROM inquiries WHERE brand = ? OR assigned_dealer_id = ? ORDER BY created_at DESC').all(req.session.brand, req.session.userId);
   } else {
     rows = db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all();
   }
   res.json(rows);
 });
 
+function dealerCanAccessInquiry(req, inquiryId) {
+  if (req.session.role !== 'dealer') return true;
+  const row = db.prepare('SELECT brand, assigned_dealer_id FROM inquiries WHERE id = ?').get(inquiryId);
+  if (!row) return false;
+  return row.brand === req.session.brand || row.assigned_dealer_id === req.session.userId;
+}
+
+// Super-admin: assign/transfer a lead to a specific dealer account (or unassign with dealerId = null)
+app.put('/api/admin/inquiries/:id/assign', requireSuperAdmin, (req, res) => {
+  const { dealerId } = req.body;
+  db.prepare('UPDATE inquiries SET assigned_dealer_id = ? WHERE id = ?').run(dealerId || null, req.params.id);
+  res.json({ success: true });
+});
+
 app.put('/api/admin/inquiries/:id/status', requireAuth, (req, res) => {
   const { status } = req.body;
-  if (req.session.role === 'dealer') {
-    const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
-    if (!row || row.brand !== req.session.brand) return res.status(403).json({ error: 'Not your lead.' });
-  }
+  if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
   db.prepare('UPDATE inquiries SET status = ? WHERE id = ?').run(status, req.params.id);
   res.json({ success: true });
 });
 
 app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
-  const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
+  const row = db.prepare('SELECT id FROM inquiries WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Inquiry not found.' });
-  if (req.session.role === 'dealer' && row.brand !== req.session.brand) {
-    return res.status(403).json({ error: 'Not your lead.' });
-  }
+  if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
   const { vehiclePrice, discount, insurance, rto, otherCharges, finalPrice, notes } = req.body;
   const quotation = JSON.stringify({
     vehiclePrice: vehiclePrice || 0,
@@ -195,10 +205,7 @@ app.put('/api/admin/inquiries/:id/quotation', requireAuth, (req, res) => {
 });
 
 app.delete('/api/admin/inquiries/:id', requireAuth, (req, res) => {
-  if (req.session.role === 'dealer') {
-    const row = db.prepare('SELECT brand FROM inquiries WHERE id = ?').get(req.params.id);
-    if (!row || row.brand !== req.session.brand) return res.status(403).json({ error: 'Not your lead.' });
-  }
+  if (!dealerCanAccessInquiry(req, req.params.id)) return res.status(403).json({ error: 'Not your lead.' });
   db.prepare('DELETE FROM inquiries WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
