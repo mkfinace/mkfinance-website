@@ -79,6 +79,11 @@
   .note-item .note-meta { color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 4px; }
   .note-input-row { display: flex; gap: 8px; margin-top: 8px; }
   .note-input-row input { flex: 1; }
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.6); cursor: pointer; user-select: none; }
+  .toggle-switch { width: 36px; height: 20px; background: var(--dark-3); border: 1px solid var(--border); border-radius: 20px; position: relative; transition: background 0.2s; }
+  .toggle-switch.on { background: #159ac4; }
+  .toggle-switch .knob { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+  .toggle-switch.on .knob { left: 18px; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--card-bg); border: 1px solid var(--border);
     border-radius: 8px; padding: 20px; margin-bottom: 20px; }
@@ -142,6 +147,9 @@
           <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Username</label><input id="d-username" placeholder="e.g. maruti_dealer"></div>
           <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Password</label><input id="d-password" type="text" placeholder="Set a password"></div>
           <div id="d-brand-wrap"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Brand (must match vehicle brand exactly, e.g. MARUTI)</label><input id="d-brand" placeholder="MARUTI"></div>
+          <div id="d-bank-wrap" style="display:none;"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Bank / NBFC Name</label><input id="d-bank" placeholder="e.g. HDFC Bank"></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Contact Number (for WhatsApp)</label><input id="d-contact" placeholder="e.g. 9876543210"></div>
+          <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Email ID</label><input id="d-email" type="email" placeholder="e.g. name@email.com"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:14px;">
           <button class="btn small" onclick="saveDealer()">Create Account</button>
@@ -149,7 +157,7 @@
         </div>
       </div>
       <table>
-        <thead><tr><th>Username</th><th>Type</th><th>Brand</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Username</th><th>Type</th><th>Brand / Bank</th><th>Contact</th><th>Status</th><th></th></tr></thead>
         <tbody id="dealersBody"></tbody>
       </table>
       <div class="empty-state" id="dealersEmpty" style="display:none;">No accounts yet.</div>
@@ -294,27 +302,78 @@ Car,MARUTI,Baleno,2024,₹6.6 L,Petrol,,🚗,EMI ₹11800/mo,NEW,,,"></textarea>
 
 <!-- DEAL CLOSURE MODAL -->
 <div id="dealClosureModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:3000; align-items:flex-start; justify-content:center; padding:40px 20px; overflow:auto;">
-  <div style="background:var(--card-bg,#0b1b23); border:1px solid var(--border,rgba(255,255,255,0.15)); border-radius:12px; max-width:480px; width:100%; padding:24px;">
+  <div style="background:var(--card-bg,#0b1b23); border:1px solid var(--border,rgba(255,255,255,0.15)); border-radius:12px; max-width:600px; width:100%; padding:24px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <h3 id="dealClosureTitle">Deal Closure Details</h3>
       <span style="cursor:pointer; font-size:20px; color:rgba(255,255,255,0.5);" onclick="closeDealClosure()">✕</span>
     </div>
-    <div class="form-grid">
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Amount (₹)</label><input type="number" id="dc-loan-amount"></div>
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Down Payment (₹)</label><input type="number" id="dc-down-payment"></div>
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">EMI Amount (₹/month)</label><input type="number" id="dc-emi-amount"></div>
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">No. of EMIs (Tenure in months)</label><input type="number" id="dc-tenure"></div>
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Documentation Charges — DC (₹)</label><input type="number" id="dc-doc-charges"></div>
-      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Finance Charges — FC (₹)</label><input type="number" id="dc-finance-charges"></div>
 
-      <div class="full">
-        <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Other Charges (jarur hoy tem add karo)</label>
-        <div id="dc-custom-fields-list"></div>
-        <button type="button" class="btn secondary small" style="margin-top:6px;" onclick="addDealClosureField()">+ Add Field</button>
-      </div>
-
-      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Notes (optional)</label><textarea id="dc-notes" rows="2"></textarea></div>
+    <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Dealer Name (existing dealer, or type any outside dealer name)</label>
+      <input list="dc-dealer-list" id="dc-dealer-name" placeholder="Select or type dealer name">
+      <datalist id="dc-dealer-list"></datalist>
     </div>
+
+    <h4 style="font-size:13px; color:#159ac4; margin:18px 0 8px;">💰 On-Road Price Breakdown</h4>
+    <div class="form-grid">
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Ex-Showroom (₹)</label><input type="number" id="dc-ex-showroom" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Insurance (₹)</label><input type="number" id="dc-insurance" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">RTO Tax (₹)</label><input type="number" id="dc-rto-tax" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">TCS 1% (₹)</label><input type="number" id="dc-tcs" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">FASTag (₹)</label><input type="number" id="dc-fastag" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">CRTM (₹)</label><input type="number" id="dc-crtm" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Extra Warranty (₹)</label><input type="number" id="dc-extra-warranty" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Accessories (₹)</label><input type="number" id="dc-accessories" oninput="recalcDealClosure()"></div>
+      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Other Amount (₹)</label><input type="number" id="dc-other-amount" oninput="recalcDealClosure()"></div>
+    </div>
+    <div style="background:rgba(21,154,196,0.08); border:1px solid rgba(21,154,196,0.25); border-radius:8px; padding:10px 14px; margin:12px 0; text-align:center;">
+      <span style="font-size:12px; color:rgba(255,255,255,0.5);">On-Road Price: </span><span id="dc-onroad-display" style="font-size:16px; font-weight:800; color:#159ac4;">₹0</span>
+    </div>
+
+    <h4 style="font-size:13px; color:#159ac4; margin:18px 0 8px;">🏦 Loan Details</h4>
+    <div class="form-grid">
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Amount (₹)</label><input type="number" id="dc-loan-amount" oninput="recalcDealClosure()"></div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Suraksha Funding</label>
+        <div class="toggle-wrap" onclick="toggleFundingSwitch()" style="margin-top:8px;">
+          <div class="toggle-switch on" id="dc-funding-switch"><div class="knob"></div></div>
+          <span>Include in loan</span>
+        </div>
+      </div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Suraksha (₹)</label><input type="number" id="dc-loan-suraksha" oninput="recalcDealClosure()"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Interest Rate (% p.a.)</label><input type="number" id="dc-interest-rate"></div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Loan Tenure</label>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="dc-tenure" style="flex:1;">
+          <select id="dc-tenure-unit" style="max-width:100px;">
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+          </select>
+        </div>
+      </div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">EMI Amount (₹/month)</label><input type="number" id="dc-emi-amount"></div>
+    </div>
+    <div style="background:rgba(21,154,196,0.08); border:1px solid rgba(21,154,196,0.25); border-radius:8px; padding:10px 14px; margin:12px 0; text-align:center;">
+      <span style="font-size:12px; color:rgba(255,255,255,0.5);">Total Loan: </span><span id="dc-totalloan-display" style="font-size:16px; font-weight:800; color:#159ac4;">₹0</span>
+    </div>
+
+    <h4 style="font-size:13px; color:#159ac4; margin:18px 0 8px;">📄 Other Charges</h4>
+    <div class="form-grid">
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Document Charge (₹)</label><input type="number" id="dc-doc-charge"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Service Charge (₹)</label><input type="number" id="dc-service-charge"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Stamping (₹)</label><input type="number" id="dc-stamping"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Agreement (₹)</label><input type="number" id="dc-agreement"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Valuation (₹)</label><input type="number" id="dc-valuation"></div>
+      <div><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">DO Amount (₹)</label><input type="number" id="dc-do-amount"></div>
+      <div class="full"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Down Payment (₹)</label><input type="number" id="dc-down-payment"></div>
+    </div>
+
+    <h4 style="font-size:13px; color:#159ac4; margin:18px 0 8px;">➕ More Fields</h4>
+    <div id="dc-custom-fields-list"></div>
+    <button type="button" class="btn secondary small" style="margin-top:6px;" onclick="addDealClosureField()">+ Add Field</button>
+
+    <div class="full" style="margin-top:16px;"><label style="display:block;font-size:12px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:.2px">Notes (optional)</label><textarea id="dc-notes" rows="2"></textarea></div>
+
     <div style="display:flex; gap:10px; margin-top:16px;">
       <button class="btn small" onclick="saveDealClosure()">Save Deal Closure</button>
       <button class="btn secondary small" onclick="closeDealClosure()">Cancel</button>
@@ -397,7 +456,8 @@ async function loadDealers() {
       tr.innerHTML = `
         <td>${d.username}</td>
         <td>${d.role === 'finance' ? '💰 Finance' : '🏪 Dealer'}</td>
-        <td>${d.brand || '-'}</td>
+        <td>${d.role === 'finance' ? (d.bank_name || '-') : (d.brand || '-')}</td>
+        <td style="font-size:11px;">${d.contact_number || '-'}${d.email ? '<br>' + d.email : ''}</td>
         <td>${statusBadge}</td>
         <td style="display:flex; gap:6px;">
           <button class="btn secondary small" onclick="toggleDealerActive(${d.id})">${d.is_active ? 'Deactivate' : 'Activate'}</button>
@@ -446,14 +506,42 @@ async function toggleDealerActive(id) {
     }
   } catch (e) { showToast('Server error'); }
 }
+function notifyViaWhatsApp(assigneeId, leadId) {
+  const person = dealersListCache.find(d => d.id === assigneeId);
+  const lead = inquiryCache[leadId];
+  if (!person || !person.contact_number || !lead) return; // no phone on file, skip silently
+  const waNumber = person.contact_number.replace(/\D/g, '');
+  const waNumberFull = waNumber.length === 10 ? '91' + waNumber : waNumber;
+  const msg = `Naya lead assign thai chhu, ${person.username}!\n\nName: ${lead.name}\nMobile: ${lead.mobile}\nService: ${lead.service || '-'}\nVehicle: ${lead.vehicle_type || '-'}\n\n- MK Finance`;
+  window.open('https://wa.me/' + waNumberFull + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
 async function assignDealer(inquiryId, dealerId) {
   try {
     const res = await fetch(API + '/api/admin/inquiries/' + inquiryId + '/assign', {
       method: 'PUT', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ dealerId: dealerId ? Number(dealerId) : null })
     });
-    if (res.ok) { showToast(dealerId ? 'Lead transferred to dealer' : 'Lead unassigned'); loadInquiries(); }
+    if (res.ok) {
+      showToast(dealerId ? 'Lead transferred to dealer' : 'Lead unassigned');
+      if (dealerId) notifyViaWhatsApp(Number(dealerId), inquiryId);
+      loadInquiries();
+    }
     else showToast('Could not transfer lead');
+  } catch (e) { showToast('Server error'); }
+}
+async function assignFinance(inquiryId, financeId) {
+  try {
+    const res = await fetch(API + '/api/admin/inquiries/' + inquiryId + '/assign-finance', {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ financeId: financeId ? Number(financeId) : null })
+    });
+    if (res.ok) {
+      showToast(financeId ? 'Lead assigned to finance' : 'Finance unassigned');
+      if (financeId) notifyViaWhatsApp(Number(financeId), inquiryId);
+      loadInquiries();
+    }
+    else showToast('Could not assign finance');
   } catch (e) { showToast('Server error'); }
 }
 function toggleDealerForm() {
@@ -463,17 +551,21 @@ function toggleDealerForm() {
 function toggleBrandFieldVisibility() {
   const role = document.getElementById('d-role').value;
   document.getElementById('d-brand-wrap').style.display = role === 'finance' ? 'none' : 'block';
+  document.getElementById('d-bank-wrap').style.display = role === 'finance' ? 'block' : 'none';
 }
 async function saveDealer() {
   const role = document.getElementById('d-role').value;
   const username = document.getElementById('d-username').value.trim();
   const password = document.getElementById('d-password').value;
   const brand = document.getElementById('d-brand').value.trim().toUpperCase();
+  const bankName = document.getElementById('d-bank').value.trim();
+  const contactNumber = document.getElementById('d-contact').value.trim();
+  const email = document.getElementById('d-email').value.trim();
   if (!username || !password || (role === 'dealer' && !brand)) { showToast('Fill in all fields'); return; }
   try {
     const res = await fetch(API + '/api/admin/dealers', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ username, password, brand, role })
+      body: JSON.stringify({ username, password, brand, role, bankName, contactNumber, email })
     });
     const data = await res.json();
     if (res.ok && data.success) {
@@ -481,6 +573,9 @@ async function saveDealer() {
       document.getElementById('d-username').value = '';
       document.getElementById('d-password').value = '';
       document.getElementById('d-brand').value = '';
+      document.getElementById('d-bank').value = '';
+      document.getElementById('d-contact').value = '';
+      document.getElementById('d-email').value = '';
       toggleDealerForm();
       loadDealers();
     } else {
@@ -557,7 +652,14 @@ async function loadInquiries() {
           <h4>Assign to Dealer</h4>
           <select class="status-select" onchange="assignDealer(${r.id}, this.value)">
             <option value="">— Unassigned —</option>
-            ${dealersListCache.map(d => `<option value="${d.id}" ${r.assigned_dealer_id === d.id ? 'selected' : ''}>${d.username} (${d.brand})</option>`).join('')}
+            ${dealersListCache.filter(d => d.role !== 'finance').map(d => `<option value="${d.id}" ${r.assigned_dealer_id === d.id ? 'selected' : ''}>${d.username} (${d.brand})</option>`).join('')}
+          </select>
+        </div>
+        <div class="lead-section">
+          <h4>Assign to Finance</h4>
+          <select class="status-select" onchange="assignFinance(${r.id}, this.value)">
+            <option value="">— Unassigned —</option>
+            ${dealersListCache.filter(d => d.role === 'finance').map(d => `<option value="${d.id}" ${r.assigned_finance_id === d.id ? 'selected' : ''}>${d.username}${d.bank_name ? ' (' + d.bank_name + ')' : ''}</option>`).join('')}
           </select>
         </div>` : ''}
 
@@ -571,8 +673,9 @@ async function loadInquiries() {
           <h4>Deal Closure (Loan / EMI Details)</h4>
           <button class="btn secondary small" onclick="openDealClosure(${r.id})">${dc ? '✓ Edit Deal Details' : '+ Add Deal Closure'}</button>
           ${dc ? `<div style="font-size:12px; color:rgba(255,255,255,0.7); margin-top:6px; line-height:1.7;">
-            Loan: ₹${Number(dc.loanAmount).toLocaleString('en-IN')} · DP: ₹${Number(dc.downPayment).toLocaleString('en-IN')} · EMI: ₹${Number(dc.emiAmount).toLocaleString('en-IN')} x ${dc.tenureMonths} months<br>
-            DC: ₹${Number(dc.docCharges).toLocaleString('en-IN')} · FC: ₹${Number(dc.financeCharges).toLocaleString('en-IN')}${(dc.customFields||[]).map(f => ` · ${f.label}: ₹${Number(f.value).toLocaleString('en-IN')}`).join('')}
+            ${dc.dealerName ? `Dealer: <b>${dc.dealerName}</b><br>` : ''}
+            On-Road Price: ₹${Number(dc.onRoadPrice).toLocaleString('en-IN')} · Total Loan: ₹${Number(dc.totalLoan).toLocaleString('en-IN')}<br>
+            Down Payment: ₹${Number(dc.downPayment).toLocaleString('en-IN')} · EMI: ₹${Number(dc.emiAmount).toLocaleString('en-IN')} x ${dc.tenureMonths} ${dc.tenureUnit || 'months'} @ ${dc.interestRate}%
           </div>` : ''}
         </div>
 
@@ -833,21 +936,65 @@ function printQuotation() {
 let currentDealClosureInquiryId = null;
 let dealClosureCustomFields = [];
 
+let dcFundingOn = true;
+
 function openDealClosure(id) {
   currentDealClosureInquiryId = id;
   const r = inquiryCache[id];
   const dc = r && r.deal_closure ? JSON.parse(r.deal_closure) : null;
   document.getElementById('dealClosureTitle').textContent = 'Deal Closure for ' + (r ? r.name : '');
+
+  // Populate dealer name suggestions (existing dealer accounts) — free text is still allowed
+  const dealerList = document.getElementById('dc-dealer-list');
+  dealerList.innerHTML = dealersListCache.map(d => `<option value="${d.username}">`).join('');
+  document.getElementById('dc-dealer-name').value = dc ? (dc.dealerName || '') : '';
+
+  document.getElementById('dc-ex-showroom').value = dc ? dc.exShowroom : '';
+  document.getElementById('dc-insurance').value = dc ? dc.insurance : '';
+  document.getElementById('dc-rto-tax').value = dc ? dc.rtoTax : '';
+  document.getElementById('dc-tcs').value = dc ? dc.tcs : '';
+  document.getElementById('dc-fastag').value = dc ? dc.fastag : '';
+  document.getElementById('dc-crtm').value = dc ? dc.crtm : '';
+  document.getElementById('dc-extra-warranty').value = dc ? dc.extraWarranty : '';
+  document.getElementById('dc-accessories').value = dc ? dc.accessories : '';
+  document.getElementById('dc-other-amount').value = dc ? dc.otherAmount : '';
+
   document.getElementById('dc-loan-amount').value = dc ? dc.loanAmount : '';
-  document.getElementById('dc-down-payment').value = dc ? dc.downPayment : '';
-  document.getElementById('dc-emi-amount').value = dc ? dc.emiAmount : '';
+  dcFundingOn = dc ? !!dc.fundingOn : true;
+  document.getElementById('dc-funding-switch').classList.toggle('on', dcFundingOn);
+  document.getElementById('dc-loan-suraksha').value = dc ? dc.loanSuraksha : '';
+  document.getElementById('dc-interest-rate').value = dc ? dc.interestRate : '';
   document.getElementById('dc-tenure').value = dc ? dc.tenureMonths : '';
-  document.getElementById('dc-doc-charges').value = dc ? dc.docCharges : '';
-  document.getElementById('dc-finance-charges').value = dc ? dc.financeCharges : '';
+  document.getElementById('dc-tenure-unit').value = dc ? (dc.tenureUnit || 'months') : 'months';
+  document.getElementById('dc-emi-amount').value = dc ? dc.emiAmount : '';
+
+  document.getElementById('dc-doc-charge').value = dc ? dc.docCharge : '';
+  document.getElementById('dc-service-charge').value = dc ? dc.serviceCharge : '';
+  document.getElementById('dc-stamping').value = dc ? dc.stamping : '';
+  document.getElementById('dc-agreement').value = dc ? dc.agreement : '';
+  document.getElementById('dc-valuation').value = dc ? dc.valuation : '';
+  document.getElementById('dc-do-amount').value = dc ? dc.doAmount : '';
+  document.getElementById('dc-down-payment').value = dc ? dc.downPayment : '';
   document.getElementById('dc-notes').value = dc ? dc.notes : '';
+
   dealClosureCustomFields = (dc && dc.customFields) ? dc.customFields.slice() : [];
   loadFieldTemplates().then(renderDealClosureFields);
+  recalcDealClosure();
   document.getElementById('dealClosureModal').style.display = 'flex';
+}
+function toggleFundingSwitch() {
+  dcFundingOn = !dcFundingOn;
+  document.getElementById('dc-funding-switch').classList.toggle('on', dcFundingOn);
+  recalcDealClosure();
+}
+function recalcDealClosure() {
+  const num = id => Number(document.getElementById(id).value) || 0;
+  const onRoad = num('dc-ex-showroom') + num('dc-insurance') + num('dc-rto-tax') + num('dc-tcs') +
+    num('dc-fastag') + num('dc-crtm') + num('dc-extra-warranty') + num('dc-accessories') + num('dc-other-amount');
+  document.getElementById('dc-onroad-display').textContent = '₹' + onRoad.toLocaleString('en-IN');
+
+  const totalLoan = num('dc-loan-amount') + (dcFundingOn ? num('dc-loan-suraksha') : 0);
+  document.getElementById('dc-totalloan-display').textContent = '₹' + totalLoan.toLocaleString('en-IN');
 }
 function closeDealClosure() {
   document.getElementById('dealClosureModal').style.display = 'none';
@@ -924,13 +1071,18 @@ function removeDealClosureField(i) {
 async function saveDealClosure() {
   if (!currentDealClosureInquiryId) return;
   const num = id => Number(document.getElementById(id).value) || 0;
+  const onRoadPrice = num('dc-ex-showroom') + num('dc-insurance') + num('dc-rto-tax') + num('dc-tcs') +
+    num('dc-fastag') + num('dc-crtm') + num('dc-extra-warranty') + num('dc-accessories') + num('dc-other-amount');
+  const totalLoan = num('dc-loan-amount') + (dcFundingOn ? num('dc-loan-suraksha') : 0);
   const payload = {
-    loanAmount: num('dc-loan-amount'),
-    downPayment: num('dc-down-payment'),
-    emiAmount: num('dc-emi-amount'),
-    tenureMonths: num('dc-tenure'),
-    docCharges: num('dc-doc-charges'),
-    financeCharges: num('dc-finance-charges'),
+    dealerName: document.getElementById('dc-dealer-name').value.trim(),
+    exShowroom: num('dc-ex-showroom'), insurance: num('dc-insurance'), rtoTax: num('dc-rto-tax'), tcs: num('dc-tcs'),
+    fastag: num('dc-fastag'), crtm: num('dc-crtm'), extraWarranty: num('dc-extra-warranty'), accessories: num('dc-accessories'),
+    otherAmount: num('dc-other-amount'), onRoadPrice,
+    loanAmount: num('dc-loan-amount'), fundingOn: dcFundingOn, loanSuraksha: num('dc-loan-suraksha'), totalLoan,
+    interestRate: num('dc-interest-rate'), tenureMonths: num('dc-tenure'), tenureUnit: document.getElementById('dc-tenure-unit').value, emiAmount: num('dc-emi-amount'),
+    docCharge: num('dc-doc-charge'), serviceCharge: num('dc-service-charge'), stamping: num('dc-stamping'), agreement: num('dc-agreement'),
+    valuation: num('dc-valuation'), doAmount: num('dc-do-amount'), downPayment: num('dc-down-payment'),
     customFields: dealClosureCustomFields.filter(f => f.label.trim()),
     notes: document.getElementById('dc-notes').value.trim()
   };
