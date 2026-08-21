@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   role TEXT DEFAULT 'admin',     -- 'admin' (sees everything) or 'dealer' (scoped to one brand)
-  brand TEXT                     -- required when role='dealer'; the single brand this dealer manages
+  brand TEXT,                    -- required when role='dealer'; the single brand this dealer manages
+  is_active INTEGER DEFAULT 1    -- 0 = deactivated dealer login blocked, even with correct password
 );
 `);
 
